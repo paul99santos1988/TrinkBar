@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Sightseeing Aschaffenburg</string>
+    <string name="map_hybrid">Sattelite</string>
+    <string name="map_roadmap">Roadmap</string>
+    <string name="map_terrain">Terrain</string>
+    <string name="google_android_map_api_key"> Map API key </string>
+    <!--    Permissions    -->
+    <string name="permission_rationale_location">Standort Zugriff wird benötigt, um den aktuellen Standort anzuzeigen.</string>
+    <string name="location_permission_denied">Diese App benötigt den Zugriff auf den Standort. \nWenn der Zugriff permanent entzogen wurde, kann dies unter Einstellungen > Apps > Sightseeing Aschaffenburg wiederufen werden.</string>
+    <string name="permission_required_toast">Der Standort Zugriff wird für diese App benötigt.</string>
+    <string name="title_activity_main2">Main2Activity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="title_activity_details">Sehenswürdigkeiten</string>
+    <string name="title_activity_list">RecyclerViewActivity</string>
+    <string name="title_activity_scrolling">ScrollingActivity</string>
+    <string name="item_1_action_details">Sortieren</string>
+    <string name="action_settings">Settings</string>
+
+</resources>

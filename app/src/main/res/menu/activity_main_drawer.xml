@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group
+        android:id="@+id/grp1"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_map"
+            android:icon="@drawable/ic_menu_mapmode"
+            android:title="Karte" />
+        <item
+            android:id="@+id/nav_gallery"
+            android:icon="@drawable/ic_menu_myplaces"
+            android:title="Sehenswürdigkeiten" />
+    </group>
+
+    <group
+        android:id="@+id/grp2"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_acc"
+            android:icon="@drawable/ic_menu_login"
+            android:title="Account" />
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_menu_manage2"
+            android:title="Einstellungen" />
+        <item
+            android:id="@+id/nav_help"
+            android:icon="@drawable/ic_menu_help"
+            android:title="Hilfe" />
+    </group>
+
+</menu>
