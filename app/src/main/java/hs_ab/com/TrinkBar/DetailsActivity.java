@@ -1,4 +1,4 @@
-package hs_ab.com.sightseeing_aschaffenburg;
+package hs_ab.com.TrinkBar;
 
 import android.content.Context;
 import android.os.Bundle;

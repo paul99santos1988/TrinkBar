@@ -1,4 +1,4 @@
-package hs_ab.com.sightseeing_aschaffenburg;
+package hs_ab.com.TrinkBar;
 
 /**
  * Created by SESA403808 on 24.05.2017.

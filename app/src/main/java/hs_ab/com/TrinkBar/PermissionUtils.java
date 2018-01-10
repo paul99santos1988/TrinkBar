@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package hs_ab.com.sightseeing_aschaffenburg;
+package hs_ab.com.TrinkBar;
 
 import android.Manifest;
 import android.app.AlertDialog;

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="hs_ab.com.sightseeing_aschaffenburg.DetailsActivity"
+    tools:context="hs_ab.com.TrinkBar.DetailsActivity"
     tools:showIn="@layout/activity_details">
 
     <TextView

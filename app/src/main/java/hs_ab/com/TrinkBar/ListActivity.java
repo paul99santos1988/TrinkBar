@@ -1,4 +1,4 @@
-package hs_ab.com.sightseeing_aschaffenburg;
+package hs_ab.com.TrinkBar;
 
 import android.content.Context;
 import android.content.Intent;
@@ -16,7 +16,6 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;

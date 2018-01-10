@@ -1,4 +1,4 @@
-package hs_ab.com.sightseeing_aschaffenburg;
+package hs_ab.com.TrinkBar;
 
 import android.Manifest;
 import android.content.Context;
@@ -35,7 +35,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -150,9 +149,9 @@ public class MapActivity extends AppCompatActivity
         fab_target.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplication(), "Würzburg", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplication(), "Aschaffenburg", Toast.LENGTH_SHORT).show();
                 CameraUpdate center=
-                        CameraUpdateFactory.newLatLng(new LatLng(49.784273, 9.934642));
+                        CameraUpdateFactory.newLatLng(new LatLng(49.969527, 9.150233));
                 mMap.moveCamera(center);
             }
         });

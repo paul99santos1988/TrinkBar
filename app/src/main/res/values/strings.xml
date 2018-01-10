@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Sightseeing Aschaffenburg</string>
+    <string name="app_name">TrinkBar</string>
     <string name="map_hybrid">Sattelite</string>
     <string name="map_roadmap">Roadmap</string>
     <string name="map_terrain">Terrain</string>
