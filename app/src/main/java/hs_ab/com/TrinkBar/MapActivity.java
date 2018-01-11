@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -473,4 +475,20 @@ public class MapActivity extends AppCompatActivity
         fab_share.startAnimation(hide_fab_share);
         fab_share.setClickable(false);
     }
+
+    //
+    Handler handler_proc = new Handler();
+
+    final Runnable runnable_proc = new Runnable() {
+        @Override
+        public void run() {
+            //start serviceIntent
+            @Override
+            public void onSuccess() {
+                handler_proc.postDelayed(runnable_proc, 10000);
+            }
+        }
+    }
+
+    //handler_proc.post(runnable_proc);
 }
