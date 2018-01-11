@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -25,8 +26,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 public class DetailsActivity extends AppCompatActivity {
+
+    private RequestQueue requestQueue;
+    private static DetailsActivity mInstance;
+
 
     private Context mCtx;
     private static final String TAG = "LOG";
@@ -34,10 +40,12 @@ public class DetailsActivity extends AppCompatActivity {
     ImageView mImg;
     String mLink;
     TextView mText;
-    private String mOpeninghours;
+    private List<OpeningHour> mOpeninghours;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        mInstance=this;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
         mCtx = getApplicationContext();
@@ -64,7 +72,7 @@ public class DetailsActivity extends AppCompatActivity {
         super.onResume();
 
         // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(mCtx);
+        /*RequestQueue queue = Volley.newRequestQueue(mCtx);
         String url = "http://sightseeing-fhws.azurewebsites.net/";
 
         // Request a data from server and pass it to the variables from the layout
@@ -114,6 +122,80 @@ public class DetailsActivity extends AppCompatActivity {
             }
         });
         // Add the request to the RequestQueue.
-        queue.add(stringRequest);
+        queue.add(stringRequest);*/
+
+
+
+
+    String url="https://trinkbar.azurewebsites.net/";
+
+//
+
+        HttpGetRequest myCustomRequest=new HttpGetRequest(Request.Method.GET, url,Bars.class, new Response.Listener<Bars>() {
+        @Override
+        public void onResponse(Bars bar) {
+
+            List<Bar> barList = bar.getBars();
+
+            for (int i = 0; i < barList.size(); i++) {
+                Bar barObject = barList.get(i);
+                if (barObject.getName().equals(mTitle)){
+                    Log.d(TAG + "DETAILS", "IN IF");
+                    mLink = barObject.getImageLink();
+                    Log.d(TAG + "IMAGE", mLink);
+                    //Picasso.with(mCtx).load(mLink).into(mImg);
+                    String description = barObject.getDescription();
+                    mOpeninghours = barObject.getOpeningHours();
+                    byte[] descriptionByte = Base64.decode(description, Base64.DEFAULT);
+                    try {
+                        String decodedDescription = new String(descriptionByte, "UTF-8");
+                        mText.setText(decodedDescription);
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
+                    Log.d(TAG + " DETAILS", description);
+
+                }
+
+
+            }
+        }
+    }, new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError response) {
+
+        //Failure callback
+            Toast.makeText(DetailsActivity.this,"Error Encountered",Toast.LENGTH_SHORT).show();
+
+        }
+    });
+
+        //Adding the request to a request queue
+        DetailsActivity.getInstance().addToRequestQueue(myCustomRequest,"tag");
+
+    }
+
+    public RequestQueue getRequestQueue()
+    {
+        if (requestQueue==null)
+            requestQueue= Volley.newRequestQueue(getApplicationContext());
+
+        return requestQueue;
+    }
+
+    public void addToRequestQueue(Request request,String tag)
+    {
+        request.setTag(tag);
+        getRequestQueue().add(request);
+
+    }
+    public void cancelAllRequests(String tag)
+    {
+        getRequestQueue().cancelAll(tag);
+    }
+
+    public static synchronized DetailsActivity getInstance()
+    {
+        return mInstance;
     }
 }

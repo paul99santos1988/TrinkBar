@@ -16,6 +16,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -23,6 +24,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.squareup.picasso.Picasso;
 
 
 import org.json.JSONArray;
@@ -37,15 +39,20 @@ public class ListActivity extends AppCompatActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback,
         NavigationView.OnNavigationItemSelectedListener {
 
+    private RequestQueue requestQueue;
+    private static ListActivity mInstance;
+
+
     private Context mCtx;
     private static final String TAG = "LOG";
-    private List<PointOfInterest> pointOfInterests;
+    private List<Bar> barList;
     private RecyclerView mRv;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mInstance=this;
         mCtx = getApplicationContext();
         setContentView(R.layout.activity_list);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -60,7 +67,7 @@ public class ListActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view_details);
         navigationView.setNavigationItemSelectedListener(this);
-        pointOfInterests = new ArrayList<>();
+        barList = new ArrayList<>();
 
         // RV for List
         mRv = (RecyclerView) findViewById(R.id.rv);
@@ -74,62 +81,36 @@ public class ListActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 
-        RequestQueue queue = Volley.newRequestQueue(mCtx);
-        String url = "http://sightseeing-fhws.azurewebsites.net/";
+        String url="https://trinkbar.azurewebsites.net/";
 
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        String data = response;
-                        try {
-                            JSONObject obj = new JSONObject(data.toString());
-                            JSONArray places = obj.getJSONArray("placesOfInterest");
-
-                            for (int i = 0; i < places.length(); i++) {
-                                JSONObject object = places.getJSONObject(i);
-
-                                byte[] descriptionByte = Base64.decode(object.getString("description"), Base64.DEFAULT);
-                                String decodedDescription = new String(descriptionByte, "UTF-8");
-
-                                PointOfInterest myData = new PointOfInterest(object.getInt("id"), object.getString("name"),
-                                        decodedDescription, object.getString("image_link"));
-
-                                Log.d(TAG, object.getString("name"));
-                                Log.d(TAG, object.getString("description"));
-                                Log.d(TAG, mCtx.toString());
-                                pointOfInterests.add(myData);
-                            }
-
-                            // init Adapter with Data from Server
-                            if(mRv.getAdapter()==null) {
-                                initializeAdapter();
-                            }
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
-                        }
-
-
-                    }
-                }, new Response.ErrorListener() {
+        HttpGetRequest myCustomRequest=new HttpGetRequest(Request.Method.GET, url,Bars.class, new Response.Listener<Bars>() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                //mTextView.setText("That didn't work!");
+            public void onResponse(Bars bar) {
+
+                barList = bar.getBars();
+                // init Adapter with Data from Server
+                if(mRv.getAdapter()==null) {
+                    initializeAdapter();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError response) {
+
+                //Failure callback
+                Toast.makeText(ListActivity.this,"Error Encountered",Toast.LENGTH_SHORT).show();
+
             }
         });
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest);
 
+        //Adding the request to a request queue
+        ListActivity.getInstance().addToRequestQueue(myCustomRequest,"tag");
     }
 
 
     private void initializeAdapter() {
         Log.d(TAG, "initializeAdapter");
-        RVAdapter adapter = new RVAdapter(this, pointOfInterests);
+        RVAdapter adapter = new RVAdapter(this, barList);
         mRv.setAdapter(adapter);
     }
 
@@ -185,4 +166,28 @@ public class ListActivity extends AppCompatActivity
     }
 
 
+
+    public RequestQueue getRequestQueue()
+    {
+        if (requestQueue==null)
+            requestQueue= Volley.newRequestQueue(getApplicationContext());
+
+        return requestQueue;
+    }
+
+    public void addToRequestQueue(Request request,String tag)
+    {
+        request.setTag(tag);
+        getRequestQueue().add(request);
+
+    }
+    public void cancelAllRequests(String tag)
+    {
+        getRequestQueue().cancelAll(tag);
+    }
+
+    public static synchronized ListActivity getInstance()
+    {
+        return mInstance;
+    }
 }
