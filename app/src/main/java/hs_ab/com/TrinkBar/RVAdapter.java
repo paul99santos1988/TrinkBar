@@ -15,16 +15,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
-
 import java.util.List;
 
-public class RVAdapter extends RecyclerView.Adapter<RVAdapter.PersonViewHolder> {
+public class RVAdapter extends RecyclerView.Adapter<RVAdapter.BarViewHolder> {
 
     int mitem;
     private static final String TAG = "LOG";
 
-    public static class PersonViewHolder extends RecyclerView.ViewHolder {
+    public static class BarViewHolder extends RecyclerView.ViewHolder {
 
         CardView cv;
         TextView name;
@@ -32,7 +30,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.PersonViewHolder> 
         ImageView photo;
 
 
-        PersonViewHolder(View itemView) {
+        BarViewHolder(View itemView) {
             super(itemView);
             cv = (CardView) itemView.findViewById(R.id.cv);
             name = (TextView) itemView.findViewById(R.id.name);
@@ -55,12 +53,12 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.PersonViewHolder> 
         }
     }
 
-    List<PointOfInterest> persons;
+    List<Bar> bars;
     Context mCtx;
 
-    RVAdapter(Context mCtx, List<PointOfInterest> persons) {
+    RVAdapter(Context mCtx, List<Bar> bars) {
         this.mCtx = mCtx;
-        this.persons = persons;
+        this.bars = bars;
     }
 
     @Override
@@ -69,27 +67,27 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.PersonViewHolder> 
     }
 
     @Override
-    public PersonViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+    public BarViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
 
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_list, viewGroup, false);
-        PersonViewHolder pvh = new PersonViewHolder(v);
+        BarViewHolder pvh = new BarViewHolder(v);
         return pvh;
     }
 
     @Override
-    public void onBindViewHolder(final PersonViewHolder personViewHolder, int i) {
+    public void onBindViewHolder(final BarViewHolder barViewHolder, int i) {
         mitem= i;
         Log.d(TAG, "onBindViewHolder: "+i);
-        personViewHolder.name.setText(persons.get(i).name);
-        personViewHolder.description.setText(persons.get(i).description);
-        Picasso.with(mCtx).load(persons.get(i).image_link).into(personViewHolder.photo);
-//      personViewHolder.photo.setImageResource(persons.get(i).photoId);
+        barViewHolder.name.setText(bars.get(i).getName());
+        //barViewHolder.description.setText(bars.get(i).getDescription());
+       // Picasso.with(mCtx).load(bars.get(i).getImageLink()).into(barViewHolder.photo);
+//      barViewHolder.photo.setImageResource(persons.get(i).photoId);
 
     }
 
     @Override
     public int getItemCount() {
-        return persons.size();
+        return bars.size();
     }
 
 

@@ -12,21 +12,27 @@ public class Bar {
     @SerializedName("name")
     @Expose
     private String name;
-    @SerializedName("picture")
+    @SerializedName("address")
     @Expose
-    private String picture;
+    private String address;
+    @SerializedName("phone")
+    @Expose
+    private String phone;
+    @SerializedName("image_link")
+    @Expose
+    private String imageLink;
     @SerializedName("coordinates")
     @Expose
     private List<Coordinate> coordinates = null;
     @SerializedName("description")
     @Expose
     private String description;
-    @SerializedName("image_link")
+    @SerializedName("food")
     @Expose
-    private String imageLink;
+    private String food;
     @SerializedName("opening_hours")
     @Expose
-    private String openingHours;
+    private List<OpeningHour> openingHours = null;
 
     public String getId() {
         return id;
@@ -44,12 +50,28 @@ public class Bar {
         this.name = name;
     }
 
-    public String getPicture() {
-        return picture;
+    public String getAddress() {
+        return address;
     }
 
-    public void setPicture(String picture) {
-        this.picture = picture;
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getImageLink() {
+        return imageLink;
+    }
+
+    public void setImageLink(String imageLink) {
+        this.imageLink = imageLink;
     }
 
     public List<Coordinate> getCoordinates() {
@@ -68,19 +90,19 @@ public class Bar {
         this.description = description;
     }
 
-    public String getImageLink() {
-        return imageLink;
+    public String getFood() {
+        return food;
     }
 
-    public void setImageLink(String imageLink) {
-        this.imageLink = imageLink;
+    public void setFood(String food) {
+        this.food = food;
     }
 
-    public String getOpeningHours() {
+    public List<OpeningHour> getOpeningHours() {
         return openingHours;
     }
 
-    public void setOpeningHours(String openingHours) {
+    public void setOpeningHours(List<OpeningHour> openingHours) {
         this.openingHours = openingHours;
     }
 

@@ -40,7 +40,7 @@ public class DetailsActivity extends AppCompatActivity {
     ImageView mImg;
     String mLink;
     TextView mText;
-    private String mOpeninghours;
+    private List<OpeningHour> mOpeninghours;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,7 +143,7 @@ public class DetailsActivity extends AppCompatActivity {
                     Log.d(TAG + "DETAILS", "IN IF");
                     mLink = barObject.getImageLink();
                     Log.d(TAG + "IMAGE", mLink);
-                    Picasso.with(mCtx).load(mLink).into(mImg);
+                    //Picasso.with(mCtx).load(mLink).into(mImg);
                     String description = barObject.getDescription();
                     mOpeninghours = barObject.getOpeningHours();
                     byte[] descriptionByte = Base64.decode(description, Base64.DEFAULT);
