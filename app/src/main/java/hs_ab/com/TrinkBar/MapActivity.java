@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -52,15 +51,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
+
 public class MapActivity extends AppCompatActivity
         implements
         GoogleMap.OnMyLocationButtonClickListener,
         OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback,
-        NavigationView.OnNavigationItemSelectedListener {
+        NavigationView.OnNavigationItemSelectedListener{
 
     private GoogleMap mMap;
-    private static final String TAG = "LOG";
+    private static final String TAG = "MapActivity";
     private Context mCtx;
 
     private FloatingActionButton fab_bottom;
@@ -80,6 +80,8 @@ public class MapActivity extends AppCompatActivity
     Animation hide_fab_target;
     Animation show_fab_share;
     Animation hide_fab_share;
+
+
 
 
     /**
@@ -102,7 +104,6 @@ public class MapActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
 
         //Animations
         show_fab_location = AnimationUtils.loadAnimation(getApplication(), R.anim.fablocation_show);
@@ -181,6 +182,23 @@ public class MapActivity extends AppCompatActivity
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        // Database handling
+        //Cyclic updates of database data
+        final Handler dBHandler = new Handler();
+        Log.i(TAG, "onCreate: dbHandler referenced");
+        final Runnable dbRunnable = new Runnable() {
+            @Override
+            public void run() {
+                Log.i(TAG, "onCreate: dbRunnable is running every 10s");
+                Intent dbIntent = new Intent(getApplication(), DBBackgroundService.class);
+                Log.i(TAG, "onCreate: intent is prepared");
+                Log.i(TAG, "onCreate: start DBBackgroundService");
+                getApplication().startService(dbIntent);
+                dBHandler.postDelayed(this, 10000);
+            }
+        };
+
+        dBHandler.post(dbRunnable);
 
     }
 
@@ -476,19 +494,4 @@ public class MapActivity extends AppCompatActivity
         fab_share.setClickable(false);
     }
 
-    //
-    Handler handler_proc = new Handler();
-
-    final Runnable runnable_proc = new Runnable() {
-        @Override
-        public void run() {
-            //start serviceIntent
-            @Override
-            public void onSuccess() {
-                handler_proc.postDelayed(runnable_proc, 10000);
-            }
-        }
-    }
-
-    //handler_proc.post(runnable_proc);
 }

@@ -3,8 +3,10 @@ package hs_ab.com.TrinkBar;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 /**
  * Created by tabo on 1/10/18.
@@ -21,9 +23,12 @@ public class DBAdapter {
 
     //entity relationship model
     //table bars
-    public static final String TABLE_BARS = "bars-Aschaffenburg";
+    public static final String TABLE_BARS = "barsAschaffenburg";
     public static final String KEY_ID = "_id";
-    public static final String KEY_CONTENT = "JSON-content";
+    public static final String KEY_CONTENT = "JSONContent";
+    //public static final JSONObject KEY_JSON_OBJECT = "JSON-image";
+
+    private static final String TAG = "DBAdapter";
 
     //constructor
     public DBAdapter(Context context){
@@ -31,8 +36,14 @@ public class DBAdapter {
     }
 
     // open connection to database
-    public void open() {
-        dbSQL = myDBHelper.getWritableDatabase();
+    public void open() throws SQLException {
+        Log.i(TAG, "try to open database");
+        try {
+            dbSQL = myDBHelper.getWritableDatabase();
+        } catch (SQLException e) {
+            dbSQL = myDBHelper.getReadableDatabase();
+        }
+
     }
 
     // close connection to database
@@ -47,10 +58,13 @@ public class DBAdapter {
         // Datensammlung für den einzufügenden Datensatz erstellen (ContentValues)
         // nutzt Schlüssel-Wert-Mechanismus
         // es werden die Konstanten v. o. genutzt, um Fehler zu vermeiden
+
         ContentValues cv_dbContent = new ContentValues();
         cv_dbContent.put(KEY_CONTENT, myContentObject.toString());
         //v.put(KEY_SECOND_EXAMPLE, myExampleObject.toString()); // exemparisch einfach toString()
+        Log.i(TAG, "insert Data");
         long newInsertId = dbSQL.insert(TABLE_BARS, null, cv_dbContent);
+        Log.i(TAG, "return Data");
         return newInsertId;
     }
 
@@ -82,6 +96,7 @@ public class DBAdapter {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
+            Log.i(TAG, "create database with execSQL");
             db.execSQL(CREATE_DB);
         }
 

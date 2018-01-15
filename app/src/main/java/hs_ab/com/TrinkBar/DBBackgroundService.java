@@ -2,6 +2,7 @@ package hs_ab.com.TrinkBar;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.database.Cursor;
 import android.util.Log;
 
 /**
@@ -13,7 +14,9 @@ import android.util.Log;
  */
 public class DBBackgroundService extends IntentService {
 
-    private static final String TAG = "LOG";
+    private DBAdapter myDatabaseAdapter;
+
+    private static final String TAG = "DBBackgroundService";
 
     public DBBackgroundService() {
         super("DBBackgroundService");
@@ -22,13 +25,19 @@ public class DBBackgroundService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        if (intent != null) {
-//            final String action = intent.getAction();
-//            final String param1 = intent.getStringExtra(EXTRA_PARAM1);
-//            final String param2 = intent.getStringExtra(EXTRA_PARAM2);
-//            handleActionFoo(param1, param2);
-              Log.d(TAG, "DBBackgroundService: onHandleIntent started");
-        }
+        Log.i(TAG, "DB open");
+
+        //Activity erzeugt Instanz des Adapters!!!! not this!!! getActivity()
+        myDatabaseAdapter = new DBAdapter(getApplicationContext());
+        myDatabaseAdapter.open();
+
+        myDatabaseAdapter.insertData("hallo" );
+        Cursor logOutput = myDatabaseAdapter.getAllData();
+        logOutput.moveToFirst();
+        String logMessage = logOutput.getString(0);
+
+        Log.i(TAG,logMessage);/**/
+
     }
 
     //get database data to compare
