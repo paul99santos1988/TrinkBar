@@ -2,8 +2,6 @@ package hs_ab.com.TrinkBar;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.database.Cursor;
-import android.util.Log;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -25,6 +23,7 @@ public class DBBackgroundService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        /*
         Log.i(TAG, "DB open");
 
         //Activity erzeugt Instanz des Adapters!!!! not this!!! getActivity()
@@ -36,7 +35,7 @@ public class DBBackgroundService extends IntentService {
         logOutput.moveToFirst();
         String logMessage = logOutput.getString(0);
 
-        Log.i(TAG,logMessage);/**/
+        Log.i(TAG,logMessage);*/
 
     }
 
