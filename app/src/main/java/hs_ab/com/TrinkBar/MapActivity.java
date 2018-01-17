@@ -274,7 +274,7 @@ public class MapActivity extends AppCompatActivity
         //----HTTP
         // Instantiate the RequestQueue
         RequestQueue queue = Volley.newRequestQueue(mCtx);
-        String url = "http://sightseeing-fhws.azurewebsites.net/";
+        String url = "http://sightseeing-fhws.azurewebsites.net";
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
