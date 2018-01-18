@@ -51,6 +51,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
+import hs_ab.com.TrinkBar.helper.PermissionUtils;
+
 
 public class MapActivity extends AppCompatActivity
         implements

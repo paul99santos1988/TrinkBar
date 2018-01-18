@@ -1,11 +1,8 @@
-package hs_ab.com.TrinkBar;
+package hs_ab.com.TrinkBar.models;
 
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-
-import hs_ab.com.TrinkBar.Coordinate;
-import hs_ab.com.TrinkBar.OpeningHour;
 
 public class Bar {
 

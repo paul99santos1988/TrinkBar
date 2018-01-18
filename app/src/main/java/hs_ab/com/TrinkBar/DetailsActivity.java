@@ -28,6 +28,10 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
+import hs_ab.com.TrinkBar.models.Bar;
+import hs_ab.com.TrinkBar.models.Bars;
+import hs_ab.com.TrinkBar.models.OpeningHour;
+
 public class DetailsActivity extends AppCompatActivity {
 
     private RequestQueue requestQueue;

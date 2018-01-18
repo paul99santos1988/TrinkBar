@@ -27,6 +27,9 @@ import com.android.volley.toolbox.Volley;
 import java.util.ArrayList;
 import java.util.List;
 
+import hs_ab.com.TrinkBar.models.Bar;
+import hs_ab.com.TrinkBar.models.Bars;
+
 public class ListActivity extends AppCompatActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback,
         NavigationView.OnNavigationItemSelectedListener {
