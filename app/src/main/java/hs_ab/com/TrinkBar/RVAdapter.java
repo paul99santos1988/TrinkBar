@@ -17,6 +17,8 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import hs_ab.com.TrinkBar.models.Bar;
+
 public class RVAdapter extends RecyclerView.Adapter<RVAdapter.BarViewHolder> {
 
     int mitem;

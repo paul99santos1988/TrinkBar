@@ -51,6 +51,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
+import hs_ab.com.TrinkBar.helper.PermissionUtils;
+
 
 public class MapActivity extends AppCompatActivity
         implements
@@ -294,7 +296,7 @@ public class MapActivity extends AppCompatActivity
         //----HTTP
         // Instantiate the RequestQueue
         RequestQueue queue = Volley.newRequestQueue(mCtx);
-        String url = "http://sightseeing-fhws.azurewebsites.net/";
+        String url = "http://sightseeing-fhws.azurewebsites.net";
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,

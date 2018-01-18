@@ -12,7 +12,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,18 +21,14 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.squareup.picasso.Picasso;
 
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+
+import hs_ab.com.TrinkBar.models.Bar;
+import hs_ab.com.TrinkBar.models.Bars;
 
 public class ListActivity extends AppCompatActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback,
@@ -81,7 +76,7 @@ public class ListActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 
-        String url="https://trinkbar.azurewebsites.net/";
+        String url="https://trinkbar.azurewebsites.net/files/bars.json";
 
         HttpGetRequest myCustomRequest=new HttpGetRequest(Request.Method.GET, url,Bars.class, new Response.Listener<Bars>() {
             @Override

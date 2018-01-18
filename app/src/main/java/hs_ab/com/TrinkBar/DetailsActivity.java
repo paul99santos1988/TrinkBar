@@ -1,6 +1,8 @@
 package hs_ab.com.TrinkBar;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -17,16 +19,18 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.squareup.picasso.Picasso;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+
+import hs_ab.com.TrinkBar.models.Bar;
+import hs_ab.com.TrinkBar.models.Bars;
+import hs_ab.com.TrinkBar.models.OpeningHour;
 
 public class DetailsActivity extends AppCompatActivity {
 
@@ -71,63 +75,8 @@ public class DetailsActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        // Instantiate the RequestQueue.
-        /*RequestQueue queue = Volley.newRequestQueue(mCtx);
-        String url = "http://sightseeing-fhws.azurewebsites.net/";
 
-        // Request a data from server and pass it to the variables from the layout
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        String data = response;
-                        try {
-                            JSONObject obj = new JSONObject(data.toString());
-                            JSONArray places = obj.getJSONArray("placesOfInterest");
-                            Log.d(TAG + "DETAILS", places.toString());
-
-                            for (int i = 0; i < places.length(); i++) {
-                                String name = places.getJSONObject(i).getString("name");
-                                Log.d(TAG + "DETAILS", name);
-                                if (name.equals(mTitle)) {
-                                    Log.d(TAG + "DETAILS", "IN IF");
-                                    mLink = places.getJSONObject(i).getString("image_link");
-                                    Log.d(TAG + "IMAGE", mLink);
-                                    Picasso.with(mCtx).load(mLink).into(mImg);
-                                    String description = places.getJSONObject(i).getString("description");
-                                    mOpeninghours = places.getJSONObject(i).getString("opening_hours");
-                                    byte[] descriptionByte = Base64.decode(description, Base64.DEFAULT);
-                                    try {
-                                        String decodedDescription = new String(descriptionByte, "UTF-8");
-                                        mText.setText(decodedDescription);
-                                    } catch (UnsupportedEncodingException e) {
-                                        e.printStackTrace();
-                                    }
-                                    Log.d(TAG + " DETAILS", description);
-                                }
-
-                            }
-
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                //mTextView.setText("That didn't work!");
-            }
-        });
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest);*/
-
-
-
-
-    String url="https://trinkbar.azurewebsites.net/";
+        String url="https://trinkbar.azurewebsites.net/files/bars.json";
 
 //
 
@@ -141,8 +90,44 @@ public class DetailsActivity extends AppCompatActivity {
                 Bar barObject = barList.get(i);
                 if (barObject.getName().equals(mTitle)){
                     Log.d(TAG + "DETAILS", "IN IF");
-                    mLink = barObject.getImageLink();
+                    mLink = "https://trinkbar.azurewebsites.net/" + barObject.getImageLink();
                     Log.d(TAG + "IMAGE", mLink);
+
+                    // Initialize a new RequestQueue instance
+                    RequestQueue requestQueue = Volley.newRequestQueue(mCtx);
+
+                    JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                            (Request.Method.GET, mLink, null, new Response.Listener<JSONObject>() {
+
+                                @Override
+                                public void onResponse(JSONObject response) {
+                                    Log.d(TAG +"Response", response.toString());
+                                    String base64String= null;
+                                    try {
+                                        base64String = response.getJSONObject("bars").getString("image");
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                    String base64Image = base64String.split(",")[1];
+
+                                    byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
+                                    Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+
+                                    mImg.setImageBitmap(decodedByte);
+                                }
+                            }, new Response.ErrorListener() {
+
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    // TODO Auto-generated method stub
+
+                                }
+                            });
+
+                    requestQueue.add(jsObjRequest);
+
+
+
                     //Picasso.with(mCtx).load(mLink).into(mImg);
                     String description = barObject.getDescription();
                     mOpeninghours = barObject.getOpeningHours();

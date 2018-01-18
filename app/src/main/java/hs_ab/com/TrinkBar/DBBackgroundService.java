@@ -2,37 +2,78 @@ package hs_ab.com.TrinkBar;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.database.Cursor;
 import android.util.Log;
 
-/**
- * An {@link IntentService} subclass for handling asynchronous task requests in
- * a service on a separate handler thread.
- * <p>
- * TODO: Customize class - update intent actions, extra parameters and static
- * helper methods.
- */
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
+
+import java.util.List;
+
+import hs_ab.com.TrinkBar.models.Bar;
+import hs_ab.com.TrinkBar.models.Bars;
+import hs_ab.com.TrinkBar.models.Image;
+
+
 public class DBBackgroundService extends IntentService {
 
     private DBAdapter myDatabaseAdapter;
+    private List<Bar> barList;
+    private static DBBackgroundService mInstance;
 
     private static final String TAG = "DBBackgroundService";
 
     public DBBackgroundService() {
         super("DBBackgroundService");
     }
+    private Gson gson= new Gson();
+    RequestQueue queue;
 
 
     @Override
     protected void onHandleIntent(Intent intent) {
-
         Log.i(TAG, "DB open");
 
-        //Activity erzeugt Instanz des Adapters!!!! not this!!! getActivity()
-        myDatabaseAdapter = new DBAdapter(getApplicationContext());
-        myDatabaseAdapter.open();
+        queue = Volley.newRequestQueue(getApplicationContext());
+        String url = "https://trinkbar.azurewebsites.net/files/bars.json";
 
-        //receive Cursor object with all DB data
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        String barsString = response.toString();
+                        Bars barObject = gson.fromJson(barsString, Bars.class);
+                        barList = barObject.getBars();
+
+                            for(int i=0; i<barList.size(); i++){
+                                //database entry
+
+                                // key = barList.get(i).getId()
+
+                                String barString = gson.toJson(barList.get(i));
+                                // data = barstring
+
+
+                                String imageUrl = barList.get(i).getImageLink();
+                                StringRequest imageRequest = new StringRequest(Request.Method.GET, "https://trinkbar.azurewebsites.net/"+ imageUrl,
+                                new Response.Listener<String>() {
+                                    @Override
+                                    public void onResponse(String response) {
+                                        String imageString = response.toString();
+
+                                        Image imageObject = gson.fromJson(imageString, Image.class);
+                                        // key = imageObject.getId()
+                                        //database entry for images
+                                        // data = response
+
+
+
+
+        /*//receive Cursor object with all DB data
         Cursor logOutput_table_details = myDatabaseAdapter.getAllDataTableBars();
         Cursor logOutput_table_images = myDatabaseAdapter.getAllDataTableBarImages();
         String logMessage_id;
@@ -55,8 +96,8 @@ public class DBBackgroundService extends IntentService {
             myDatabaseAdapter.insertImage("testbar1", "firstImage");
             myDatabaseAdapter.insertImage("testbar2", "secondImage");
             myDatabaseAdapter.insertImage("testbar3", "thirdImage");
-        }/**/
-        /**/
+        }
+
 
         logOutput_table_details = myDatabaseAdapter.getAllDataTableBars();
         logOutput_table_images = myDatabaseAdapter.getAllDataTableBarImages();
@@ -91,8 +132,28 @@ public class DBBackgroundService extends IntentService {
             myDatabaseAdapter.removeData();
             }
         }
-        */
+
         myDatabaseAdapter.close();
+        */
+
+                                    }
+                                }, new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                }
+                                });
+                        queue.add(imageRequest);
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+        queue.add(stringRequest);
+
     }
 
     //get database data to compare
