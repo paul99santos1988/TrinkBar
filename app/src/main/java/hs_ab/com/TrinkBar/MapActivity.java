@@ -194,7 +194,7 @@ public class MapActivity extends AppCompatActivity
                 Log.i(TAG, "onCreate: intent is prepared");
                 Log.i(TAG, "onCreate: start DBBackgroundService");
                 getApplication().startService(dbIntent);
-                dBHandler.postDelayed(this, 10000);
+                dBHandler.postDelayed(this, 100000000);
             }
         };
 

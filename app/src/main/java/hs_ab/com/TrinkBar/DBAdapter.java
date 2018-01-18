@@ -23,9 +23,16 @@ public class DBAdapter {
 
     //entity relationship model
     //table bars
-    public static final String TABLE_BARS = "barsAschaffenburg";
-    public static final String KEY_ID = "_id";
-    public static final String KEY_CONTENT = "JSONContent";
+    public static final String TABLE_BAR_DETAILS = "barsAschaffenburg";
+    public static final String TABLE_BAR_IMAGES = "barImagesAschaffenburg";
+
+    public static final String KEY_ID_DETAILS = "hashID";
+    public static final String KEY_DETAILS = "JSONContentBars";
+
+    public static final String KEY_ID_IMAGES = "hashID";
+    public static final String KEY_IMAGES = "images";
+
+
     //public static final JSONObject KEY_JSON_OBJECT = "JSON-image";
 
     private static final String TAG = "DBAdapter";
@@ -53,51 +60,98 @@ public class DBAdapter {
     }
 
     // data handling methods of class DBAdapter
-    // insert a data object into table "bars-Aschaffenburg"
-    public long insertData(Object myContentObject) {
-        // Datensammlung für den einzufügenden Datensatz erstellen (ContentValues)
-        // nutzt Schlüssel-Wert-Mechanismus
-        // es werden die Konstanten v. o. genutzt, um Fehler zu vermeiden
+    // insert a data object into table "barsAschaffenburg"
+    public long insertBars (String barId, String barContent) {
 
         ContentValues cv_dbContent = new ContentValues();
-        cv_dbContent.put(KEY_CONTENT, myContentObject.toString());
-        //v.put(KEY_SECOND_EXAMPLE, myExampleObject.toString()); // exemparisch einfach toString()
-        Log.i(TAG, "insert Data");
-        long newInsertId = dbSQL.insert(TABLE_BARS, null, cv_dbContent);
-        Log.i(TAG, "return Data");
+        cv_dbContent.put(KEY_ID_DETAILS, barId);
+        cv_dbContent.put(KEY_DETAILS, barContent);
+        Log.i(TAG, "insert bar data");
+        long newInsertId = dbSQL.insert(TABLE_BAR_DETAILS, null, cv_dbContent);
+        Log.i(TAG, "return bar data");
         return newInsertId;
     }
 
-    // get all content values from table "bars-Aschaffenburg"
-    public Cursor getAllData() {
-        String[] allColumns = new String[] { KEY_ID, KEY_CONTENT };
-        Cursor results = dbSQL.query(TABLE_BARS, allColumns, null, null, null, null, null);
+    // insert a data object into table "barImagesAschaffenburg"
+    public long insertImage (String barId, String image) {
+
+        ContentValues cv_dbContent = new ContentValues();
+        cv_dbContent.put(KEY_ID_IMAGES, barId);
+        cv_dbContent.put(KEY_IMAGES, image);
+        Log.i(TAG, "insert image data");
+        long newInsertId = dbSQL.insert(TABLE_BAR_IMAGES, null, cv_dbContent);
+        Log.i(TAG, "return image data");
+        return newInsertId;
+    }
+
+    // get all content values from table "barsAschaffenburg"
+    public Cursor getAllDataTableBars() {
+        String[] allColumns = new String[] { KEY_ID_DETAILS, KEY_DETAILS };
+        Cursor results = dbSQL.query(TABLE_BAR_DETAILS, allColumns, null, null, null, null, null);
+        Log.i(TAG, "getAllDataTableBars: return table bars");
+        return results;
+    }
+
+    // get all content values from table "barImagesAschaffenburg"
+    public Cursor getAllDataTableBarImages() {
+        String[] allColumns = new String[] { KEY_ID_IMAGES, KEY_IMAGES };
+        Cursor results = dbSQL.query(TABLE_BAR_IMAGES, allColumns, null, null, null, null, null);
+        Log.i(TAG, "getAllDataTableBars: return table bar_images");
+        return results;
+    }
+
+    // get content values from table "barsAschaffenburg" via the bar-id
+    public Cursor getDataTableBarById(String id) {
+        String[] dataBar = new String[] {KEY_DETAILS};
+        String[] idArgs = new String[] {id};
+        Cursor results = dbSQL.query(TABLE_BAR_DETAILS, dataBar, KEY_ID_DETAILS + " =? " , idArgs, null, null, null);
+        Log.i(TAG, "getAllDataTableBars: return bar data from id= "+ id);
+        return results;
+    }
+
+    // get content values from table "barImagesAschaffenburg" via the bar-id
+    public Cursor getDataTableBarImagesById(String id) {
+        String[] dataBarImage = new String[] {KEY_IMAGES};
+        String[] idArgs = new String[] {id};
+        Cursor results = dbSQL.query(TABLE_BAR_IMAGES, dataBarImage, KEY_ID_DETAILS + " =? " , idArgs, null, null, null);
+        Log.i(TAG, "getAllDataTableBars: return image data from id= "+ id);
         return results;
     }
 
 
-    // delete one object tuple in table "bars-Aschaffenburg"
-    public void removeData(long id) {
-        String toDelete = KEY_ID + "=?";
+
+    // delete one object tuple in table "barsAschaffenburg"
+    public void removeDataTableBar(long id) {
+        String toDelete = KEY_ID_DETAILS + "=?";
         String[] deleteArgs = new String[] { String.valueOf(id) };
-        dbSQL.delete(TABLE_BARS, toDelete, deleteArgs);
+        dbSQL.delete(TABLE_BAR_DETAILS, toDelete, deleteArgs);
+    }
+
+    // delete one object tuple in table "barImagesAschaffenburg"
+    public void removeDataTableBarImages (long id) {
+        String toDelete = KEY_ID_IMAGES + "=?";
+        String[] deleteArgs = new String[] { String.valueOf(id) };
+        dbSQL.delete(TABLE_BAR_IMAGES, toDelete, deleteArgs);
     }
 
     //
     // internal derivative of class SQLiteOpenHelper which offers creation functions
     private class DBHelper extends SQLiteOpenHelper {
 
-        private static final String CREATE_DB = "create table if not exists " + TABLE_BARS + " (" + KEY_ID + " integer primary key autoincrement, " + KEY_CONTENT + " text not null);";
+        private static final String CREATE_DB_TABLE_BARS = "CREATE TABLE IF NOT EXISTS " + TABLE_BAR_DETAILS + " (" + KEY_ID_DETAILS + " TEXT NOT NULL, " + KEY_DETAILS + " TEXT NOT NULL, PRIMARY KEY (" + KEY_ID_DETAILS + ") );";
+        private static final String CREATE_DB_TABLE_IMAGES = "CREATE TABLE IF NOT EXISTS " + TABLE_BAR_IMAGES + " (" + KEY_ID_IMAGES + " TEXT NOT NULL, " + KEY_IMAGES + " TEXT NOT NULL, PRIMARY KEY (" + KEY_ID_IMAGES + ") );";
 
         public DBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
             super(context, name, factory, version);
         }
 
-
+        
         @Override
         public void onCreate(SQLiteDatabase db) {
-            Log.i(TAG, "create database with execSQL");
-            db.execSQL(CREATE_DB);
+            Log.i(TAG, "create databases with execSQL");
+            db.execSQL(CREATE_DB_TABLE_BARS);
+            db.execSQL(CREATE_DB_TABLE_IMAGES);
+            Log.i(TAG,"created tables");
         }
 
         @Override
