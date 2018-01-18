@@ -49,6 +49,7 @@ public class DBBackgroundService extends IntentService {
 
                             for(int i=0; i<barList.size(); i++){
                                 //database entry
+
                                 // key = barList.get(i).getId()
 
                                 String barString = gson.toJson(barList.get(i));
