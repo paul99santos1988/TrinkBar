@@ -2,6 +2,7 @@ package hs_ab.com.TrinkBar;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.database.Cursor;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -38,6 +39,9 @@ public class DBBackgroundService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         Log.i(TAG, "DB open");
 
+        myDatabaseAdapter = new DBAdapter(getApplicationContext());
+        myDatabaseAdapter.open();
+
         queue = Volley.newRequestQueue(getApplicationContext());
         String url = "https://trinkbar.azurewebsites.net/files/bars.json";
 
@@ -50,13 +54,10 @@ public class DBBackgroundService extends IntentService {
                         barList = barObject.getBars();
 
                             for(int i=0; i<barList.size(); i++){
-                                //database entry
 
-                                // key = barList.get(i).getId()
 
                                 String barString = gson.toJson(barList.get(i));
-                                // data = barstring
-
+                                myDatabaseAdapter.insertBars(barList.get(i).getId(), barString);
 
                                 String imageUrl = barList.get(i).getImageLink();
                                 StringRequest imageRequest = new StringRequest(Request.Method.GET, "https://trinkbar.azurewebsites.net/"+ imageUrl,
@@ -67,8 +68,28 @@ public class DBBackgroundService extends IntentService {
 
                                         Image imageObject = gson.fromJson(imageString, Image.class);
                                         // key = imageObject.getId()
+                                        myDatabaseAdapter.insertImage(imageObject.getId(), response);
                                         //database entry for images
                                         // data = response
+
+                                        String logMessage_id;
+                                        String logMessage_details;
+
+                                        Cursor logOutput_table_details = myDatabaseAdapter.getAllDataTableBars();
+
+                                        int numbDBrows_table_details = logOutput_table_details.getCount();
+                                        logOutput_table_details.moveToLast();
+
+                                        while(numbDBrows_table_details >= 0) {
+                                            logMessage_id = logOutput_table_details.getString(0);
+                                            logMessage_details = logOutput_table_details.getString(1);
+                                            Log.i(TAG, logMessage_id);
+                                            Log.i(TAG, logMessage_details);
+                                            numbDBrows_table_details--;
+                                            if ((numbDBrows_table_details != 0) && (numbDBrows_table_details > 0)) {
+                                                logOutput_table_details.moveToPrevious();
+                                            }
+                                        }
 
 
 

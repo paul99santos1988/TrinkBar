@@ -31,7 +31,7 @@ public class DataPreparation {
     public List<Bar> getBarList(){
 
         db.open();
-        Cursor barTable = db.getAllData(); //!!!!
+        Cursor barTable = db.getAllDataTableBarImages(); //!!!!
 
 
         int numbDBrows = barTable.getCount();
@@ -56,7 +56,7 @@ public class DataPreparation {
 
 
         db.open();
-        Cursor imageTable = db.getAllData(); //!!!!
+        Cursor imageTable = db.getAllDataTableBarImages(); //!!!!
 
 
         int numbDBrows = imageTable.getCount();
@@ -80,7 +80,7 @@ public class DataPreparation {
     public Image getImagebyId(String hash){
 
         db.open();
-        Cursor barTable = db.getAllData(); //!!!!
+        Cursor barTable = db.getAllDataTableBarImages(); //!!!!
 
         String imageString = barTable.getString(1);
         Image imageObject = gson.fromJson(imageString, Image.class);
@@ -91,7 +91,7 @@ public class DataPreparation {
     public Bar getBarbyId(String hash){
 
         db.open();
-        Cursor imageTable = db.getAllData(); //!!!!
+        Cursor imageTable = db.getAllDataTableBarImages(); //!!!!
 
         String barsString = imageTable.getString(1);
         Bar barObject = gson.fromJson(barsString, Bar.class);
