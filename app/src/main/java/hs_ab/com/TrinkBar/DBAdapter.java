@@ -8,6 +8,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.google.gson.Gson;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import hs_ab.com.TrinkBar.models.Bar;
+import hs_ab.com.TrinkBar.models.Image;
+
 /**
  * Created by tabo on 1/10/18.
  */
@@ -32,15 +40,107 @@ public class DBAdapter {
     public static final String KEY_ID_IMAGES = "hashID";
     public static final String KEY_IMAGES = "images";
 
+    private static DBAdapter db = null;
+
+    private Context mctx;
+    private Gson gson;
+    List<Bar> barList = new ArrayList<>();
+    List<Image> imageList = new ArrayList<>();
 
     //public static final JSONObject KEY_JSON_OBJECT = "JSON-image";
 
     private static final String TAG = "DBAdapter";
 
-    //constructor
-    public DBAdapter(Context context){
-        myDBHelper = new DBHelper (context, DB_NAME, null, DB_VERSION);
+
+    public static DBAdapter getInstance(Context context) {
+        if(db == null) {
+            db = new DBAdapter(context);
+        }
+        return db;
     }
+
+
+    //constructor
+    protected DBAdapter(Context context){
+        mctx= context;
+        myDBHelper = new DBHelper (context, DB_NAME, null, DB_VERSION);
+        gson= new Gson();
+        this.open();
+    }
+
+
+
+    public List<Bar> getBarList(){
+
+        Cursor barTable = db.getAllDataTableBars(); //!!!!
+
+
+        int numbDBrows = barTable.getCount();
+        barTable.moveToLast();
+
+        while(numbDBrows >= 0){
+            String barsString = barTable.getString(1);
+            Bar barObject = gson.fromJson(barsString, Bar.class);
+            barList.add(barObject);
+
+            numbDBrows--;
+            if((numbDBrows != 0) && (numbDBrows > 0) ) {
+                barTable.moveToPrevious();
+            }
+        }
+
+        return barList;
+    }
+
+
+    public List<Image> getImageList(){
+
+
+        Cursor imageTable = db.getAllDataTableBarImages(); //!!!!
+
+
+        int numbDBrows = imageTable.getCount();
+        imageTable.moveToLast();
+
+        while(numbDBrows >= 0){
+            String imageString = imageTable.getString(1);
+            Image imageObject = gson.fromJson(imageString, Image.class);
+            imageList.add(imageObject);
+
+            numbDBrows--;
+            if((numbDBrows != 0) && (numbDBrows > 0) ) {
+                imageTable.moveToPrevious();
+            }
+        }
+
+        return imageList;
+    }
+
+
+    public Image getImagebyId(String hash){
+
+        Cursor barTable = db.getDataTableBarImagesById(hash); //!!!!
+
+        String imageString = barTable.getString(1);
+        Image imageObject = gson.fromJson(imageString, Image.class);
+
+        return imageObject;
+    }
+
+    public Bar getBarbyId(String hash){
+
+        Cursor imageTable = db.getDataTableBarById(hash);//!!!!
+
+        String barsString = imageTable.getString(1);
+        Bar barObject = gson.fromJson(barsString, Bar.class);
+
+        return barObject;
+    }
+
+
+
+
+
 
     // open connection to database
     public void open() throws SQLException {

@@ -39,8 +39,7 @@ public class DBBackgroundService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         Log.i(TAG, "DB open");
 
-        myDatabaseAdapter = new DBAdapter(getApplicationContext());
-        myDatabaseAdapter.open();
+        myDatabaseAdapter = DBAdapter.getInstance(getApplicationContext());
 
         queue = Volley.newRequestQueue(getApplicationContext());
         String url = "https://trinkbar.azurewebsites.net/files/bars.json";
@@ -72,24 +71,9 @@ public class DBBackgroundService extends IntentService {
                                         //database entry for images
                                         // data = response
 
-                                        String logMessage_id;
-                                        String logMessage_details;
 
-                                        Cursor logOutput_table_details = myDatabaseAdapter.getAllDataTableBars();
-
-                                        int numbDBrows_table_details = logOutput_table_details.getCount();
-                                        logOutput_table_details.moveToLast();
-
-                                        while(numbDBrows_table_details >= 0) {
-                                            logMessage_id = logOutput_table_details.getString(0);
-                                            logMessage_details = logOutput_table_details.getString(1);
-                                            Log.i(TAG, logMessage_id);
-                                            Log.i(TAG, logMessage_details);
-                                            numbDBrows_table_details--;
-                                            if ((numbDBrows_table_details != 0) && (numbDBrows_table_details > 0)) {
-                                                logOutput_table_details.moveToPrevious();
-                                            }
-                                        }
+                                        //List<Bar> list = myDatabaseAdapter.getBarList();
+                                        //list=list;
 
 
 

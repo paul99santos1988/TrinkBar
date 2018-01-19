@@ -42,6 +42,7 @@ public class ListActivity extends AppCompatActivity
     private static final String TAG = "LOG";
     private List<Bar> barList;
     private RecyclerView mRv;
+    private DBAdapter db;
 
 
     @Override
@@ -63,6 +64,7 @@ public class ListActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view_details);
         navigationView.setNavigationItemSelectedListener(this);
         barList = new ArrayList<>();
+        db = DBAdapter.getInstance(mCtx);
 
         // RV for List
         mRv = (RecyclerView) findViewById(R.id.rv);
@@ -76,7 +78,13 @@ public class ListActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 
-        String url="https://trinkbar.azurewebsites.net/files/bars.json";
+
+        barList= db.getBarList();
+        // init Adapter with Data from Server
+        if(mRv.getAdapter()==null) {
+            initializeAdapter();
+        }
+        /*String url="https://trinkbar.azurewebsites.net/files/bars.json";
 
         HttpGetRequest myCustomRequest=new HttpGetRequest(Request.Method.GET, url,Bars.class, new Response.Listener<Bars>() {
             @Override
@@ -96,10 +104,10 @@ public class ListActivity extends AppCompatActivity
                 Toast.makeText(ListActivity.this,"Error Encountered",Toast.LENGTH_SHORT).show();
 
             }
-        });
+        });*/
 
         //Adding the request to a request queue
-        ListActivity.getInstance().addToRequestQueue(myCustomRequest,"tag");
+        //ListActivity.getInstance().addToRequestQueue(myCustomRequest,"tag");
     }
 
 
