@@ -3,7 +3,7 @@ package hs_ab.com.TrinkBar.models;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class OpeningHour {
+public class OpeningHours {
 
     @SerializedName("Thursday")
     @Expose
@@ -26,6 +26,34 @@ public class OpeningHour {
     @SerializedName("Wednesday")
     @Expose
     private String wednesday;
+
+    /**
+     * No args constructor for use in serialization
+     *
+     */
+    public OpeningHours() {
+    }
+
+    /**
+     *
+     * @param wednesday
+     * @param monday
+     * @param thursday
+     * @param sunday
+     * @param saturday
+     * @param tuesday
+     * @param friday
+     */
+    public OpeningHours(String thursday, String friday, String saturday, String sunday, String monday, String tuesday, String wednesday) {
+        super();
+        this.thursday = thursday;
+        this.friday = friday;
+        this.saturday = saturday;
+        this.sunday = sunday;
+        this.monday = monday;
+        this.tuesday = tuesday;
+        this.wednesday = wednesday;
+    }
 
     public String getThursday() {
         return thursday;

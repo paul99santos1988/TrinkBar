@@ -119,22 +119,31 @@ public class DBAdapter {
 
     public Image getImagebyId(String hash){
 
-        Cursor barTable = db.getDataTableBarImagesById(hash); //!!!!
+        Cursor imageTable = db.getDataTableBarImagesById(hash); //!!!!
 
-        String imageString = barTable.getString(1);
-        Image imageObject = gson.fromJson(imageString, Image.class);
-
-        return imageObject;
+        if (imageTable != null)
+        {
+            imageTable.moveToFirst();
+            String imageString = imageTable.getString(0);
+            Image imageObject = gson.fromJson(imageString, Image.class);
+            return imageObject;
+        }
+        return null;
     }
 
     public Bar getBarbyId(String hash){
 
-        Cursor imageTable = db.getDataTableBarById(hash);//!!!!
+        Cursor barTable = db.getDataTableBarById(hash);//!!!!
 
-        String barsString = imageTable.getString(1);
+        if (barTable != null)
+        {
+            barTable.moveToFirst();
+        String barsString = barTable.getString(0);
         Bar barObject = gson.fromJson(barsString, Bar.class);
 
         return barObject;
+        }
+        return null;
     }
 
 
@@ -213,7 +222,7 @@ public class DBAdapter {
     public Cursor getDataTableBarImagesById(String id) {
         String[] dataBarImage = new String[] {KEY_IMAGES};
         String[] idArgs = new String[] {id};
-        Cursor results = dbSQL.query(TABLE_BAR_IMAGES, dataBarImage, KEY_ID_DETAILS + " =? " , idArgs, null, null, null);
+        Cursor results = dbSQL.query(TABLE_BAR_IMAGES, dataBarImage, KEY_ID_DETAILS + " = ?;" , idArgs, null, null, null);
         Log.i(TAG, "getAllDataTableBars: return image data from id= "+ id);
         return results;
     }

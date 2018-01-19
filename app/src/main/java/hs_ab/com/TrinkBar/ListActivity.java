@@ -29,6 +29,7 @@ import java.util.List;
 
 import hs_ab.com.TrinkBar.models.Bar;
 import hs_ab.com.TrinkBar.models.Bars;
+import hs_ab.com.TrinkBar.models.Image;
 
 public class ListActivity extends AppCompatActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback,
@@ -81,6 +82,12 @@ public class ListActivity extends AppCompatActivity
 
         barList= db.getBarList();
         // init Adapter with Data from Server
+        for (int i=0;i<barList.size();i++ ){
+
+            Image image = db.getImagebyId(barList.get(i).getId());
+            barList.get(i).setImageData(image.getImage());
+
+        }
         if(mRv.getAdapter()==null) {
             initializeAdapter();
         }

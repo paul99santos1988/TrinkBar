@@ -30,7 +30,8 @@ import java.util.List;
 
 import hs_ab.com.TrinkBar.models.Bar;
 import hs_ab.com.TrinkBar.models.Bars;
-import hs_ab.com.TrinkBar.models.OpeningHour;
+import hs_ab.com.TrinkBar.models.Image;
+import hs_ab.com.TrinkBar.models.OpeningHours;
 
 public class DetailsActivity extends AppCompatActivity {
 
@@ -43,8 +44,11 @@ public class DetailsActivity extends AppCompatActivity {
     private String mTitle;
     ImageView mImg;
     String mLink;
+    private String barId;
     TextView mText;
-    private List<OpeningHour> mOpeninghours;
+    private String mOpeninghours;
+    private Bar barObject;
+    private DBAdapter db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,12 +57,21 @@ public class DetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
         mCtx = getApplicationContext();
+
+        barId = getIntent().getStringExtra("EXTRA_DETAILS_TITLE");
+
+
+        db = DBAdapter.getInstance(mCtx);
+        barObject = db.getBarbyId(barId);
+        mTitle = barObject.getName();
+        setTitle(mTitle);
+
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        mTitle = getIntent().getStringExtra("EXTRA_DETAILS_TITLE");
-        setTitle(mTitle);
         mImg = (ImageView) findViewById(R.id.imageview_details);
         mText = (TextView) findViewById(R.id.textview_details);
+
 
         // FAB fromDetails Activity
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_bottom);
@@ -76,6 +89,33 @@ public class DetailsActivity extends AppCompatActivity {
         super.onResume();
 
 
+
+
+        Image image= db.getImagebyId(barId);
+        barObject.setImageData(image.getImage());
+
+        String description = barObject.getDescription();
+
+        //Öffnungszeiten
+        mOpeninghours = barObject.getOpeningHours().getMonday();
+        mOpeninghours = mOpeninghours + barObject.getOpeningHours().getSunday();
+
+        byte[] descriptionByte = Base64.decode(description, Base64.DEFAULT);
+        try {
+            String decodedDescription = new String(descriptionByte, "UTF-8");
+            mText.setText(decodedDescription);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        String base64String = barObject.getImageData();
+        String base64Image = base64String.split(",")[1];
+
+        byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
+        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+        mImg.setImageBitmap(decodedByte);
+
+        /*
         String url="https://trinkbar.azurewebsites.net/files/bars.json";
 
 //
@@ -128,6 +168,7 @@ public class DetailsActivity extends AppCompatActivity {
 
 
 
+
                     //Picasso.with(mCtx).load(mLink).into(mImg);
                     String description = barObject.getDescription();
                     mOpeninghours = barObject.getOpeningHours();
@@ -156,7 +197,7 @@ public class DetailsActivity extends AppCompatActivity {
     });
 
         //Adding the request to a request queue
-        DetailsActivity.getInstance().addToRequestQueue(myCustomRequest,"tag");
+        DetailsActivity.getInstance().addToRequestQueue(myCustomRequest,"tag");*/
 
     }
 

@@ -12,6 +12,22 @@ public class Bars {
     @Expose
     private List<Bar> bars = null;
 
+    /**
+     * No args constructor for use in serialization
+     *
+     */
+    public Bars() {
+    }
+
+    /**
+     *
+     * @param bars
+     */
+    public Bars(List<Bar> bars) {
+        super();
+        this.bars = bars;
+    }
+
     public List<Bar> getBars() {
         return bars;
     }

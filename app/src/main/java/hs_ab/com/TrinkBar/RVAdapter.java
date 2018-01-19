@@ -6,8 +6,11 @@ package hs_ab.com.TrinkBar;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +26,9 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.BarViewHolder> {
 
     int mitem;
     private static final String TAG = "LOG";
+    private static  String barId;
+    private static List<Bar> bars;
+    Context mCtx;
 
     public static class BarViewHolder extends RecyclerView.ViewHolder {
 
@@ -30,6 +36,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.BarViewHolder> {
         TextView name;
         TextView description;
         ImageView photo;
+
 
 
         BarViewHolder(View itemView) {
@@ -46,8 +53,17 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.BarViewHolder> {
                     //Snackbar.make(v, name.getText(), Snackbar.LENGTH_LONG)
                      //       .setAction("Action", null).show();
 
+                    for (int i=0;i<bars.size();i++){
+                        if(bars.get(i).getName() == name.getText()){
+
+                            barId=  bars.get(i).getId();
+                        }
+
+                    }
+
+
                     Intent i = new Intent(v.getContext(), DetailsActivity.class);
-                    i.putExtra("EXTRA_DETAILS_TITLE", name.getText());
+                    i.putExtra("EXTRA_DETAILS_TITLE", barId);
                     v.getContext().startActivity(i);
                 }
 
@@ -55,8 +71,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.BarViewHolder> {
         }
     }
 
-    List<Bar> bars;
-    Context mCtx;
+
 
     RVAdapter(Context mCtx, List<Bar> bars) {
         this.mCtx = mCtx;
@@ -81,6 +96,15 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.BarViewHolder> {
         mitem= i;
         Log.d(TAG, "onBindViewHolder: "+i);
         barViewHolder.name.setText(bars.get(i).getName());
+
+        String base64String = bars.get(i).getImageData();
+                String base64Image = base64String.split(",")[1];
+
+        byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
+        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+        barViewHolder.photo.setImageBitmap(decodedByte);
+
+
         //barViewHolder.description.setText(bars.get(i).getDescription());
        // Picasso.with(mCtx).load(bars.get(i).getImageLink()).into(barViewHolder.photo);
 //      barViewHolder.photo.setImageResource(persons.get(i).photoId);

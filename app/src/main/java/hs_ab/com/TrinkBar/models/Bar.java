@@ -23,7 +23,10 @@ public class Bar {
     private String imageLink;
     @SerializedName("coordinates")
     @Expose
-    private List<Coordinate> coordinates = null;
+    private Coordinates coordinates;
+    @SerializedName("image_data")
+    @Expose
+    private String imageData;
     @SerializedName("description")
     @Expose
     private String description;
@@ -32,7 +35,41 @@ public class Bar {
     private String food;
     @SerializedName("opening_hours")
     @Expose
-    private List<OpeningHour> openingHours = null;
+    private OpeningHours openingHours;
+
+    /**
+     * No args constructor for use in serialization
+     *
+     */
+    public Bar() {
+    }
+
+    /**
+     *
+     * @param id
+     * @param imageData
+     * @param phone
+     * @param openingHours
+     * @param address
+     * @param food
+     * @param description
+     * @param imageLink
+     * @param name
+     * @param coordinates
+     */
+    public Bar(String id, String name, String address, String phone, String imageLink, Coordinates coordinates, String imageData, String description, String food, OpeningHours openingHours) {
+        super();
+        this.id = id;
+        this.name = name;
+        this.address = address;
+        this.phone = phone;
+        this.imageLink = imageLink;
+        this.coordinates = coordinates;
+        this.imageData = imageData;
+        this.description = description;
+        this.food = food;
+        this.openingHours = openingHours;
+    }
 
     public String getId() {
         return id;
@@ -74,12 +111,20 @@ public class Bar {
         this.imageLink = imageLink;
     }
 
-    public List<Coordinate> getCoordinates() {
+    public Coordinates getCoordinates() {
         return coordinates;
     }
 
-    public void setCoordinates(List<Coordinate> coordinates) {
+    public void setCoordinates(Coordinates coordinates) {
         this.coordinates = coordinates;
+    }
+
+    public String getImageData() {
+        return imageData;
+    }
+
+    public void setImageData(String imageData) {
+        this.imageData = imageData;
     }
 
     public String getDescription() {
@@ -98,12 +143,12 @@ public class Bar {
         this.food = food;
     }
 
-    public List<OpeningHour> getOpeningHours() {
+    public OpeningHours getOpeningHours() {
         return openingHours;
     }
 
-    public void setOpeningHours(List<OpeningHour> openingHours) {
+    public void setOpeningHours(OpeningHours openingHours) {
         this.openingHours = openingHours;
     }
-
+    
 }
