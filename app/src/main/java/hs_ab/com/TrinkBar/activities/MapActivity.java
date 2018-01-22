@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -43,7 +42,6 @@ import hs_ab.com.TrinkBar.adapters.DBAdapter;
 import hs_ab.com.TrinkBar.helper.PermissionUtils;
 import hs_ab.com.TrinkBar.interfaces.Callback;
 import hs_ab.com.TrinkBar.models.Bar;
-import hs_ab.com.TrinkBar.sync.DBBackgroundService;
 import hs_ab.com.TrinkBar.sync.HttpRequest;
 
 
@@ -186,23 +184,6 @@ public class MapActivity extends AppCompatActivity
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        // Database handling
-        //Cyclic updates of database data
-        /*final Handler dBHandler = new Handler();
-        Log.i(TAG, "onCreate: dbHandler referenced");
-        final Runnable dbRunnable = new Runnable() {
-            @Override
-            public void run() {
-                Log.i(TAG, "onCreate: dbRunnable is running every 10s");
-                Intent dbIntent = new Intent(getApplication(), DBBackgroundService.class);
-                Log.i(TAG, "onCreate: intent is prepared");
-                Log.i(TAG, "onCreate: start DBBackgroundService");
-                getApplication().startService(dbIntent);
-                dBHandler.postDelayed(this, 100000000);
-            }
-        };
-
-        dBHandler.post(dbRunnable);*/
 
     }
 
@@ -231,7 +212,6 @@ public class MapActivity extends AppCompatActivity
             mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
             return true;
         }
-
 
         return super.onOptionsItemSelected(item);
     }

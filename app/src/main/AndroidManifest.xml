@@ -45,9 +45,6 @@
             android:label="@string/title_activity_scrolling"
             android:theme="@style/AppTheme.NoActionBar" />
 
-        <service
-            android:name=".sync.DBBackgroundService"
-            android:exported="false" />
     </application>
 
 </manifest>
