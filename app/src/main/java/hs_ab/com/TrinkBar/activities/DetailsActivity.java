@@ -1,4 +1,4 @@
-package hs_ab.com.TrinkBar;
+package hs_ab.com.TrinkBar.activities;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -13,31 +13,28 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.Volley;
-
-
 import java.io.UnsupportedEncodingException;
+
+import hs_ab.com.TrinkBar.R;
+import hs_ab.com.TrinkBar.adapters.DBAdapter;
 import hs_ab.com.TrinkBar.models.Bar;
 import hs_ab.com.TrinkBar.models.Image;
 
 public class DetailsActivity extends AppCompatActivity {
 
-    private RequestQueue requestQueue;
     private static DetailsActivity mInstance;
 
 
     private Context mCtx;
     private static final String TAG = "LOG";
     private String mTitle;
-    ImageView mImg;
-    String mLink;
-    private String barId;
-    TextView mText;
+    private ImageView mImg;
+    private String mBarId;
+    private TextView mText;
     private String mOpeninghours;
-    private Bar barObject;
-    private DBAdapter db;
+    private Bar mBarObject;
+    private DBAdapter mDb;
+    private FloatingActionButton mFab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,12 +44,12 @@ public class DetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_details);
         mCtx = getApplicationContext();
 
-        barId = getIntent().getStringExtra("EXTRA_DETAILS_TITLE");
+        mBarId = getIntent().getStringExtra("EXTRA_DETAILS_TITLE");
 
 
-        db = DBAdapter.getInstance(mCtx);
-        barObject = db.getBarbyId(barId);
-        mTitle = barObject.getName();
+        mDb = DBAdapter.getInstance(mCtx);
+        mBarObject = mDb.getBarbyId(mBarId);
+        mTitle = mBarObject.getName();
         setTitle(mTitle);
 
 
@@ -63,8 +60,8 @@ public class DetailsActivity extends AppCompatActivity {
 
 
         // FAB fromDetails Activity
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_bottom);
-        fab.setOnClickListener(new View.OnClickListener() {
+        mFab = (FloatingActionButton) findViewById(R.id.fab_bottom);
+        mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Öffnungszeiten: " + mOpeninghours, Snackbar.LENGTH_LONG)
@@ -78,14 +75,14 @@ public class DetailsActivity extends AppCompatActivity {
         super.onResume();
 
 
-        Image image= db.getImagebyId(barId);
-        barObject.setImageData(image.getImage());
+        Image image= mDb.getImagebyId(mBarId);
+        mBarObject.setImageData(image.getImage());
 
-        String description = barObject.getDescription();
+        String description = mBarObject.getDescription();
 
         //Öffnungszeiten
-        mOpeninghours = barObject.getOpeningHours().getMonday();
-        mOpeninghours = mOpeninghours + barObject.getOpeningHours().getSunday();
+        mOpeninghours = mBarObject.getOpeningHours().getMonday();
+        mOpeninghours = mOpeninghours + mBarObject.getOpeningHours().getSunday();
 
         byte[] descriptionByte = Base64.decode(description, Base64.DEFAULT);
         try {
@@ -95,7 +92,7 @@ public class DetailsActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        String base64String = barObject.getImageData();
+        String base64String = mBarObject.getImageData();
         String base64Image = base64String.split(",")[1];
 
         byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
@@ -104,24 +101,6 @@ public class DetailsActivity extends AppCompatActivity {
 
     }
 
-    public RequestQueue getRequestQueue()
-    {
-        if (requestQueue==null)
-            requestQueue= Volley.newRequestQueue(getApplicationContext());
-
-        return requestQueue;
-    }
-
-    public void addToRequestQueue(Request request,String tag)
-    {
-        request.setTag(tag);
-        getRequestQueue().add(request);
-
-    }
-    public void cancelAllRequests(String tag)
-    {
-        getRequestQueue().cancelAll(tag);
-    }
 
     public static synchronized DetailsActivity getInstance()
     {

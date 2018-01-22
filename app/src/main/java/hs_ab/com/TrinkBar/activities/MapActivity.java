@@ -1,4 +1,4 @@
-package hs_ab.com.TrinkBar;
+package hs_ab.com.TrinkBar.activities;
 
 import android.Manifest;
 import android.content.Context;
@@ -38,8 +38,12 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.List;
 
+import hs_ab.com.TrinkBar.R;
+import hs_ab.com.TrinkBar.adapters.DBAdapter;
 import hs_ab.com.TrinkBar.helper.PermissionUtils;
+import hs_ab.com.TrinkBar.interfaces.Callback;
 import hs_ab.com.TrinkBar.models.Bar;
+import hs_ab.com.TrinkBar.sync.DBBackgroundService;
 
 
 public class MapActivity extends AppCompatActivity
@@ -47,7 +51,8 @@ public class MapActivity extends AppCompatActivity
         GoogleMap.OnMyLocationButtonClickListener,
         OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback,
-        NavigationView.OnNavigationItemSelectedListener{
+        NavigationView.OnNavigationItemSelectedListener,
+        Callback{
 
     private GoogleMap mMap;
     private static final String TAG = "MapActivity";
@@ -61,8 +66,6 @@ public class MapActivity extends AppCompatActivity
     private FloatingActionButton fab_share;
 
     private boolean FAB_Status = false;
-
-    private View mAnchor;
 
 
     //Animations
@@ -96,7 +99,7 @@ public class MapActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         db = DBAdapter.getInstance(mCtx);
-        barList = db.getBarList();
+
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -260,6 +263,7 @@ public class MapActivity extends AppCompatActivity
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
+
         mMap = googleMap;
         mMap.setOnMyLocationButtonClickListener(this);
         enableMyLocation();
@@ -270,7 +274,7 @@ public class MapActivity extends AppCompatActivity
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ASCHAFFENBURG.getCenter(), 15));
         mMap.getUiSettings().setMapToolbarEnabled(false);
-        setMarker();
+
 
         // Open Details Activity on marker click
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
@@ -424,4 +428,11 @@ public class MapActivity extends AppCompatActivity
         fab_share.setClickable(false);
     }
 
+    @Override
+    public void callbackCall() {
+        barList = db.getBarList();
+        if(mMap !=null) {
+            setMarker();
+        }
+    }
 }

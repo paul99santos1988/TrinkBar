@@ -1,4 +1,4 @@
-package hs_ab.com.TrinkBar;
+package hs_ab.com.TrinkBar.activities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -16,14 +16,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.Volley;
-
 
 import java.util.ArrayList;
 import java.util.List;
 
+import hs_ab.com.TrinkBar.R;
+import hs_ab.com.TrinkBar.adapters.BarListAdapter;
+import hs_ab.com.TrinkBar.adapters.DBAdapter;
 import hs_ab.com.TrinkBar.models.Bar;
 import hs_ab.com.TrinkBar.models.Image;
 
@@ -31,7 +30,7 @@ public class ListActivity extends AppCompatActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback,
         NavigationView.OnNavigationItemSelectedListener {
 
-    private RequestQueue requestQueue;
+
     private static ListActivity mInstance;
 
 
@@ -55,12 +54,12 @@ public class ListActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout_details);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+        drawer.addDrawerListener(toggle);
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view_details);
         navigationView.setNavigationItemSelectedListener(this);
-        barList = new ArrayList<>();
+        barList = new ArrayList<Bar>();
         db = DBAdapter.getInstance(mCtx);
 
         // RV for List
@@ -75,7 +74,7 @@ public class ListActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 
-
+        barList.clear();
         barList= db.getBarList();
         // init Adapter with Data from Server
         for (int i=0;i<barList.size();i++ ){
@@ -87,30 +86,6 @@ public class ListActivity extends AppCompatActivity
         if(mRv.getAdapter()==null) {
             initializeAdapter();
         }
-        /*String url="https://trinkbar.azurewebsites.net/files/bars.json";
-
-        HttpGetRequest myCustomRequest=new HttpGetRequest(Request.Method.GET, url,Bars.class, new Response.Listener<Bars>() {
-            @Override
-            public void onResponse(Bars bar) {
-
-                barList = bar.getBars();
-                // init Adapter with Data from Server
-                if(mRv.getAdapter()==null) {
-                    initializeAdapter();
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError response) {
-
-                //Failure callback
-                Toast.makeText(ListActivity.this,"Error Encountered",Toast.LENGTH_SHORT).show();
-
-            }
-        });*/
-
-        //Adding the request to a request queue
-        //ListActivity.getInstance().addToRequestQueue(myCustomRequest,"tag");
     }
 
 
@@ -171,26 +146,6 @@ public class ListActivity extends AppCompatActivity
         return true;
     }
 
-
-
-    public RequestQueue getRequestQueue()
-    {
-        if (requestQueue==null)
-            requestQueue= Volley.newRequestQueue(getApplicationContext());
-
-        return requestQueue;
-    }
-
-    public void addToRequestQueue(Request request,String tag)
-    {
-        request.setTag(tag);
-        getRequestQueue().add(request);
-
-    }
-    public void cancelAllRequests(String tag)
-    {
-        getRequestQueue().cancelAll(tag);
-    }
 
     public static synchronized ListActivity getInstance()
     {

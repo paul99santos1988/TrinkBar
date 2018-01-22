@@ -1,4 +1,4 @@
-package hs_ab.com.TrinkBar;
+package hs_ab.com.TrinkBar.sync;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -14,6 +14,8 @@ import com.google.gson.Gson;
 
 import java.util.List;
 
+import hs_ab.com.TrinkBar.adapters.DBAdapter;
+import hs_ab.com.TrinkBar.interfaces.Callback;
 import hs_ab.com.TrinkBar.models.Bar;
 import hs_ab.com.TrinkBar.models.Bars;
 import hs_ab.com.TrinkBar.models.Image;
@@ -24,6 +26,7 @@ public class DBBackgroundService extends IntentService {
     private DBAdapter myDatabaseAdapter;
     private List<Bar> barList;
     private static DBBackgroundService mInstance;
+    Callback mcallback;
 
     private static final String TAG = "DBBackgroundService";
 
@@ -32,11 +35,16 @@ public class DBBackgroundService extends IntentService {
     }
     private Gson gson= new Gson();
     RequestQueue queue;
+    private int requestCount=0;
 
+    public void setCallbacks(Callback callbacks) {
+        mcallback = callbacks;
+    }
 
     @Override
     protected void onHandleIntent(Intent intent) {
         Log.i(TAG, "DB open");
+
 
         myDatabaseAdapter = DBAdapter.getInstance(getApplicationContext());
 
@@ -66,7 +74,10 @@ public class DBBackgroundService extends IntentService {
 
                                         Image imageObject = gson.fromJson(imageString, Image.class);
                                         myDatabaseAdapter.insertImage(imageObject.getId(), response);
-
+                                        requestCount--;
+                                        if(requestCount == 0){
+                                            mcallback.callbackCall();
+                                        }
                                     }
                                 }, new Response.ErrorListener() {
                                 @Override
@@ -74,8 +85,9 @@ public class DBBackgroundService extends IntentService {
                                 }
                                 });
                         queue.add(imageRequest);
+                        requestCount ++;
                         }
-
+                        requestCount--;
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -84,7 +96,7 @@ public class DBBackgroundService extends IntentService {
             }
         });
         queue.add(stringRequest);
-
+        requestCount ++;
     }
 
     //get database data to compare

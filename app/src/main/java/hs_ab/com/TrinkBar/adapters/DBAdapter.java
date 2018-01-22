@@ -1,4 +1,4 @@
-package hs_ab.com.TrinkBar;
+package hs_ab.com.TrinkBar.adapters;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -44,8 +44,6 @@ public class DBAdapter {
 
     private Context mctx;
     private Gson gson;
-    List<Bar> barList = new ArrayList<>();
-    List<Image> imageList = new ArrayList<>();
 
     //public static final JSONObject KEY_JSON_OBJECT = "JSON-image";
 
@@ -71,21 +69,16 @@ public class DBAdapter {
 
 
     public List<Bar> getBarList(){
+        List<Bar> barList = new ArrayList<>();
+        Cursor barTable = db.getAllDataTableBars();
 
-        Cursor barTable = db.getAllDataTableBars(); //!!!!
-
-
-        int numbDBrows = barTable.getCount();
-        barTable.moveToLast();
-
-        while(numbDBrows >= 0){
-            String barsString = barTable.getString(1);
-            Bar barObject = gson.fromJson(barsString, Bar.class);
-            barList.add(barObject);
-
-            numbDBrows--;
-            if((numbDBrows != 0) && (numbDBrows > 0) ) {
-                barTable.moveToPrevious();
+        if(barTable != null) {
+            if (barTable.moveToFirst()) {
+                do {
+                    String barsString = barTable.getString(1);
+                    Bar barObject = gson.fromJson(barsString, Bar.class);
+                    barList.add(barObject);
+                } while (barTable.moveToNext());
             }
         }
 
@@ -95,21 +88,16 @@ public class DBAdapter {
 
     public List<Image> getImageList(){
 
+        List<Image> imageList = new ArrayList<>();
+        Cursor imageTable = db.getAllDataTableBarImages();
 
-        Cursor imageTable = db.getAllDataTableBarImages(); //!!!!
-
-
-        int numbDBrows = imageTable.getCount();
-        imageTable.moveToLast();
-
-        while(numbDBrows >= 0){
+        if(imageTable != null) {
+            if (imageTable.moveToFirst()) {
+                do {
             String imageString = imageTable.getString(1);
             Image imageObject = gson.fromJson(imageString, Image.class);
             imageList.add(imageObject);
-
-            numbDBrows--;
-            if((numbDBrows != 0) && (numbDBrows > 0) ) {
-                imageTable.moveToPrevious();
+                } while (imageTable.moveToNext());
             }
         }
 
@@ -119,7 +107,7 @@ public class DBAdapter {
 
     public Image getImagebyId(String hash){
 
-        Cursor imageTable = db.getDataTableBarImagesById(hash); //!!!!
+        Cursor imageTable = db.getDataTableBarImagesById(hash);
 
         if (imageTable != null)
         {

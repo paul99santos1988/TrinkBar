@@ -1,13 +1,12 @@
-package hs_ab.com.TrinkBar;
+package hs_ab.com.TrinkBar.activities;
 
-/**
- * Created by SESA403808 on 24.05.2017.
- */
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+
+import hs_ab.com.TrinkBar.R;
 
 public class SplashScreen extends Activity {
 

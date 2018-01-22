@@ -12,7 +12,7 @@
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="title_activity_details">Sehenswürdigkeiten</string>
+    <string name="title_activity_details">Barliste</string>
     <string name="title_activity_list">RecyclerViewActivity</string>
     <string name="title_activity_scrolling">ScrollingActivity</string>
     <string name="item_1_action_details">Sortieren</string>

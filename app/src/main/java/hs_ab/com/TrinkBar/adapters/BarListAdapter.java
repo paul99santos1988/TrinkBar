@@ -1,4 +1,4 @@
-package hs_ab.com.TrinkBar;
+package hs_ab.com.TrinkBar.adapters;
 
 
 import android.content.Context;
@@ -17,6 +17,8 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import hs_ab.com.TrinkBar.activities.DetailsActivity;
+import hs_ab.com.TrinkBar.R;
 import hs_ab.com.TrinkBar.models.Bar;
 
 public class BarListAdapter extends RecyclerView.Adapter<BarListAdapter.BarViewHolder> {
@@ -70,7 +72,7 @@ public class BarListAdapter extends RecyclerView.Adapter<BarListAdapter.BarViewH
 
 
 
-    BarListAdapter(Context mCtx, List<Bar> bars) {
+    public BarListAdapter(Context mCtx, List<Bar> bars) {
         this.mCtx = mCtx;
         this.bars = bars;
     }
