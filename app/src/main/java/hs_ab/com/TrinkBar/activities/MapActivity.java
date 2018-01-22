@@ -44,6 +44,7 @@ import hs_ab.com.TrinkBar.helper.PermissionUtils;
 import hs_ab.com.TrinkBar.interfaces.Callback;
 import hs_ab.com.TrinkBar.models.Bar;
 import hs_ab.com.TrinkBar.sync.DBBackgroundService;
+import hs_ab.com.TrinkBar.sync.HttpRequest;
 
 
 public class MapActivity extends AppCompatActivity
@@ -59,6 +60,7 @@ public class MapActivity extends AppCompatActivity
     private Context mCtx;
     private List<Bar> barList;
     private DBAdapter db;
+    private HttpRequest mRequest;
 
     private FloatingActionButton fab_bottom;
     private FloatingActionButton fab_location;
@@ -100,6 +102,10 @@ public class MapActivity extends AppCompatActivity
 
         db = DBAdapter.getInstance(mCtx);
 
+        // Setup Get Request
+        mRequest= HttpRequest.getInstance(mCtx);
+        mRequest.setCallbacks(this);
+        mRequest.getRequest();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -182,7 +188,7 @@ public class MapActivity extends AppCompatActivity
 
         // Database handling
         //Cyclic updates of database data
-        final Handler dBHandler = new Handler();
+        /*final Handler dBHandler = new Handler();
         Log.i(TAG, "onCreate: dbHandler referenced");
         final Runnable dbRunnable = new Runnable() {
             @Override
@@ -196,7 +202,7 @@ public class MapActivity extends AppCompatActivity
             }
         };
 
-        dBHandler.post(dbRunnable);
+        dBHandler.post(dbRunnable);*/
 
     }
 
