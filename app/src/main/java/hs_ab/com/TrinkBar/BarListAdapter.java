@@ -1,8 +1,5 @@
 package hs_ab.com.TrinkBar;
 
-/**
- * Created by student on 08.06.17.
- */
 
 import android.content.Context;
 import android.content.Intent;
@@ -22,7 +19,7 @@ import java.util.List;
 
 import hs_ab.com.TrinkBar.models.Bar;
 
-public class RVAdapter extends RecyclerView.Adapter<RVAdapter.BarViewHolder> {
+public class BarListAdapter extends RecyclerView.Adapter<BarListAdapter.BarViewHolder> {
 
     int mitem;
     private static final String TAG = "LOG";
@@ -73,7 +70,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.BarViewHolder> {
 
 
 
-    RVAdapter(Context mCtx, List<Bar> bars) {
+    BarListAdapter(Context mCtx, List<Bar> bars) {
         this.mCtx = mCtx;
         this.bars = bars;
     }
@@ -103,11 +100,6 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.BarViewHolder> {
         byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
         Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
         barViewHolder.photo.setImageBitmap(decodedByte);
-
-
-        //barViewHolder.description.setText(bars.get(i).getDescription());
-       // Picasso.with(mCtx).load(bars.get(i).getImageLink()).into(barViewHolder.photo);
-//      barViewHolder.photo.setImageResource(persons.get(i).photoId);
 
     }
 

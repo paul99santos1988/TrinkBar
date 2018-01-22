@@ -148,11 +148,8 @@ public class DBAdapter {
 
 
 
-
-
-
     // open connection to database
-    public void open() throws SQLException {
+    private void open() throws SQLException {
         Log.i(TAG, "try to open database");
         try {
             dbSQL = myDBHelper.getWritableDatabase();
@@ -163,7 +160,7 @@ public class DBAdapter {
     }
 
     // close connection to database
-    public void close() {
+    private void close() {
         dbSQL.close();
         myDBHelper.close();
     }
@@ -194,7 +191,7 @@ public class DBAdapter {
     }
 
     // get all content values from table "barsAschaffenburg"
-    public Cursor getAllDataTableBars() {
+    private Cursor getAllDataTableBars() {
         String[] allColumns = new String[] { KEY_ID_DETAILS, KEY_DETAILS };
         Cursor results = dbSQL.query(TABLE_BAR_DETAILS, allColumns, null, null, null, null, null);
         Log.i(TAG, "getAllDataTableBars: return table bars");
@@ -202,7 +199,7 @@ public class DBAdapter {
     }
 
     // get all content values from table "barImagesAschaffenburg"
-    public Cursor getAllDataTableBarImages() {
+    private Cursor getAllDataTableBarImages() {
         String[] allColumns = new String[] { KEY_ID_IMAGES, KEY_IMAGES };
         Cursor results = dbSQL.query(TABLE_BAR_IMAGES, allColumns, null, null, null, null, null);
         Log.i(TAG, "getAllDataTableBars: return table bar_images");
@@ -210,7 +207,7 @@ public class DBAdapter {
     }
 
     // get content values from table "barsAschaffenburg" via the bar-id
-    public Cursor getDataTableBarById(String id) {
+    private Cursor getDataTableBarById(String id) {
         String[] dataBar = new String[] {KEY_DETAILS};
         String[] idArgs = new String[] {id};
         Cursor results = dbSQL.query(TABLE_BAR_DETAILS, dataBar, KEY_ID_DETAILS + " =? " , idArgs, null, null, null);
@@ -219,7 +216,7 @@ public class DBAdapter {
     }
 
     // get content values from table "barImagesAschaffenburg" via the bar-id
-    public Cursor getDataTableBarImagesById(String id) {
+    private Cursor getDataTableBarImagesById(String id) {
         String[] dataBarImage = new String[] {KEY_IMAGES};
         String[] idArgs = new String[] {id};
         Cursor results = dbSQL.query(TABLE_BAR_IMAGES, dataBarImage, KEY_ID_DETAILS + " = ?;" , idArgs, null, null, null);

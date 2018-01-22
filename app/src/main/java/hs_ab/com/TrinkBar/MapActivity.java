@@ -25,12 +25,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -41,17 +35,11 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.util.List;
 
 import hs_ab.com.TrinkBar.helper.PermissionUtils;
+import hs_ab.com.TrinkBar.models.Bar;
 
 
 public class MapActivity extends AppCompatActivity
@@ -64,6 +52,8 @@ public class MapActivity extends AppCompatActivity
     private GoogleMap mMap;
     private static final String TAG = "MapActivity";
     private Context mCtx;
+    private List<Bar> barList;
+    private DBAdapter db;
 
     private FloatingActionButton fab_bottom;
     private FloatingActionButton fab_location;
@@ -104,6 +94,10 @@ public class MapActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         mCtx = getApplicationContext();
         setContentView(R.layout.activity_main);
+
+        db = DBAdapter.getInstance(mCtx);
+        barList = db.getBarList();
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -146,7 +140,6 @@ public class MapActivity extends AppCompatActivity
                         CameraUpdateFactory.newLatLng(new LatLng(mMap.getMyLocation().getLatitude(),
                                 mMap.getMyLocation().getLongitude()));
                 mMap.moveCamera(center);
-                //Log.d(TAG, "onMapReady: "+ mMap.getMyLocation().getLatitude());
 
             }
         });
@@ -203,16 +196,6 @@ public class MapActivity extends AppCompatActivity
         dBHandler.post(dbRunnable);
 
     }
-
-    /*@Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }*/
 
 
     @Override
@@ -276,72 +259,18 @@ public class MapActivity extends AppCompatActivity
     // Map
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
         mMap = googleMap;
-
-
-
-
         mMap.setOnMyLocationButtonClickListener(this);
         enableMyLocation();
-
 
 
         LatLngBounds ASCHAFFENBURG = new LatLngBounds(
                 new LatLng(49.969527, 9.150233), new LatLng(49.980977, 9.150233));
 
-
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ASCHAFFENBURG.getCenter(), 15));
         mMap.getUiSettings().setMapToolbarEnabled(false);
-
-        //----HTTP
-        // Instantiate the RequestQueue
-        RequestQueue queue = Volley.newRequestQueue(mCtx);
-        String url = "http://sightseeing-fhws.azurewebsites.net";
-
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        setMarker(response);
-
-                        // Save Data from Server in local File +++not used+++
-                        //create new File
-                        try {
-                            FileWriter file = new FileWriter(mCtx.getFilesDir().getPath() + "/data.json");
-                            file.flush();
-                            file.close();
-
-                            //write to existing file
-                            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(mCtx.openFileOutput("data.json", Context.MODE_APPEND));
-                            outputStreamWriter.write(response.toString());
-                            outputStreamWriter.close();
-
-                            File f = new File(mCtx.getFilesDir().getPath() + "/data.json");
-                            //check whether file exists
-                            FileInputStream is = new FileInputStream(f);
-                            int size1 = is.available();
-                            byte[] buffer1 = new byte[size1];
-                            is.read(buffer1);
-                            is.close();
-                            String out = new String(buffer1);
-                            Log.d(TAG, "STRING FROM FILE" + out);
-
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                //mTextView.setText("That didn't work!");
-            }
-        });
-
-        queue.add(stringRequest);
-
+        setMarker();
 
         // Open Details Activity on marker click
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
@@ -349,10 +278,17 @@ public class MapActivity extends AppCompatActivity
             @Override
             public boolean onMarkerClick(Marker arg0) {
                 Log.d(TAG, arg0.getTitle());
-                //Intent i = new Intent(MapActivity.this, ListActivity.class);
-                Intent i = new Intent(MapActivity.this, DetailsActivity.class);
-                i.putExtra("EXTRA_DETAILS_TITLE", arg0.getTitle());
-                startActivity(i);
+                String name = arg0.getTitle();
+                for (int i=0 ; i<barList.size(); i++){
+                    String barname= barList.get(i).getName();
+                    if(barname.equals(name)){
+                        Intent intent = new Intent(MapActivity.this, DetailsActivity.class);
+                        intent.putExtra("EXTRA_DETAILS_TITLE",barList.get(i).getId());
+                        startActivity(intent);
+
+                    }
+
+                }
                 return false;
             }
 
@@ -361,24 +297,16 @@ public class MapActivity extends AppCompatActivity
     }
 
     // set marker on the map with the coordinates from the server
-    private void setMarker(String data) {
-        try {
-            JSONObject obj = new JSONObject(data.toString());
-            JSONArray places = obj.getJSONArray("placesOfInterest");
-            Log.d(TAG, places.toString());
-
-            for (int i = 0; i < places.length(); i++) {
-                Double lat = places.getJSONObject(i).getJSONArray("coordinates").getJSONObject(0).getDouble("latitude ");
-                Log.d(TAG, lat.toString());
-                Double lon = places.getJSONObject(i).getJSONArray("coordinates").getJSONObject(1).getDouble("longitude");
-                String name = places.getJSONObject(i).getString("name");
-                LatLng place = new LatLng(lat, lon);
-                mMap.addMarker(new MarkerOptions().position(place).title(name));
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
+    private void setMarker() {
+        for (int i = 0; i < barList.size(); i++) {
+            Double lat = Double.valueOf(barList.get(i).getCoordinates().getLatitude());
+            Double lon = Double.valueOf(barList.get(i).getCoordinates().getLongitude());
+            String name = barList.get(i).getName();
+            LatLng place = new LatLng(lat, lon);
+            mMap.addMarker(new MarkerOptions().position(place).title(name));
         }
     }
+
 
     /**
      * Enables the My Location layer if the fine location permission has been granted.

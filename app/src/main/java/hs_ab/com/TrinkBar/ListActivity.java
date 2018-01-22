@@ -15,12 +15,9 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 
 
@@ -28,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import hs_ab.com.TrinkBar.models.Bar;
-import hs_ab.com.TrinkBar.models.Bars;
 import hs_ab.com.TrinkBar.models.Image;
 
 public class ListActivity extends AppCompatActivity
@@ -120,7 +116,7 @@ public class ListActivity extends AppCompatActivity
 
     private void initializeAdapter() {
         Log.d(TAG, "initializeAdapter");
-        RVAdapter adapter = new RVAdapter(this, barList);
+        BarListAdapter adapter = new BarListAdapter(this, barList);
         mRv.setAdapter(adapter);
     }
 
