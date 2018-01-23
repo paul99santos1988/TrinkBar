@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -24,6 +25,8 @@ import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -33,6 +36,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 
 import java.util.List;
@@ -51,21 +55,25 @@ public class MapActivity extends AppCompatActivity
         OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback,
         NavigationView.OnNavigationItemSelectedListener,
-        Callback{
+        Callback {
 
     private GoogleMap mMap;
     private static final String TAG = "MapActivity";
     private Context mCtx;
-    private List<Bar> barList;
-    private DBAdapter db;
+    private List<Bar> mBarList;
+    private DBAdapter mDb;
     private HttpRequest mRequest;
+    private LatLng mlocation = null;
 
-    private FloatingActionButton fab_bottom;
-    private FloatingActionButton fab_location;
-    private FloatingActionButton fab_target;
-    private FloatingActionButton fab_share;
+    private FloatingActionButton mFabBottom;
+    private FloatingActionButton mFabLocation;
+    private FloatingActionButton mFabTarget;
+    private FloatingActionButton mFabShare;
 
-    private boolean FAB_Status = false;
+    private FusedLocationProviderClient mFusedLocationClient;
+
+
+    private boolean mFabStatus = false;
 
 
     //Animations
@@ -75,8 +83,6 @@ public class MapActivity extends AppCompatActivity
     Animation hide_fab_target;
     Animation show_fab_share;
     Animation hide_fab_share;
-
-
 
 
     /**
@@ -98,81 +104,28 @@ public class MapActivity extends AppCompatActivity
         mCtx = getApplicationContext();
         setContentView(R.layout.activity_main);
 
-        db = DBAdapter.getInstance(mCtx);
+        mDb = DBAdapter.getInstance(mCtx);
 
         // Setup Get Request
-        mRequest= HttpRequest.getInstance(mCtx);
+        mRequest = HttpRequest.getInstance(mCtx);
         mRequest.setCallbacks(this);
         mRequest.getRequest();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //Animations
-        show_fab_location = AnimationUtils.loadAnimation(getApplication(), R.anim.fablocation_show);
-        hide_fab_location = AnimationUtils.loadAnimation(getApplication(), R.anim.fablocation_hide);
-        show_fab_target = AnimationUtils.loadAnimation(getApplication(), R.anim.fabtarget_show);
-        hide_fab_target = AnimationUtils.loadAnimation(getApplication(), R.anim.fabtarget_hide);
-        show_fab_share = AnimationUtils.loadAnimation(getApplication(), R.anim.fabshare_show);
-        hide_fab_share = AnimationUtils.loadAnimation(getApplication(), R.anim.fabshare_hide);
 
-        // FAB
-        fab_bottom = (FloatingActionButton) findViewById(R.id.fab_bottom);
-        fab_location = (FloatingActionButton) findViewById(R.id.fab_location);
-        fab_target = (FloatingActionButton) findViewById(R.id.fab_target);
-        fab_share = (FloatingActionButton) findViewById(R.id.fab_share);
+        initAnimations();
+        initFAB();
 
 
-        fab_bottom.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (FAB_Status == false) {
-                    //Display FAB menu
-                    expandFAB();
-                    FAB_Status = true;
-                } else {
-                    //Close FAB menu
-                    hideFAB();
-                    FAB_Status = false;
-                }
-            }
-        });
-
-        fab_location.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getApplication(), "Aktuelle Position", Toast.LENGTH_SHORT).show();
-                CameraUpdate center=
-                        CameraUpdateFactory.newLatLng(new LatLng(mMap.getMyLocation().getLatitude(),
-                                mMap.getMyLocation().getLongitude()));
-                mMap.moveCamera(center);
-
-            }
-        });
-
-        fab_target.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getApplication(), "Aschaffenburg", Toast.LENGTH_SHORT).show();
-                CameraUpdate center=
-                        CameraUpdateFactory.newLatLng(new LatLng(49.969527, 9.150233));
-                mMap.moveCamera(center);
-            }
-        });
-
-        fab_share.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getApplication(), "Share Location", Toast.LENGTH_SHORT).show();
-            }
-        });
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+        drawer.addDrawerListener(toggle);
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -185,6 +138,91 @@ public class MapActivity extends AppCompatActivity
         mapFragment.getMapAsync(this);
 
 
+    }
+
+
+    private void initFAB() {
+        mFabBottom = (FloatingActionButton) findViewById(R.id.fab_bottom);
+        mFabLocation = (FloatingActionButton) findViewById(R.id.fab_location);
+        mFabTarget = (FloatingActionButton) findViewById(R.id.fab_target);
+        mFabShare = (FloatingActionButton) findViewById(R.id.fab_share);
+
+
+        mFabBottom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (mFabStatus == false) {
+                    //Display FAB menu
+                    expandFAB();
+                    mFabStatus = true;
+                } else {
+                    //Close FAB menu
+                    hideFAB();
+                    mFabStatus = false;
+                }
+            }
+        });
+
+        mFabLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ActivityCompat.checkSelfPermission(MapActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MapActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                }
+                mFusedLocationClient.getLastLocation()
+                        .addOnSuccessListener(MapActivity.this, new OnSuccessListener<Location>() {
+                            @Override
+                            public void onSuccess(Location location) {
+                                // Got last known location. In some rare situations this can be null.
+                                if (location != null) {
+                                    Toast.makeText(getApplication(), "Aktuelle Position", Toast.LENGTH_SHORT).show();
+                                    mlocation = new LatLng(location.getLatitude(), location.getLongitude());
+                                    CameraUpdate center = CameraUpdateFactory.newLatLng(mlocation);
+                                    mMap.moveCamera(center);
+                                } else {
+                                    Toast.makeText(getApplication(), "Bitte Standort aktivieren", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+
+
+            }
+        });
+
+
+        mFabTarget.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplication(), "Aschaffenburg", Toast.LENGTH_SHORT).show();
+                CameraUpdate center =
+                        CameraUpdateFactory.newLatLng(new LatLng(49.969527, 9.150233));
+                mMap.moveCamera(center);
+            }
+        });
+
+        mFabShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplication(), "Share Location", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void initAnimations() {
+        //Animations
+        show_fab_location = AnimationUtils.loadAnimation(getApplication(), R.anim.fablocation_show);
+        hide_fab_location = AnimationUtils.loadAnimation(getApplication(), R.anim.fablocation_hide);
+        show_fab_target = AnimationUtils.loadAnimation(getApplication(), R.anim.fabtarget_show);
+        hide_fab_target = AnimationUtils.loadAnimation(getApplication(), R.anim.fabtarget_hide);
+        show_fab_share = AnimationUtils.loadAnimation(getApplication(), R.anim.fabshare_show);
+        hide_fab_share = AnimationUtils.loadAnimation(getApplication(), R.anim.fabshare_hide);
     }
 
 
@@ -269,11 +307,11 @@ public class MapActivity extends AppCompatActivity
             public boolean onMarkerClick(Marker arg0) {
                 Log.d(TAG, arg0.getTitle());
                 String name = arg0.getTitle();
-                for (int i=0 ; i<barList.size(); i++){
-                    String barname= barList.get(i).getName();
-                    if(barname.equals(name)){
+                for (int i = 0; i < mBarList.size(); i++) {
+                    String barname = mBarList.get(i).getName();
+                    if (barname.equals(name)) {
                         Intent intent = new Intent(MapActivity.this, DetailsActivity.class);
-                        intent.putExtra("EXTRA_DETAILS_TITLE",barList.get(i).getId());
+                        intent.putExtra("EXTRA_DETAILS_TITLE", mBarList.get(i).getId());
                         startActivity(intent);
 
                     }
@@ -288,10 +326,10 @@ public class MapActivity extends AppCompatActivity
 
     // set marker on the map with the coordinates from the server
     private void setMarker() {
-        for (int i = 0; i < barList.size(); i++) {
-            Double lat = Double.valueOf(barList.get(i).getCoordinates().getLatitude());
-            Double lon = Double.valueOf(barList.get(i).getCoordinates().getLongitude());
-            String name = barList.get(i).getName();
+        for (int i = 0; i < mBarList.size(); i++) {
+            Double lat = Double.valueOf(mBarList.get(i).getCoordinates().getLatitude());
+            Double lon = Double.valueOf(mBarList.get(i).getCoordinates().getLongitude());
+            String name = mBarList.get(i).getName();
             LatLng place = new LatLng(lat, lon);
             mMap.addMarker(new MarkerOptions().position(place).title(name));
         }
@@ -309,7 +347,9 @@ public class MapActivity extends AppCompatActivity
                     Manifest.permission.ACCESS_FINE_LOCATION, true);
         } else if (mMap != null) {
             // Access to the location has been granted to the app.
+            mMap.getUiSettings().setMyLocationButtonEnabled(false);
             mMap.setMyLocationEnabled(true);
+
 
         }
     }
@@ -362,62 +402,62 @@ public class MapActivity extends AppCompatActivity
     private void expandFAB() {
 
         //Floating Action Location
-        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) fab_location.getLayoutParams();
-        layoutParams.rightMargin += (int) (fab_location.getWidth() * 1.7);
-        layoutParams.bottomMargin += (int) (fab_location.getHeight() * 0.25);
-        fab_location.setLayoutParams(layoutParams);
-        fab_location.startAnimation(show_fab_location);
-        fab_location.setClickable(true);
+        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) mFabLocation.getLayoutParams();
+        layoutParams.rightMargin += (int) (mFabLocation.getWidth() * 1.7);
+        layoutParams.bottomMargin += (int) (mFabLocation.getHeight() * 0.25);
+        mFabLocation.setLayoutParams(layoutParams);
+        mFabLocation.startAnimation(show_fab_location);
+        mFabLocation.setClickable(true);
 
         //Floating Action Target
-        FrameLayout.LayoutParams layoutParams2 = (FrameLayout.LayoutParams) fab_target.getLayoutParams();
-        layoutParams2.rightMargin += (int) (fab_target.getWidth() * 1.5);
-        layoutParams2.bottomMargin += (int) (fab_target.getHeight() * 1.5);
-        fab_target.setLayoutParams(layoutParams2);
-        fab_target.startAnimation(show_fab_target);
-        fab_target.setClickable(true);
+        FrameLayout.LayoutParams layoutParams2 = (FrameLayout.LayoutParams) mFabTarget.getLayoutParams();
+        layoutParams2.rightMargin += (int) (mFabTarget.getWidth() * 1.5);
+        layoutParams2.bottomMargin += (int) (mFabTarget.getHeight() * 1.5);
+        mFabTarget.setLayoutParams(layoutParams2);
+        mFabTarget.startAnimation(show_fab_target);
+        mFabTarget.setClickable(true);
 
         //Floating Action Share
-        FrameLayout.LayoutParams layoutParams3 = (FrameLayout.LayoutParams) fab_share.getLayoutParams();
-        layoutParams3.rightMargin += (int) (fab_share.getWidth() * 0.25);
-        layoutParams3.bottomMargin += (int) (fab_share.getHeight() * 1.7);
-        fab_share.setLayoutParams(layoutParams3);
-        fab_share.startAnimation(show_fab_share);
-        fab_share.setClickable(true);
+        FrameLayout.LayoutParams layoutParams3 = (FrameLayout.LayoutParams) mFabShare.getLayoutParams();
+        layoutParams3.rightMargin += (int) (mFabShare.getWidth() * 0.25);
+        layoutParams3.bottomMargin += (int) (mFabShare.getHeight() * 1.7);
+        mFabShare.setLayoutParams(layoutParams3);
+        mFabShare.startAnimation(show_fab_share);
+        mFabShare.setClickable(true);
     }
 
 
     private void hideFAB() {
 
         //Floating Action Location
-        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) fab_location.getLayoutParams();
-        layoutParams.rightMargin -= (int) (fab_location.getWidth() * 1.7);
-        layoutParams.bottomMargin -= (int) (fab_location.getHeight() * 0.25);
-        fab_location.setLayoutParams(layoutParams);
-        fab_location.startAnimation(hide_fab_location);
-        fab_location.setClickable(false);
+        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) mFabLocation.getLayoutParams();
+        layoutParams.rightMargin -= (int) (mFabLocation.getWidth() * 1.6);
+        layoutParams.bottomMargin -= (int) (mFabLocation.getHeight() * 0.24);
+        mFabLocation.setLayoutParams(layoutParams);
+        mFabLocation.startAnimation(hide_fab_location);
+        mFabLocation.setClickable(false);
 
         //Floating Action Target
-        FrameLayout.LayoutParams layoutParams2 = (FrameLayout.LayoutParams) fab_target.getLayoutParams();
-        layoutParams2.rightMargin -= (int) (fab_target.getWidth() * 1.5);
-        layoutParams2.bottomMargin -= (int) (fab_target.getHeight() * 1.5);
-        fab_target.setLayoutParams(layoutParams2);
-        fab_target.startAnimation(hide_fab_target);
-        fab_target.setClickable(false);
+        FrameLayout.LayoutParams layoutParams2 = (FrameLayout.LayoutParams) mFabTarget.getLayoutParams();
+        layoutParams2.rightMargin -= (int) (mFabTarget.getWidth() * 1.4);
+        layoutParams2.bottomMargin -= (int) (mFabTarget.getHeight() * 1.4);
+        mFabTarget.setLayoutParams(layoutParams2);
+        mFabTarget.startAnimation(hide_fab_target);
+        mFabTarget.setClickable(false);
 
         //Floating Action Share
-        FrameLayout.LayoutParams layoutParams3 = (FrameLayout.LayoutParams) fab_share.getLayoutParams();
-        layoutParams3.rightMargin -= (int) (fab_share.getWidth() * 0.25);
-        layoutParams3.bottomMargin -= (int) (fab_share.getHeight() * 1.7);
-        fab_share.setLayoutParams(layoutParams3);
-        fab_share.startAnimation(hide_fab_share);
-        fab_share.setClickable(false);
+        FrameLayout.LayoutParams layoutParams3 = (FrameLayout.LayoutParams) mFabShare.getLayoutParams();
+        layoutParams3.rightMargin -= (int) (mFabShare.getWidth() * 0.24);
+        layoutParams3.bottomMargin -= (int) (mFabShare.getHeight() * 1.6);
+        mFabShare.setLayoutParams(layoutParams3);
+        mFabShare.startAnimation(hide_fab_share);
+        mFabShare.setClickable(false);
     }
 
     @Override
     public void callbackCall() {
-        barList = db.getBarList();
-        if(mMap !=null) {
+        mBarList = mDb.getBarList();
+        if (mMap != null) {
             setMarker();
         }
     }
