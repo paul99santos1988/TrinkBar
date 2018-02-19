@@ -53,14 +53,14 @@ public class DetailsActivity extends AppCompatActivity {
         setTitle(mTitle);
 
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        mImg = (ImageView) findViewById(R.id.imageview_details);
-        mText = (TextView) findViewById(R.id.textview_details);
+        mImg = findViewById(R.id.imageview_details);
+        mText = findViewById(R.id.textview_details);
 
 
         // FAB fromDetails Activity
-        mFab = (FloatingActionButton) findViewById(R.id.fab_bottom);
+        mFab = findViewById(R.id.fab_bottom);
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

@@ -47,23 +47,23 @@ public class ListActivity extends AppCompatActivity
         mInstance=this;
         mCtx = getApplicationContext();
         setContentView(R.layout.activity_list);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         // Side menu
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout_details);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout_details);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view_details);
+        NavigationView navigationView = findViewById(R.id.nav_view_details);
         navigationView.setNavigationItemSelectedListener(this);
         barList = new ArrayList<Bar>();
         db = DBAdapter.getInstance(mCtx);
 
         // RV for List
-        mRv = (RecyclerView) findViewById(R.id.rv);
+        mRv = findViewById(R.id.rv);
         LinearLayoutManager llm = new LinearLayoutManager(this);
         mRv.setLayoutManager(llm);
         mRv.setHasFixedSize(true);
@@ -141,7 +141,7 @@ public class ListActivity extends AppCompatActivity
 
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout_details);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout_details);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }

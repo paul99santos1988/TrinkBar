@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "986201874221",
+    "firebase_url": "https://trinkbar-6e6e9.firebaseio.com",
+    "project_id": "trinkbar-6e6e9",
+    "storage_bucket": "trinkbar-6e6e9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:986201874221:android:4a1a76cca4d0a1be",
+        "android_client_info": {
+          "package_name": "hs_ab.com.TrinkBar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "986201874221-1h9sdi714oadctko1q9ihe0694dg8u3o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2144RCdtuiUP2HF-lMNg3Q9raPDmQy2M"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

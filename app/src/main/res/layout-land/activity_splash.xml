@@ -3,15 +3,28 @@
     android:orientation="vertical" android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
-    <ImageView
-        android:id="@+id/splashscreen"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="fill_parent"
-        android:layout_gravity="center"
-        android:src="@drawable/ic_sheep3" />
+        android:layout_height="match_parent">
 
-    <TextView android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Hello World, splash"/>
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textAlignment="center"
+            android:textSize="30sp" />
+
+        <ImageView
+            android:id="@+id/splashscreen"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_gravity="center"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat"
+            android:textColor="@android:color/white"
+            android:textSize="30sp"
+            android:typeface="normal"
+            android:src="@drawable/ic_sheep3" />
+    </RelativeLayout>
 
 </LinearLayout>

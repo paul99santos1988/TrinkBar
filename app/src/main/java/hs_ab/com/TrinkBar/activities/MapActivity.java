@@ -27,6 +27,12 @@ import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.GeoDataClient;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.PlaceBufferResponse;
+import com.google.android.gms.location.places.PlaceDetectionClient;
+import com.google.android.gms.location.places.Places;
+import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -36,7 +42,10 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PointOfInterest;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 
 
 import java.util.List;
@@ -46,12 +55,14 @@ import hs_ab.com.TrinkBar.adapters.DBAdapter;
 import hs_ab.com.TrinkBar.helper.PermissionUtils;
 import hs_ab.com.TrinkBar.interfaces.Callback;
 import hs_ab.com.TrinkBar.models.Bar;
+import hs_ab.com.TrinkBar.models.Image;
 import hs_ab.com.TrinkBar.sync.HttpRequest;
 
 
 public class MapActivity extends AppCompatActivity
         implements
         GoogleMap.OnMyLocationButtonClickListener,
+        GoogleMap.OnPoiClickListener,
         OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback,
         NavigationView.OnNavigationItemSelectedListener,
@@ -71,6 +82,8 @@ public class MapActivity extends AppCompatActivity
     private FloatingActionButton mFabShare;
 
     private FusedLocationProviderClient mFusedLocationClient;
+    protected PlaceDetectionClient mPlaceDetectionClient;
+    private GeoDataClient mGeoDataClient;
 
 
     private boolean mFabStatus = false;
@@ -111,24 +124,24 @@ public class MapActivity extends AppCompatActivity
         mRequest.setCallbacks(this);
         mRequest.getRequest();
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
 
         initAnimations();
         initFAB();
 
-
+        mGeoDataClient = Places.getGeoDataClient(this, null);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
 
@@ -142,10 +155,10 @@ public class MapActivity extends AppCompatActivity
 
 
     private void initFAB() {
-        mFabBottom = (FloatingActionButton) findViewById(R.id.fab_bottom);
-        mFabLocation = (FloatingActionButton) findViewById(R.id.fab_location);
-        mFabTarget = (FloatingActionButton) findViewById(R.id.fab_target);
-        mFabShare = (FloatingActionButton) findViewById(R.id.fab_share);
+        mFabBottom = findViewById(R.id.fab_bottom);
+        mFabLocation = findViewById(R.id.fab_location);
+        mFabTarget = findViewById(R.id.fab_target);
+        mFabShare = findViewById(R.id.fab_share);
 
 
         mFabBottom.setOnClickListener(new View.OnClickListener() {
@@ -277,7 +290,7 @@ public class MapActivity extends AppCompatActivity
 
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -290,7 +303,35 @@ public class MapActivity extends AppCompatActivity
 
         mMap = googleMap;
         mMap.setOnMyLocationButtonClickListener(this);
+        mMap.setOnPoiClickListener(this);
         enableMyLocation();
+
+
+        /*if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        Task<PlaceLikelihoodBufferResponse> placeResult = mPlaceDetectionClient.getCurrentPlace(null);
+        placeResult.addOnCompleteListener(new OnCompleteListener<PlaceLikelihoodBufferResponse>() {
+            @Override
+            public void onComplete(@NonNull Task<PlaceLikelihoodBufferResponse> task) {
+                PlaceLikelihoodBufferResponse likelyPlaces = task.getResult();
+                for (PlaceLikelihood placeLikelihood : likelyPlaces) {
+                    Log.i(TAG, String.format("Place '%s' has likelihood: %g",
+                            placeLikelihood.getPlace().getName(),
+                            placeLikelihood.getLikelihood()));
+                }
+                likelyPlaces.release();
+            }
+        });*/
+
+
 
 
         LatLngBounds ASCHAFFENBURG = new LatLngBounds(
@@ -322,6 +363,27 @@ public class MapActivity extends AppCompatActivity
 
         });
 
+        mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+
+            @Override
+            public void onMarkerDragStart(Marker marker) {
+                // TODO Auto-generated method stub
+                //Here your code
+            }
+
+            @Override
+            public void onMarkerDragEnd(Marker marker) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void onMarkerDrag(Marker marker) {
+                // TODO Auto-generated method stub
+
+            }
+        });
+
     }
 
     // set marker on the map with the coordinates from the server
@@ -331,7 +393,7 @@ public class MapActivity extends AppCompatActivity
             Double lon = Double.valueOf(mBarList.get(i).getCoordinates().getLongitude());
             String name = mBarList.get(i).getName();
             LatLng place = new LatLng(lat, lon);
-            mMap.addMarker(new MarkerOptions().position(place).title(name));
+            mMap.addMarker(new MarkerOptions().position(place).title(name)).setDraggable(true);
         }
     }
 
@@ -461,4 +523,69 @@ public class MapActivity extends AppCompatActivity
             setMarker();
         }
     }
+
+    @Override
+    public void onPoiClick(PointOfInterest poi) {
+        Toast.makeText(getApplicationContext(), "Clicked: " +
+                        poi.name + "\nPlace ID:" + poi.placeId +
+                        "\nLatitude:" + poi.latLng.latitude +
+                        " Longitude:" + poi.latLng.longitude,
+                Toast.LENGTH_SHORT).show();
+
+
+        mGeoDataClient.getPlaceById(poi.placeId).addOnCompleteListener(new OnCompleteListener<PlaceBufferResponse>() {
+                                                                           @Override
+                                                                           public void onComplete(@NonNull Task<PlaceBufferResponse> task) {
+                                                                               if (task.isSuccessful()) {
+                                                                                   PlaceBufferResponse places = task.getResult();
+                                                                                   Place myPlace = places.get(0);
+
+                                                                                   Log.i(TAG, "Place found: " + myPlace.getName());
+                                                                                   places.release();
+                                                                               } else {
+                                                                                   Log.e(TAG, "Place not found.");
+                                                                               }
+                                                                           }
+                                                                       });
+        /*int PLACE_PICKER_REQUEST = 1;
+        PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+
+        try {
+            startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST);
+        } catch (GooglePlayServicesRepairableException e) {
+            e.printStackTrace();
+        } catch (GooglePlayServicesNotAvailableException e) {
+            e.printStackTrace();
+        }*/
+
+    }
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 1) {
+            if (resultCode == RESULT_OK) {
+                Place place = PlacePicker.getPlace(data, this);
+
+                /*mGeoDataClient.getPlaceById(place.getId()).addOnCompleteListener(new OnCompleteListener<PlaceBufferResponse>() {
+                    @Override
+                    public void onComplete(@NonNull Task<PlaceBufferResponse> task) {
+                        if (task.isSuccessful()) {
+                            PlaceBufferResponse places = task.getResult();
+                            Place myPlace = places.get(0);
+                            Log.i(TAG, "Place found: " + myPlace.getName());
+                            places.release();
+                        } else {
+                            Log.e(TAG, "Place not found.");
+                        }
+                    }
+                });*/
+
+
+
+
+                String toastMsg = String.format("Place: %s", place.getName());
+                Toast.makeText(this, toastMsg, Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+
 }
