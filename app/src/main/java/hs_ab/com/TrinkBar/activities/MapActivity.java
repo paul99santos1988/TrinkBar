@@ -46,15 +46,25 @@ import com.google.android.gms.maps.model.PointOfInterest;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import hs_ab.com.TrinkBar.R;
 import hs_ab.com.TrinkBar.adapters.DBAdapter;
+import hs_ab.com.TrinkBar.adapters.RealtimeDBAdapter;
 import hs_ab.com.TrinkBar.helper.PermissionUtils;
 import hs_ab.com.TrinkBar.interfaces.Callback;
 import hs_ab.com.TrinkBar.models.Bar;
+import hs_ab.com.TrinkBar.models.Bars;
 import hs_ab.com.TrinkBar.models.Image;
 import hs_ab.com.TrinkBar.sync.HttpRequest;
 
@@ -75,6 +85,8 @@ public class MapActivity extends AppCompatActivity
     private DBAdapter mDb;
     private HttpRequest mRequest;
     private LatLng mlocation = null;
+
+    private RealtimeDBAdapter mRtDatabase;
 
     private FloatingActionButton mFabBottom;
     private FloatingActionButton mFabLocation;
@@ -97,6 +109,8 @@ public class MapActivity extends AppCompatActivity
     Animation show_fab_share;
     Animation hide_fab_share;
 
+    private DatabaseReference mDatabase;
+
 
     /**
      * Request code for location permission request.
@@ -118,6 +132,8 @@ public class MapActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         mDb = DBAdapter.getInstance(mCtx);
+
+        mRtDatabase = RealtimeDBAdapter.getInstance(mCtx);
 
         // Setup Get Request
         mRequest = HttpRequest.getInstance(mCtx);
@@ -150,7 +166,7 @@ public class MapActivity extends AppCompatActivity
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-
+        setupRealtimeDB();
     }
 
 
@@ -518,10 +534,10 @@ public class MapActivity extends AppCompatActivity
 
     @Override
     public void callbackCall() {
-        mBarList = mDb.getBarList();
+        /*mBarList = mDb.getBarList();
         if (mMap != null) {
             setMarker();
-        }
+        }*/
     }
 
     @Override
@@ -585,6 +601,52 @@ public class MapActivity extends AppCompatActivity
                 Toast.makeText(this, toastMsg, Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    public void setupRealtimeDB(){
+
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
+
+        ChildEventListener childEventListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
+                mRtDatabase.DataSnapshotHandler(dataSnapshot);
+                mBarList = mRtDatabase.getBarList();
+                if (mMap != null) {
+                    setMarker();
+                }
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "onChildChanged:" + dataSnapshot.getKey());
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "onChildMoved:" + dataSnapshot.getKey());
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w(TAG, "postComments:onCancelled", databaseError.toException());
+                //Toast.makeText(mContext, "Failed to load comments.",
+                //       Toast.LENGTH_SHORT).show();
+            }
+        };
+        mDatabase.addChildEventListener(childEventListener);
+
     }
 
 

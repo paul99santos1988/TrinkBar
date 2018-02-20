@@ -17,6 +17,7 @@ import java.io.UnsupportedEncodingException;
 
 import hs_ab.com.TrinkBar.R;
 import hs_ab.com.TrinkBar.adapters.DBAdapter;
+import hs_ab.com.TrinkBar.adapters.RealtimeDBAdapter;
 import hs_ab.com.TrinkBar.models.Bar;
 import hs_ab.com.TrinkBar.models.Image;
 
@@ -34,6 +35,7 @@ public class DetailsActivity extends AppCompatActivity {
     private String mOpeninghours;
     private Bar mBarObject;
     private DBAdapter mDb;
+    private RealtimeDBAdapter mRtDatabase;
     private FloatingActionButton mFab;
 
     @Override
@@ -47,8 +49,11 @@ public class DetailsActivity extends AppCompatActivity {
         mBarId = getIntent().getStringExtra("EXTRA_DETAILS_TITLE");
 
 
-        mDb = DBAdapter.getInstance(mCtx);
-        mBarObject = mDb.getBarbyId(mBarId);
+
+        mRtDatabase = RealtimeDBAdapter.getInstance(mCtx);
+
+        //mDb = DBAdapter.getInstance(mCtx);
+        mBarObject = mRtDatabase.getBarbyId(mBarId);
         mTitle = mBarObject.getName();
         setTitle(mTitle);
 
@@ -75,8 +80,9 @@ public class DetailsActivity extends AppCompatActivity {
         super.onResume();
 
 
-        Image image= mDb.getImagebyId(mBarId);
-        mBarObject.setImageData(image.getImage());
+        Image image= mRtDatabase.getImagebyId(mBarId);
+
+       //mBarObject.setImageData(image.getImage());
 
         String description = mBarObject.getDescription();
 
@@ -92,7 +98,7 @@ public class DetailsActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        String base64String = mBarObject.getImageData();
+        String base64String = image.getImage();
         String base64Image = base64String.split(",")[1];
 
         byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);

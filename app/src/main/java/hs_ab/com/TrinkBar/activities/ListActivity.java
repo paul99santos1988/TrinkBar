@@ -23,6 +23,7 @@ import java.util.List;
 import hs_ab.com.TrinkBar.R;
 import hs_ab.com.TrinkBar.adapters.BarListAdapter;
 import hs_ab.com.TrinkBar.adapters.DBAdapter;
+import hs_ab.com.TrinkBar.adapters.RealtimeDBAdapter;
 import hs_ab.com.TrinkBar.models.Bar;
 import hs_ab.com.TrinkBar.models.Image;
 
@@ -38,8 +39,8 @@ public class ListActivity extends AppCompatActivity
     private static final String TAG = "LOG";
     private List<Bar> barList;
     private RecyclerView mRv;
-    private DBAdapter db;
-
+    //private DBAdapter db;
+    private RealtimeDBAdapter mRtDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +61,8 @@ public class ListActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view_details);
         navigationView.setNavigationItemSelectedListener(this);
         barList = new ArrayList<Bar>();
-        db = DBAdapter.getInstance(mCtx);
+        //db = DBAdapter.getInstance(mCtx);
+        mRtDatabase = RealtimeDBAdapter.getInstance(mCtx);
 
         // RV for List
         mRv = findViewById(R.id.rv);
@@ -74,18 +76,19 @@ public class ListActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 
-        barList.clear();
-        barList= db.getBarList();
+        //barList.clear();
+        barList= mRtDatabase.getBarList();
         // init Adapter with Data from Server
         for (int i=0;i<barList.size();i++ ){
 
-            Image image = db.getImagebyId(barList.get(i).getId());
+            Image image = mRtDatabase.getImagebyId(barList.get(i).getId());
             barList.get(i).setImageData(image.getImage());
 
         }
         if(mRv.getAdapter()==null) {
             initializeAdapter();
         }
+        mRv.getAdapter().notifyDataSetChanged();
     }
 
 

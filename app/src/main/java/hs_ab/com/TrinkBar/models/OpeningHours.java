@@ -5,63 +5,27 @@ import com.google.gson.annotations.SerializedName;
 
 public class OpeningHours {
 
-    @SerializedName("Thursday")
-    @Expose
-    private String thursday;
-    @SerializedName("Friday")
+    @SerializedName("friday")
     @Expose
     private String friday;
-    @SerializedName("Saturday")
-    @Expose
-    private String saturday;
-    @SerializedName("Sunday")
-    @Expose
-    private String sunday;
-    @SerializedName("Monday")
+    @SerializedName("monday")
     @Expose
     private String monday;
-    @SerializedName("Tuesday")
+    @SerializedName("saturday")
+    @Expose
+    private String saturday;
+    @SerializedName("sunday")
+    @Expose
+    private String sunday;
+    @SerializedName("thursday")
+    @Expose
+    private String thursday;
+    @SerializedName("tuesday")
     @Expose
     private String tuesday;
-    @SerializedName("Wednesday")
+    @SerializedName("wednesday")
     @Expose
     private String wednesday;
-
-    /**
-     * No args constructor for use in serialization
-     *
-     */
-    public OpeningHours() {
-    }
-
-    /**
-     *
-     * @param wednesday
-     * @param monday
-     * @param thursday
-     * @param sunday
-     * @param saturday
-     * @param tuesday
-     * @param friday
-     */
-    public OpeningHours(String thursday, String friday, String saturday, String sunday, String monday, String tuesday, String wednesday) {
-        super();
-        this.thursday = thursday;
-        this.friday = friday;
-        this.saturday = saturday;
-        this.sunday = sunday;
-        this.monday = monday;
-        this.tuesday = tuesday;
-        this.wednesday = wednesday;
-    }
-
-    public String getThursday() {
-        return thursday;
-    }
-
-    public void setThursday(String thursday) {
-        this.thursday = thursday;
-    }
 
     public String getFriday() {
         return friday;
@@ -69,6 +33,14 @@ public class OpeningHours {
 
     public void setFriday(String friday) {
         this.friday = friday;
+    }
+
+    public String getMonday() {
+        return monday;
+    }
+
+    public void setMonday(String monday) {
+        this.monday = monday;
     }
 
     public String getSaturday() {
@@ -87,12 +59,12 @@ public class OpeningHours {
         this.sunday = sunday;
     }
 
-    public String getMonday() {
-        return monday;
+    public String getThursday() {
+        return thursday;
     }
 
-    public void setMonday(String monday) {
-        this.monday = monday;
+    public void setThursday(String thursday) {
+        this.thursday = thursday;
     }
 
     public String getTuesday() {
