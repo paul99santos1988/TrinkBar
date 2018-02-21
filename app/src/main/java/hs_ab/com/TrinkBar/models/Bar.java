@@ -20,9 +20,9 @@ public class Bar {
     @SerializedName("id")
     @Expose
     private String id;
-    @SerializedName("imageLink")
+    @SerializedName("visitor")
     @Expose
-    private String imageLink;
+    private String visitor;
     @SerializedName("name")
     @Expose
     private String name;
@@ -75,13 +75,9 @@ public class Bar {
         this.id = id;
     }
 
-    public String getImageLink() {
-        return imageLink;
-    }
+    public String getVisitor() {return visitor;}
 
-    public void setImageLink(String imageLink) {
-        this.imageLink = imageLink;
-    }
+    public void setVisitor(String visitor) {this.visitor = visitor;}
 
     public String getName() {
         return name;

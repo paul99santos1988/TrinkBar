@@ -4,6 +4,13 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -25,12 +32,16 @@ import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBufferResponse;
 import com.google.android.gms.location.places.PlaceDetectionClient;
+import com.google.android.gms.location.places.PlaceLikelihood;
+import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdate;
@@ -38,6 +49,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -51,8 +63,10 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.maps.android.ui.IconGenerator;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 import hs_ab.com.TrinkBar.R;
@@ -67,8 +81,7 @@ public class MapActivity extends AppCompatActivity
         GoogleMap.OnPoiClickListener,
         OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback,
-        NavigationView.OnNavigationItemSelectedListener
-        {
+        NavigationView.OnNavigationItemSelectedListener {
 
     private GoogleMap mMap;
     private static final String TAG = "MapActivity";
@@ -93,7 +106,7 @@ public class MapActivity extends AppCompatActivity
     private Animation hide_fab_share;
 
     private DatabaseReference mDatabase;
-   
+    private ArrayList<Marker> mMarkerArray;
 
 
     /**
@@ -121,11 +134,13 @@ public class MapActivity extends AppCompatActivity
         setupRealtimeDB();
         initMap();
 
+        mMarkerArray = new ArrayList<>();
+
         mGeoDataClient = Places.getGeoDataClient(this, null);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
     }
 
-    private void initSideMenu(){
+    private void initSideMenu() {
 
         //mark selected menu item
         NavigationView navigationView = findViewById(R.id.nav_view);
@@ -143,7 +158,7 @@ public class MapActivity extends AppCompatActivity
 
     }
 
-    private void initMap(){
+    private void initMap() {
         // Map
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -221,6 +236,16 @@ public class MapActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 Toast.makeText(getApplication(), "Share Location", Toast.LENGTH_SHORT).show();
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                sendIntent.putExtra(Intent.EXTRA_TEXT, "Hallo Du, ich befinde mich zur Zeit bei xx komm doch vorbei!");
+                sendIntent.setType("text/plain");
+                //sendIntent.setPackage("com.whatsapp");
+                Intent chooser = Intent.createChooser(sendIntent, "Share");
+                if (sendIntent.resolveActivity(getPackageManager()) != null) {
+                    //startActivity(sendIntent);
+                    startActivity(chooser);
+                }
             }
         });
     }
@@ -304,6 +329,7 @@ public class MapActivity extends AppCompatActivity
         enableMyLocation();
 
 
+
         /*if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -385,15 +411,30 @@ public class MapActivity extends AppCompatActivity
 
     // set marker on the map with the coordinates from the server
     private void setMarker() {
+        IconGenerator iconFactory = new IconGenerator(this);
+        iconFactory.setColor(Color.WHITE);
+        iconFactory.setTextAppearance(R.style.iconGenText);
+
+
+        for(int j = 0; j < mMarkerArray.size(); j++) {
+                    mMarkerArray.get(j).remove();
+                    mMarkerArray.remove(j);
+        }
         for (int i = 0; i < mBarList.size(); i++) {
             Double lat = Double.valueOf(mBarList.get(i).getCoordinates().getLatitude());
             Double lon = Double.valueOf(mBarList.get(i).getCoordinates().getLongitude());
             String name = mBarList.get(i).getName();
             LatLng place = new LatLng(lat, lon);
-            //Marker is dragable .setDraggable(true)
-            Marker marker = mMap.addMarker(new MarkerOptions().position(place).title(name));
+
+            Marker marker = mMap.addMarker(new MarkerOptions()
+                    .icon(BitmapDescriptorFactory.fromBitmap(iconFactory.makeIcon(mBarList.get(i).getVisitor()))) // + "\n"
+                    .position(place)
+                    .title(name));
+           // marker.setDraggable(true);
+            mMarkerArray.add(marker);
 
         }
+
     }
 
 
@@ -517,65 +558,29 @@ public class MapActivity extends AppCompatActivity
 
     @Override
     public void onPoiClick(PointOfInterest poi) {
-        Toast.makeText(getApplicationContext(), "Clicked: " +
-                        poi.name + "\nPlace ID:" + poi.placeId +
-                        "\nLatitude:" + poi.latLng.latitude +
-                        " Longitude:" + poi.latLng.longitude,
-                Toast.LENGTH_SHORT).show();
 
-
+        //get Place Details
         mGeoDataClient.getPlaceById(poi.placeId).addOnCompleteListener(new OnCompleteListener<PlaceBufferResponse>() {
-                                                                           @Override
-                                                                           public void onComplete(@NonNull Task<PlaceBufferResponse> task) {
-                                                                               if (task.isSuccessful()) {
-                                                                                   PlaceBufferResponse places = task.getResult();
-                                                                                   Place myPlace = places.get(0);
-
-                                                                                   Log.i(TAG, "Place found: " + myPlace.getName());
-                                                                                   places.release();
-                                                                               } else {
-                                                                                   Log.e(TAG, "Place not found.");
-                                                                               }
-                                                                           }
-                                                                       });
-        /*int PLACE_PICKER_REQUEST = 1;
-        PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
-
-        try {
-            startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST);
-        } catch (GooglePlayServicesRepairableException e) {
-            e.printStackTrace();
-        } catch (GooglePlayServicesNotAvailableException e) {
-            e.printStackTrace();
-        }*/
-
-    }
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 1) {
-            if (resultCode == RESULT_OK) {
-                Place place = PlacePicker.getPlace(data, this);
-
-                /*mGeoDataClient.getPlaceById(place.getId()).addOnCompleteListener(new OnCompleteListener<PlaceBufferResponse>() {
-                    @Override
-                    public void onComplete(@NonNull Task<PlaceBufferResponse> task) {
-                        if (task.isSuccessful()) {
-                            PlaceBufferResponse places = task.getResult();
-                            Place myPlace = places.get(0);
-                            Log.i(TAG, "Place found: " + myPlace.getName());
-                            places.release();
-                        } else {
-                            Log.e(TAG, "Place not found.");
-                        }
-                    }
-                });*/
+                 @Override
+                 public void onComplete(@NonNull Task<PlaceBufferResponse> task) {
+                     if (task.isSuccessful()) {
+                         PlaceBufferResponse places = task.getResult();
+                         Place myPlace = places.get(0);
+                         //Place.TYPE_SHOPPING_MALL
+                         Toast.makeText(getApplicationContext(), "Clicked: " +
+                                         myPlace.getName() + "\nRating:" + myPlace.getRating() +
+                                         "\nAddress:" + myPlace.getAddress() +  myPlace.getPlaceTypes().toString(),
+                                 Toast.LENGTH_LONG).show();
+                         places.release();
+                     } else {
+                         Toast.makeText(getApplicationContext(), "Place not found.",
+                                 Toast.LENGTH_SHORT).show();
+                     }
 
 
+                 }
+             });
 
-
-                String toastMsg = String.format("Place: %s", place.getName());
-                Toast.makeText(this, toastMsg, Toast.LENGTH_LONG).show();
-            }
-        }
     }
 
     public void setupRealtimeDB(){
@@ -625,6 +630,45 @@ public class MapActivity extends AppCompatActivity
         mDatabase.addChildEventListener(childEventListener);
 
     }
+
+            public Bitmap GetBitmapMarker(Context mContext, int resourceId, String mText)
+            {
+                try
+                {
+                    Resources resources = mContext.getResources();
+                    float scale = resources.getDisplayMetrics().density;
+                    Bitmap bitmap = BitmapFactory.decodeResource(resources, resourceId);
+
+                    android.graphics.Bitmap.Config bitmapConfig = bitmap.getConfig();
+
+                    // set default bitmap config if none
+                    if(bitmapConfig == null)
+                        bitmapConfig = android.graphics.Bitmap.Config.ARGB_8888;
+
+                    bitmap = bitmap.copy(bitmapConfig, true);
+
+                    Canvas canvas = new Canvas(bitmap);
+                    Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                    paint.setColor(Color.WHITE);
+                    paint.setTextSize((int) (14 * scale));
+                    paint.setShadowLayer(1f, 0f, 1f, Color.DKGRAY);
+
+                    // draw text to the Canvas center
+                    Rect bounds = new Rect();
+                    paint.getTextBounds(mText, 0, mText.length(), bounds);
+                    int x = (bitmap.getWidth() - bounds.width())/2;
+                    int y = (bitmap.getHeight() + bounds.height())/2;
+
+                    canvas.drawText(mText, x * scale, y * scale, paint);
+
+                    return bitmap;
+
+                }
+                catch (Exception e)
+                {
+                    return null;
+                }
+            }
 
 
 }
