@@ -51,22 +51,14 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import hs_ab.com.TrinkBar.R;
-import hs_ab.com.TrinkBar.adapters.DBAdapter;
 import hs_ab.com.TrinkBar.adapters.RealtimeDBAdapter;
 import hs_ab.com.TrinkBar.helper.PermissionUtils;
-import hs_ab.com.TrinkBar.interfaces.Callback;
 import hs_ab.com.TrinkBar.models.Bar;
-import hs_ab.com.TrinkBar.models.Bars;
-import hs_ab.com.TrinkBar.models.Image;
-import hs_ab.com.TrinkBar.sync.HttpRequest;
 
 
 public class MapActivity extends AppCompatActivity
@@ -75,41 +67,33 @@ public class MapActivity extends AppCompatActivity
         GoogleMap.OnPoiClickListener,
         OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback,
-        NavigationView.OnNavigationItemSelectedListener,
-        Callback {
+        NavigationView.OnNavigationItemSelectedListener
+        {
 
     private GoogleMap mMap;
     private static final String TAG = "MapActivity";
     private Context mCtx;
     private List<Bar> mBarList;
-    private DBAdapter mDb;
-    private HttpRequest mRequest;
     private LatLng mlocation = null;
-
     private RealtimeDBAdapter mRtDatabase;
-
     private FloatingActionButton mFabBottom;
     private FloatingActionButton mFabLocation;
     private FloatingActionButton mFabTarget;
     private FloatingActionButton mFabShare;
-
     private FusedLocationProviderClient mFusedLocationClient;
     protected PlaceDetectionClient mPlaceDetectionClient;
     private GeoDataClient mGeoDataClient;
-
-
     private boolean mFabStatus = false;
-
-
     //Animations
-    Animation show_fab_location;
-    Animation hide_fab_location;
-    Animation show_fab_target;
-    Animation hide_fab_target;
-    Animation show_fab_share;
-    Animation hide_fab_share;
+    private Animation show_fab_location;
+    private Animation hide_fab_location;
+    private Animation show_fab_target;
+    private Animation hide_fab_target;
+    private Animation show_fab_share;
+    private Animation hide_fab_share;
 
     private DatabaseReference mDatabase;
+   
 
 
     /**
@@ -131,25 +115,25 @@ public class MapActivity extends AppCompatActivity
         mCtx = getApplicationContext();
         setContentView(R.layout.activity_main);
 
-        mDb = DBAdapter.getInstance(mCtx);
-
-        mRtDatabase = RealtimeDBAdapter.getInstance(mCtx);
-
-        // Setup Get Request
-        mRequest = HttpRequest.getInstance(mCtx);
-        mRequest.setCallbacks(this);
-        mRequest.getRequest();
-
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-
         initAnimations();
         initFAB();
+        initSideMenu();
+        setupRealtimeDB();
+        initMap();
 
         mGeoDataClient = Places.getGeoDataClient(this, null);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+    }
 
+    private void initSideMenu(){
+
+        //mark selected menu item
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -157,16 +141,13 @@ public class MapActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+    }
 
-
+    private void initMap(){
         // Map
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-        setupRealtimeDB();
     }
 
 
@@ -409,7 +390,9 @@ public class MapActivity extends AppCompatActivity
             Double lon = Double.valueOf(mBarList.get(i).getCoordinates().getLongitude());
             String name = mBarList.get(i).getName();
             LatLng place = new LatLng(lat, lon);
-            mMap.addMarker(new MarkerOptions().position(place).title(name)).setDraggable(true);
+            //Marker is dragable .setDraggable(true)
+            Marker marker = mMap.addMarker(new MarkerOptions().position(place).title(name));
+
         }
     }
 
@@ -533,14 +516,6 @@ public class MapActivity extends AppCompatActivity
     }
 
     @Override
-    public void callbackCall() {
-        /*mBarList = mDb.getBarList();
-        if (mMap != null) {
-            setMarker();
-        }*/
-    }
-
-    @Override
     public void onPoiClick(PointOfInterest poi) {
         Toast.makeText(getApplicationContext(), "Clicked: " +
                         poi.name + "\nPlace ID:" + poi.placeId +
@@ -604,6 +579,8 @@ public class MapActivity extends AppCompatActivity
     }
 
     public void setupRealtimeDB(){
+
+        mRtDatabase = RealtimeDBAdapter.getInstance(mCtx);
 
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         mDatabase = FirebaseDatabase.getInstance().getReference();

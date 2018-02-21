@@ -16,7 +16,6 @@ import android.widget.TextView;
 import java.io.UnsupportedEncodingException;
 
 import hs_ab.com.TrinkBar.R;
-import hs_ab.com.TrinkBar.adapters.DBAdapter;
 import hs_ab.com.TrinkBar.adapters.RealtimeDBAdapter;
 import hs_ab.com.TrinkBar.models.Bar;
 import hs_ab.com.TrinkBar.models.Image;
@@ -34,7 +33,6 @@ public class DetailsActivity extends AppCompatActivity {
     private TextView mText;
     private String mOpeninghours;
     private Bar mBarObject;
-    private DBAdapter mDb;
     private RealtimeDBAdapter mRtDatabase;
     private FloatingActionButton mFab;
 
@@ -52,7 +50,6 @@ public class DetailsActivity extends AppCompatActivity {
 
         mRtDatabase = RealtimeDBAdapter.getInstance(mCtx);
 
-        //mDb = DBAdapter.getInstance(mCtx);
         mBarObject = mRtDatabase.getBarbyId(mBarId);
         mTitle = mBarObject.getName();
         setTitle(mTitle);
