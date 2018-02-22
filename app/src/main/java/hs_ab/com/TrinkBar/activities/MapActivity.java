@@ -11,6 +11,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -32,6 +34,12 @@ import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -66,8 +74,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.maps.android.ui.IconGenerator;
 
 
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import hs_ab.com.TrinkBar.R;
 import hs_ab.com.TrinkBar.adapters.RealtimeDBAdapter;
@@ -107,6 +119,7 @@ public class MapActivity extends AppCompatActivity
 
     private DatabaseReference mDatabase;
     private ArrayList<Marker> mMarkerArray;
+    private String mPlacesAPIKey = "AIzaSyC2144RCdtuiUP2HF-lMNg3Q9raPDmQy2M";
 
 
     /**
@@ -138,6 +151,7 @@ public class MapActivity extends AppCompatActivity
 
         mGeoDataClient = Places.getGeoDataClient(this, null);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
     }
 
     private void initSideMenu() {
@@ -328,35 +342,6 @@ public class MapActivity extends AppCompatActivity
         mMap.setOnPoiClickListener(this);
         enableMyLocation();
 
-
-
-        /*if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        Task<PlaceLikelihoodBufferResponse> placeResult = mPlaceDetectionClient.getCurrentPlace(null);
-        placeResult.addOnCompleteListener(new OnCompleteListener<PlaceLikelihoodBufferResponse>() {
-            @Override
-            public void onComplete(@NonNull Task<PlaceLikelihoodBufferResponse> task) {
-                PlaceLikelihoodBufferResponse likelyPlaces = task.getResult();
-                for (PlaceLikelihood placeLikelihood : likelyPlaces) {
-                    Log.i(TAG, String.format("Place '%s' has likelihood: %g",
-                            placeLikelihood.getPlace().getName(),
-                            placeLikelihood.getLikelihood()));
-                }
-                likelyPlaces.release();
-            }
-        });*/
-
-
-
-
         LatLngBounds ASCHAFFENBURG = new LatLngBounds(
                 new LatLng(49.969527, 9.150233), new LatLng(49.980977, 9.150233));
 
@@ -425,6 +410,15 @@ public class MapActivity extends AppCompatActivity
             Double lon = Double.valueOf(mBarList.get(i).getCoordinates().getLongitude());
             String name = mBarList.get(i).getName();
             LatLng place = new LatLng(lat, lon);
+            List<Address> addresses=new ArrayList<>();
+            //https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.8670522,151.1957362&radius=500&types=food&name=cruise&key=YOUR_API_KEY
+            Geocoder geo = new Geocoder(this.getApplicationContext(), Locale.getDefault());
+            try {
+                addresses = geo.getFromLocation(lat, lon, 1);
+                Log.d(TAG, "setMarker: ");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             Marker marker = mMap.addMarker(new MarkerOptions()
                     .icon(BitmapDescriptorFactory.fromBitmap(iconFactory.makeIcon(mBarList.get(i).getVisitor()))) // + "\n"
@@ -569,13 +563,42 @@ public class MapActivity extends AppCompatActivity
                          //Place.TYPE_SHOPPING_MALL
                          Toast.makeText(getApplicationContext(), "Clicked: " +
                                          myPlace.getName() + "\nRating:" + myPlace.getRating() +
-                                         "\nAddress:" + myPlace.getAddress() +  myPlace.getPlaceTypes().toString(),
+                                         "\nAddress:" + myPlace.getAddress() +  myPlace.getPlaceTypes().toString() ,
                                  Toast.LENGTH_LONG).show();
+
+                         /*RequestQueue queue = Volley.newRequestQueue(MapActivity.this);
+
+                         String url = "https://maps.googleapis.com/maps/api/place/details/json?placeid="+ myPlace.getId()+"&key="+ mPlacesAPIKey;
+
+                         JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+
+                                     @Override
+                                     public void onResponse(JSONObject response) {
+                                         Log.d("Response: " , response.toString());
+                                     }
+                                 }, new Response.ErrorListener() {
+
+                                     @Override
+                                     public void onErrorResponse(VolleyError error) {
+                                         // TODO Auto-generated method stub
+
+                                     }
+                                 });
+
+                         // Access the RequestQueue through your singleton class.
+                         queue.add(jsObjRequest);*/
+
+
+
                          places.release();
                      } else {
                          Toast.makeText(getApplicationContext(), "Place not found.",
                                  Toast.LENGTH_SHORT).show();
                      }
+
+
+
 
 
                  }
@@ -605,12 +628,22 @@ public class MapActivity extends AppCompatActivity
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
                 Log.d(TAG, "onChildChanged:" + dataSnapshot.getKey());
-
+                mRtDatabase.DataSnapshotHandler(dataSnapshot);
+                mBarList = mRtDatabase.getBarList();
+                if (mMap != null) {
+                    setMarker();
+                }
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
+                Log.d(TAG, "onChildChanged:" + dataSnapshot.getKey());
+                mRtDatabase.DataSnapshotHandler(dataSnapshot);
+                mBarList = mRtDatabase.getBarList();
+                if (mMap != null) {
+                    setMarker();
+                }
 
             }
 
@@ -630,45 +663,4 @@ public class MapActivity extends AppCompatActivity
         mDatabase.addChildEventListener(childEventListener);
 
     }
-
-            public Bitmap GetBitmapMarker(Context mContext, int resourceId, String mText)
-            {
-                try
-                {
-                    Resources resources = mContext.getResources();
-                    float scale = resources.getDisplayMetrics().density;
-                    Bitmap bitmap = BitmapFactory.decodeResource(resources, resourceId);
-
-                    android.graphics.Bitmap.Config bitmapConfig = bitmap.getConfig();
-
-                    // set default bitmap config if none
-                    if(bitmapConfig == null)
-                        bitmapConfig = android.graphics.Bitmap.Config.ARGB_8888;
-
-                    bitmap = bitmap.copy(bitmapConfig, true);
-
-                    Canvas canvas = new Canvas(bitmap);
-                    Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-                    paint.setColor(Color.WHITE);
-                    paint.setTextSize((int) (14 * scale));
-                    paint.setShadowLayer(1f, 0f, 1f, Color.DKGRAY);
-
-                    // draw text to the Canvas center
-                    Rect bounds = new Rect();
-                    paint.getTextBounds(mText, 0, mText.length(), bounds);
-                    int x = (bitmap.getWidth() - bounds.width())/2;
-                    int y = (bitmap.getHeight() + bounds.height())/2;
-
-                    canvas.drawText(mText, x * scale, y * scale, paint);
-
-                    return bitmap;
-
-                }
-                catch (Exception e)
-                {
-                    return null;
-                }
-            }
-
-
 }

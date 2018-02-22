@@ -11,6 +11,7 @@
     <string name="permission_required_toast">Der Standort Zugriff wird für diese App benötigt.</string>
     <string name="title_activity_main2">Main2Activity</string>
     <string name="Email">android.studio@android.com</string>
+    <string name="PlacesAPIKey">AIzaSyC2144RCdtuiUP2HF-lMNg3Q9raPDmQy2M</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>

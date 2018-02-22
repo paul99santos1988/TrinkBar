@@ -74,6 +74,7 @@ public class RealtimeDBAdapter {
     }
 
     public void setBarList(Iterator<DataSnapshot> iterator){
+        mbarList.clear();
         while((iterator.hasNext())){
             Bar bar = iterator.next().getValue(Bar.class);
             mbarList.add(bar);
@@ -82,6 +83,7 @@ public class RealtimeDBAdapter {
     }
 
     public void setImageList(Iterator<DataSnapshot> iterator){
+        mimageList.clear();
         while((iterator.hasNext())){
         Image image = iterator.next().getValue(Image.class);
         mimageList.add(image);
