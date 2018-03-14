@@ -9,6 +9,9 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+    <uses-feature android:name="android.hardware.location.gps" />
+
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -44,6 +47,11 @@
             android:name=".activities.DetailsActivity"
             android:label="@string/title_activity_scrolling"
             android:theme="@style/AppTheme.NoActionBar" />
+        <!--<receiver android:name=".ProximityAlertReceiver" >
+            <intent-filter>
+                <action android:name="hs_ab.com.TrinkBar.activities.ACTION_PROXIMITY_ALERT" />
+            </intent-filter>
+        </receiver>-->
 
     </application>
 

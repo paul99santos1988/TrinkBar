@@ -1,8 +1,11 @@
 package hs_ab.com.TrinkBar.activities;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -14,7 +17,10 @@ import android.graphics.Rect;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.SyncStateContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -81,6 +87,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import hs_ab.com.TrinkBar.ProximityAlertReceiver;
 import hs_ab.com.TrinkBar.R;
 import hs_ab.com.TrinkBar.adapters.RealtimeDBAdapter;
 import hs_ab.com.TrinkBar.helper.PermissionUtils;
@@ -120,6 +127,10 @@ public class MapActivity extends AppCompatActivity
     private DatabaseReference mDatabase;
     private ArrayList<Marker> mMarkerArray;
     private String mPlacesAPIKey = "AIzaSyC2144RCdtuiUP2HF-lMNg3Q9raPDmQy2M";
+    private IntentFilter mIntentFilter;
+    private static final String PROXIMITY_INTENT_ACTION = "hs_ab.com.TrinkBar.activities.ACTION_PROXIMITY_ALERT";
+    LocationManager mlocationManager;
+    private ProximityAlertReceiver mProximityReceiver;
 
 
     /**
@@ -152,7 +163,73 @@ public class MapActivity extends AppCompatActivity
         mGeoDataClient = Places.getGeoDataClient(this, null);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
+
+        mIntentFilter = new IntentFilter(PROXIMITY_INTENT_ACTION);
+        mProximityReceiver = new ProximityAlertReceiver();
+        registerReceiver(mProximityReceiver, mIntentFilter);
+
+
+        mlocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Intent intent = new Intent();
+        intent.setAction(PROXIMITY_INTENT_ACTION);
+
+
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 1, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        mlocationManager.addProximityAlert(38.54, -80.38, 150f, -1, pendingIntent);
+
+        //registerReceiver(mProximityReceiver, mIntentFilter);
+
+
     }
+
+
+    protected void onResume() {
+        super.onResume();
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        Location lastLocation = mlocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+
+        /*mlocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Intent intent = new Intent();
+        intent.setAction(PROXIMITY_INTENT_ACTION);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 1, intent,  PendingIntent.FLAG_UPDATE_CURRENT);
+        mlocationManager.addProximityAlert(38.54,-80.38, 150f, -1, pendingIntent);*/
+
+        registerReceiver(mProximityReceiver, mIntentFilter);
+        //Location location = mlocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        //Log.d(TAG, "onResume: Location"+ location);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        //unregisterReceiver(mProximityReceiver);
+
+    }
+
+
 
     private void initSideMenu() {
 
@@ -476,6 +553,8 @@ public class MapActivity extends AppCompatActivity
             mPermissionDenied = true;
         }
     }
+
+
 
     @Override
     protected void onResumeFragments() {
