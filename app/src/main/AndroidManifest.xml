@@ -33,8 +33,12 @@
             android:theme="@style/AppTheme.NoActionBar" />
 
         <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDJDohQxW8kcJstjK7H6Rddrngcfm9AGYE" />
+            android:value="AIzaSyC2144RCdtuiUP2HF-lMNg3Q9raPDmQy2M" />
 
         <activity
             android:name=".activities.ListActivity"
@@ -44,6 +48,8 @@
             android:name=".activities.DetailsActivity"
             android:label="@string/title_activity_scrolling"
             android:theme="@style/AppTheme.NoActionBar" />
+
+        <service android:name=".activities.GeofenceTransitionsJobIntentService"/>
 
     </application>
 
