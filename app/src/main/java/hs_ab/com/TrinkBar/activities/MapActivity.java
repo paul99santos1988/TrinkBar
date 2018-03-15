@@ -112,7 +112,6 @@ public class MapActivity extends AppCompatActivity
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener,
-        GoogleMap.OnMapClickListener,
         GoogleMap.OnMarkerClickListener,
         ResultCallback<Status> {
 
@@ -186,6 +185,7 @@ public class MapActivity extends AppCompatActivity
 
         // create GoogleApiClient
         createGoogleApi();
+
     }
 
     // Create GoogleApiClient instance
@@ -206,6 +206,7 @@ public class MapActivity extends AppCompatActivity
 
         // Call GoogleApiClient connection when starting the Activity
         googleApiClient.connect();
+
     }
 
     @Override
@@ -357,19 +358,28 @@ public class MapActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        int id = item.getItemId();
+        switch ( item.getItemId() ) {
 
-        if (id == R.id.map_hybrid) {
-            mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-            return true;
-        }
-        if (id == R.id.map_roadmap) {
-            mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-            return true;
-        }
-        if (id == R.id.map_terrain) {
-            mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-            return true;
+            case R.id.map_hybrid: {
+                mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                return true;
+            }
+            case R.id.map_roadmap: {
+                mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                return true;
+            }
+            case R.id.map_terrain: {
+                mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                return true;
+            }
+            case R.id.geofence: {
+                startGeofence();
+                return true;
+            }
+            case R.id.clear: {
+                clearGeofence();
+                return true;
+            }
         }
 
         return super.onOptionsItemSelected(item);
@@ -419,7 +429,7 @@ public class MapActivity extends AppCompatActivity
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ASCHAFFENBURG.getCenter(), 15));
         mMap.getUiSettings().setMapToolbarEnabled(false);
-        mMap.setOnMapClickListener(this);
+        //mMap.setOnMapClickListener(this);
         mMap.setOnMarkerClickListener(this);
 
 
@@ -716,11 +726,11 @@ public class MapActivity extends AppCompatActivity
     }
 
 
-    @Override
+   /* @Override
     public void onMapClick(LatLng latLng) {
         Log.d(TAG, "onMapClick("+latLng +")");
         //markerForGeofence(latLng);
-    }
+    }*/
 
     @Override
     public boolean onMarkerClick(Marker marker) {
@@ -762,7 +772,7 @@ public class MapActivity extends AppCompatActivity
     public void onLocationChanged(Location location) {
         //Log.d(TAG, "onLocationChanged ["+loonLoccation+"]");
         lastLocation = location;
-        writeActualLocation(location);
+        //writeActualLocation(location);
     }
 
     // GoogleApiClient.ConnectionCallbacks connected
@@ -771,12 +781,13 @@ public class MapActivity extends AppCompatActivity
         Log.i(TAG, "onConnected()");
         getLastKnownLocation();
         //for(int i=0;i< mMarkerArray.size();i++) {
-            Geofence geofence = createGeofence(mMarkerArray.get(0).getPosition(), GEOFENCE_RADIUS);
-            GeofencingRequest geofenceRequest = createGeofenceRequest(geofence);
-            addGeofence(geofenceRequest);
+            //Geofence geofence = createGeofence(mMarkerArray.get(0).getPosition(), GEOFENCE_RADIUS);
+            //GeofencingRequest geofenceRequest = createGeofenceRequest(geofence);
+            //addGeofence(geofenceRequest);
         //}
-        drawGeofence();
+        //drawGeofence();
         //recoverGeofenceMarker();
+        startGeofence();
     }
 
     // GoogleApiClient.ConnectionCallbacks suspended
@@ -800,7 +811,7 @@ public class MapActivity extends AppCompatActivity
                 Log.i(TAG, "LasKnown location. " +
                         "Long: " + lastLocation.getLongitude() +
                         " | Lat: " + lastLocation.getLatitude());
-                writeLastLocation();
+                //writeLastLocation();
                 startLocationUpdates();
             } else {
                 Log.w(TAG, "No location retrieved yet");
@@ -810,18 +821,18 @@ public class MapActivity extends AppCompatActivity
         else askPermission();
     }
 
-    private void writeActualLocation(Location location) {
+    /*private void writeActualLocation(Location location) {
         //textLat.setText( "Lat: " + location.getLatitude() );
         //textLong.setText( "Long: " + location.getLongitude() );
 
-        markerLocation(new LatLng(location.getLatitude(), location.getLongitude()));
-    }
+        //markerLocation(new LatLng(location.getLatitude(), location.getLongitude()));
+    }*/
 
-    private void writeLastLocation() {
+    /*private void writeLastLocation() {
         writeActualLocation(lastLocation);
-    }
+    }*/
 
-    private Marker locationMarker;
+    /*private Marker locationMarker;
     private void markerLocation(LatLng latLng) {
        // Log.i(TAG, "markerLocation("+latLng+")");
         String title = latLng.latitude + ", " + latLng.longitude;
@@ -836,10 +847,10 @@ public class MapActivity extends AppCompatActivity
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
             mMap.animateCamera(cameraUpdate);
         }
-    }
+    }*/
 
 
-    private Marker geoFenceMarker;
+    /*private Marker geoFenceMarker;
     private void markerForGeofence(LatLng latLng) {
         Log.i(TAG, "markerForGeofence("+latLng+")");
         String title = latLng.latitude + ", " + latLng.longitude;
@@ -856,15 +867,16 @@ public class MapActivity extends AppCompatActivity
             geoFenceMarker = mMap.addMarker(markerOptions);
 
         }
-    }
+    }*/
 
     // Start Geofence creation process
     private void startGeofence() {
         Log.i(TAG, "startGeofence()");
-        if( geoFenceMarker != null ) {
-            Geofence geofence = createGeofence( geoFenceMarker.getPosition(), GEOFENCE_RADIUS );
+        if( mMarkerArray.get(0) != null ) {
+            Geofence geofence = createGeofence( mMarkerArray.get(0) .getPosition(), GEOFENCE_RADIUS );
             GeofencingRequest geofenceRequest = createGeofenceRequest( geofence );
             addGeofence( geofenceRequest );
+            drawGeofence();
         } else {
             Log.e(TAG, "Geofence marker is null");
         }
@@ -923,7 +935,7 @@ public class MapActivity extends AppCompatActivity
         Log.i(TAG, "onResult: " + status);
         if ( status.isSuccess() ) {
             //saveGeofence();
-           // drawGeofence();
+            //drawGeofence();
         } else {
             // inform about fail
         }
@@ -949,18 +961,18 @@ public class MapActivity extends AppCompatActivity
     private final String KEY_GEOFENCE_LON = "GEOFENCE LONGITUDE";
 
     // Saving GeoFence marker with prefs mng
-    private void saveGeofence() {
+    /*private void saveGeofence() {
         Log.d(TAG, "saveGeofence()");
         SharedPreferences sharedPref = getPreferences( Context.MODE_PRIVATE );
         SharedPreferences.Editor editor = sharedPref.edit();
 
-        editor.putLong( KEY_GEOFENCE_LAT, Double.doubleToRawLongBits( geoFenceMarker.getPosition().latitude ));
-        editor.putLong( KEY_GEOFENCE_LON, Double.doubleToRawLongBits( geoFenceMarker.getPosition().longitude ));
+        editor.putLong( KEY_GEOFENCE_LAT, Double.doubleToRawLongBits( mMarkerArray.get(0).getPosition().latitude ));
+        editor.putLong( KEY_GEOFENCE_LON, Double.doubleToRawLongBits( mMarkerArray.get(0).getPosition().longitude ));
         editor.apply();
-    }
+    }*/
 
     // Recovering last Geofence marker
-    private void recoverGeofenceMarker() {
+    /*private void recoverGeofenceMarker() {
         Log.d(TAG, "recoverGeofenceMarker");
         SharedPreferences sharedPref = getPreferences( Context.MODE_PRIVATE );
 
@@ -968,10 +980,10 @@ public class MapActivity extends AppCompatActivity
             double lat = Double.longBitsToDouble( sharedPref.getLong( KEY_GEOFENCE_LAT, -1 ));
             double lon = Double.longBitsToDouble( sharedPref.getLong( KEY_GEOFENCE_LON, -1 ));
             LatLng latLng = new LatLng( lat, lon );
-            markerForGeofence(latLng);
-            drawGeofence();
+            //markerForGeofence(latLng);
+            //drawGeofence();
         }
-    }
+    }*/
 
     // Clear Geofence
     private void clearGeofence() {
@@ -992,8 +1004,8 @@ public class MapActivity extends AppCompatActivity
 
     private void removeGeofenceDraw() {
         Log.d(TAG, "removeGeofenceDraw()");
-        if ( geoFenceMarker != null)
-            geoFenceMarker.remove();
+        /*if ( geoFenceMarker != null)
+            geoFenceMarker.remove();*/
         if ( geoFenceLimits != null )
             geoFenceLimits.remove();
     }

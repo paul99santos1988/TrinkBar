@@ -71,10 +71,13 @@ public class GeofenceTrasitionService extends IntentService {
         }
 
         String status = null;
-        if ( geoFenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER )
+        if ( geoFenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ){
             status = "Entering ";
-        else if ( geoFenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT )
+        Log.d(TAG, "onHandleIntent: Enter");}
+        else if ( geoFenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT ){
             status = "Exiting ";
+            Log.d(TAG, "onHandleIntent: Exit");
+        }
         return status + TextUtils.join( ", ", triggeringGeofencesList);
     }
 
