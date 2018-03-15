@@ -34,6 +34,7 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
@@ -56,6 +57,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PointOfInterest;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
@@ -82,11 +84,7 @@ public class MapActivity extends AppCompatActivity
         OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback,
         NavigationView.OnNavigationItemSelectedListener,
-        GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,
-        LocationListener,
-        GoogleMap.OnMarkerClickListener,
-        ResultCallback<Status> {
+        GoogleMap.OnMarkerClickListener{
 
     private GoogleMap mMap;
     private static final String TAG = "MapActivity";
@@ -116,6 +114,7 @@ public class MapActivity extends AppCompatActivity
 
     private GoogleApiClient googleApiClient;
     private Location lastLocation;
+    private GeofencingClient mGeofencingClient;
 
     private static final String NOTIFICATION_MSG = "NOTIFICATION MSG";
 
@@ -154,42 +153,9 @@ public class MapActivity extends AppCompatActivity
         mMarkerArray = new ArrayList<>();
         mGeoDataClient = Places.getGeoDataClient(this, null);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
-        // create GoogleApiClient
-        createGoogleApi();
+        mGeofencingClient = LocationServices.getGeofencingClient(this);
 
     }
-
-    // Create GoogleApiClient instance
-    private void createGoogleApi() {
-        Log.d(TAG, "createGoogleApi()");
-        if ( googleApiClient == null ) {
-            googleApiClient = new GoogleApiClient.Builder( this )
-                    .addConnectionCallbacks( this )
-                    .addOnConnectionFailedListener( this )
-                    .addApi( LocationServices.API )
-                    .build();
-        }
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        // Call GoogleApiClient connection when starting the Activity
-        googleApiClient.connect();
-
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        // Disconnect GoogleApiClient when stopping Activity
-        googleApiClient.disconnect();
-    }
-
-
 
     private void initSideMenu() {
 
@@ -425,8 +391,8 @@ public class MapActivity extends AppCompatActivity
                     .position(place)
                     .title(name));
             mMarkerArray.add(marker);
-
         }
+        startGeofence();
 
     }
 
@@ -653,69 +619,7 @@ public class MapActivity extends AppCompatActivity
         }
         return false;
     }
-
-    private LocationRequest locationRequest;
-    // Defined in mili seconds.
-    // This number in extremely low, and should be used only for debug
-    private final int UPDATE_INTERVAL =  1000;
-    private final int FASTEST_INTERVAL = 900;
-
-    // Start location Updates
-    private void startLocationUpdates(){
-        Log.i(TAG, "startLocationUpdates()");
-        locationRequest = LocationRequest.create()
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(UPDATE_INTERVAL)
-                .setFastestInterval(FASTEST_INTERVAL);
-
-        if ( checkPermission() )
-            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
-
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        lastLocation = location;
-    }
-
-    // GoogleApiClient.ConnectionCallbacks connected
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        Log.i(TAG, "onConnected()");
-        getLastKnownLocation();
-        startGeofence();
-    }
-
-    // GoogleApiClient.ConnectionCallbacks suspended
-    @Override
-    public void onConnectionSuspended(int i) {
-        Log.w(TAG, "onConnectionSuspended()");
-    }
-
-    // GoogleApiClient.OnConnectionFailedListener fail
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.w(TAG, "onConnectionFailed()");
-    }
-
-    // Get last known location
-    private void getLastKnownLocation() {
-        Log.d(TAG, "getLastKnownLocation()");
-        if ( checkPermission() ) {
-            lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-            if ( lastLocation != null ) {
-                Log.i(TAG, "LasKnown location. " +
-                        "Long: " + lastLocation.getLongitude() +
-                        " | Lat: " + lastLocation.getLatitude());
-                startLocationUpdates();
-            } else {
-                Log.w(TAG, "No location retrieved yet");
-                startLocationUpdates();
-            }
-        }
-        else askPermission();
-    }
-
+    
     // Start Geofence creation process
     private void startGeofence() {
         Log.i(TAG, "startGeofence()");
@@ -770,20 +674,20 @@ public class MapActivity extends AppCompatActivity
     private void addGeofence(GeofencingRequest request) {
         Log.d(TAG, "addGeofence");
         if (checkPermission())
-            LocationServices.GeofencingApi.addGeofences(
-                    googleApiClient,
-                    request,
-                    createGeofencePendingIntent()
-            ).setResultCallback(this);
-    }
-
-   @Override
-    public void onResult(@NonNull Status status) {
-        Log.i(TAG, "onResult: " + status);
-        if ( status.isSuccess() ) {
-        } else {
-            // inform about fail
-        }
+            mGeofencingClient.addGeofences(request, createGeofencePendingIntent()
+            ).addOnSuccessListener(this, new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Log.i(TAG, "onResult: " + aVoid);
+                    // ...
+                }
+            }).addOnFailureListener(this, new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    // Failed to add geofences
+                    // ...
+                }
+            });
     }
 
     // Draw Geofence circle on GoogleMap
@@ -802,24 +706,20 @@ public class MapActivity extends AppCompatActivity
         geoFenceLimits = mMap.addCircle( circleOptions );
     }
 
-    private final String KEY_GEOFENCE_LAT = "GEOFENCE LATITUDE";
-    private final String KEY_GEOFENCE_LON = "GEOFENCE LONGITUDE";
-
-
     // Clear Geofence
     private void clearGeofence() {
         Log.d(TAG, "clearGeofence()");
-        LocationServices.GeofencingApi.removeGeofences(
-                googleApiClient,
-                createGeofencePendingIntent()
-        ).setResultCallback(new ResultCallback<Status>() {
+        mGeofencingClient.removeGeofences( createGeofencePendingIntent()).addOnSuccessListener(this, new OnSuccessListener<Void>() {
             @Override
-            public void onResult(@NonNull Status status) {
-                if ( status.isSuccess() ) {
-                    // remove drawing
-                    removeGeofenceDraw();
-                }
+            public void onSuccess(Void aVoid) {
+                removeGeofenceDraw();
             }
+        }).addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Failed to remove geofences
+                        // ...
+                    }
         });
     }
 
