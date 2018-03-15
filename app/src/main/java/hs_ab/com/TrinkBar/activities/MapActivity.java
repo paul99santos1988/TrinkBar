@@ -4,17 +4,8 @@ import android.Manifest;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -37,21 +28,12 @@ import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.Geofence;
-import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
@@ -59,11 +41,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBufferResponse;
-import com.google.android.gms.location.places.PlaceDetectionClient;
-import com.google.android.gms.location.places.PlaceLikelihood;
-import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
 import com.google.android.gms.location.places.Places;
-import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -78,7 +56,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PointOfInterest;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
@@ -89,12 +66,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.maps.android.ui.IconGenerator;
 
 
-import org.json.JSONObject;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
+
 
 import hs_ab.com.TrinkBar.R;
 import hs_ab.com.TrinkBar.adapters.RealtimeDBAdapter;
@@ -104,7 +78,6 @@ import hs_ab.com.TrinkBar.models.Bar;
 
 public class MapActivity extends AppCompatActivity
         implements
-        GoogleMap.OnMyLocationButtonClickListener,
         GoogleMap.OnPoiClickListener,
         OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback,
@@ -126,7 +99,6 @@ public class MapActivity extends AppCompatActivity
     private FloatingActionButton mFabTarget;
     private FloatingActionButton mFabShare;
     private FusedLocationProviderClient mFusedLocationClient;
-    protected PlaceDetectionClient mPlaceDetectionClient;
     private GeoDataClient mGeoDataClient;
     private boolean mFabStatus = false;
     //Animations
@@ -140,7 +112,7 @@ public class MapActivity extends AppCompatActivity
     private DatabaseReference mDatabase;
     private ArrayList<Marker> mMarkerArray;
     private String mPlacesAPIKey = "AIzaSyC2144RCdtuiUP2HF-lMNg3Q9raPDmQy2M";
-    private GeofencingClient mGeofencingClient;
+
 
     private GoogleApiClient googleApiClient;
     private Location lastLocation;
@@ -295,8 +267,6 @@ public class MapActivity extends AppCompatActivity
                                 }
                             }
                         });
-
-
             }
         });
 
@@ -420,7 +390,6 @@ public class MapActivity extends AppCompatActivity
 
 
         mMap = googleMap;
-        mMap.setOnMyLocationButtonClickListener(this);
         mMap.setOnPoiClickListener(this);
         enableMyLocation();
 
@@ -429,7 +398,6 @@ public class MapActivity extends AppCompatActivity
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ASCHAFFENBURG.getCenter(), 15));
         mMap.getUiSettings().setMapToolbarEnabled(false);
-        //mMap.setOnMapClickListener(this);
         mMap.setOnMarkerClickListener(this);
 
 
@@ -451,15 +419,6 @@ public class MapActivity extends AppCompatActivity
             Double lon = Double.valueOf(mBarList.get(i).getCoordinates().getLongitude());
             String name = mBarList.get(i).getName();
             LatLng place = new LatLng(lat, lon);
-            /*List<Address> addresses=new ArrayList<>();
-            Geocoder geo = new Geocoder(this.getApplicationContext(), Locale.getDefault());
-            try {
-                addresses = geo.getFromLocation(lat, lon, 1);
-                Log.d(TAG, "setMarker: ");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }*/
-
 
             Marker marker = mMap.addMarker(new MarkerOptions()
                     .icon(BitmapDescriptorFactory.fromBitmap(iconFactory.makeIcon(mBarList.get(i).getVisitor()))) // + "\n"
@@ -489,16 +448,6 @@ public class MapActivity extends AppCompatActivity
 
         }
     }
-
-    @Override
-    public boolean onMyLocationButtonClick() {
-        Toast.makeText(this, "MyLocation button clicked", Toast.LENGTH_SHORT).show();
-
-        // Return false so that we don't consume the event and the default behavior still occurs
-        // (the camera animates to the user's current position).
-        return false;
-    }
-
 
     private final int REQ_PERMISSION = 999;
 
@@ -613,7 +562,6 @@ public class MapActivity extends AppCompatActivity
 
     @Override
     public void onPoiClick(PointOfInterest poi) {
-
         //get Place Details
         mGeoDataClient.getPlaceById(poi.placeId).addOnCompleteListener(new OnCompleteListener<PlaceBufferResponse>() {
                  @Override
@@ -621,50 +569,16 @@ public class MapActivity extends AppCompatActivity
                      if (task.isSuccessful()) {
                          PlaceBufferResponse places = task.getResult();
                          Place myPlace = places.get(0);
-                         //Place.TYPE_SHOPPING_MALL
                          Toast.makeText(getApplicationContext(), "Clicked: " +
                                          myPlace.getName() + "\nRating:" + myPlace.getRating() +
-                                         "\nAddress:" + myPlace.getAddress() +  myPlace.getPlaceTypes().toString() ,
-                                 Toast.LENGTH_LONG).show();
-
-                         /*RequestQueue queue = Volley.newRequestQueue(MapActivity.this);
-
-                         String url = "https://maps.googleapis.com/maps/api/place/details/json?placeid="+ myPlace.getId()+"&key="+ mPlacesAPIKey;
-
-                         JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-
-                                     @Override
-                                     public void onResponse(JSONObject response) {
-                                         Log.d("Response: " , response.toString());
-                                     }
-                                 }, new Response.ErrorListener() {
-
-                                     @Override
-                                     public void onErrorResponse(VolleyError error) {
-                                         // TODO Auto-generated method stub
-
-                                     }
-                                 });
-
-                         // Access the RequestQueue through your singleton class.
-                         queue.add(jsObjRequest);*/
-
-
-
+                                         "\nAddress:" + myPlace.getAddress() +  myPlace.getPlaceTypes().toString() , Toast.LENGTH_LONG).show();
                          places.release();
                      } else {
                          Toast.makeText(getApplicationContext(), "Place not found.",
                                  Toast.LENGTH_SHORT).show();
                      }
-
-
-
-
-
                  }
              });
-
     }
 
     public void setupRealtimeDB(){
@@ -725,16 +639,8 @@ public class MapActivity extends AppCompatActivity
 
     }
 
-
-   /* @Override
-    public void onMapClick(LatLng latLng) {
-        Log.d(TAG, "onMapClick("+latLng +")");
-        //markerForGeofence(latLng);
-    }*/
-
     @Override
     public boolean onMarkerClick(Marker marker) {
-        //Log.d(TAG, "onMarkerClickListener: " + marker.getPosition() );
         Log.d(TAG, marker.getTitle());
         String name = marker.getTitle();
         for (int i = 0; i < mBarList.size(); i++) {
@@ -743,9 +649,7 @@ public class MapActivity extends AppCompatActivity
                 Intent intent = new Intent(MapActivity.this, DetailsActivity.class);
                 intent.putExtra("EXTRA_DETAILS_TITLE", mBarList.get(i).getId());
                 startActivity(intent);
-
             }
-
         }
         return false;
     }
@@ -766,13 +670,12 @@ public class MapActivity extends AppCompatActivity
 
         if ( checkPermission() )
             LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+
     }
 
     @Override
     public void onLocationChanged(Location location) {
-        //Log.d(TAG, "onLocationChanged ["+loonLoccation+"]");
         lastLocation = location;
-        //writeActualLocation(location);
     }
 
     // GoogleApiClient.ConnectionCallbacks connected
@@ -780,13 +683,6 @@ public class MapActivity extends AppCompatActivity
     public void onConnected(@Nullable Bundle bundle) {
         Log.i(TAG, "onConnected()");
         getLastKnownLocation();
-        //for(int i=0;i< mMarkerArray.size();i++) {
-            //Geofence geofence = createGeofence(mMarkerArray.get(0).getPosition(), GEOFENCE_RADIUS);
-            //GeofencingRequest geofenceRequest = createGeofenceRequest(geofence);
-            //addGeofence(geofenceRequest);
-        //}
-        //drawGeofence();
-        //recoverGeofenceMarker();
         startGeofence();
     }
 
@@ -811,7 +707,6 @@ public class MapActivity extends AppCompatActivity
                 Log.i(TAG, "LasKnown location. " +
                         "Long: " + lastLocation.getLongitude() +
                         " | Lat: " + lastLocation.getLatitude());
-                //writeLastLocation();
                 startLocationUpdates();
             } else {
                 Log.w(TAG, "No location retrieved yet");
@@ -820,54 +715,6 @@ public class MapActivity extends AppCompatActivity
         }
         else askPermission();
     }
-
-    /*private void writeActualLocation(Location location) {
-        //textLat.setText( "Lat: " + location.getLatitude() );
-        //textLong.setText( "Long: " + location.getLongitude() );
-
-        //markerLocation(new LatLng(location.getLatitude(), location.getLongitude()));
-    }*/
-
-    /*private void writeLastLocation() {
-        writeActualLocation(lastLocation);
-    }*/
-
-    /*private Marker locationMarker;
-    private void markerLocation(LatLng latLng) {
-       // Log.i(TAG, "markerLocation("+latLng+")");
-        String title = latLng.latitude + ", " + latLng.longitude;
-        MarkerOptions markerOptions = new MarkerOptions()
-                .position(latLng)
-                .title(title);
-        if ( mMap!=null ) {
-            if ( locationMarker != null )
-                locationMarker.remove();
-            locationMarker = mMap.addMarker(markerOptions);
-            float zoom = 14f;
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
-            mMap.animateCamera(cameraUpdate);
-        }
-    }*/
-
-
-    /*private Marker geoFenceMarker;
-    private void markerForGeofence(LatLng latLng) {
-        Log.i(TAG, "markerForGeofence("+latLng+")");
-        String title = latLng.latitude + ", " + latLng.longitude;
-        // Define marker options
-        MarkerOptions markerOptions = new MarkerOptions()
-                .position(latLng)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
-                .title(title);
-        if ( mMap!=null ) {
-            // Remove last geoFenceMarker
-            if (geoFenceMarker != null)
-                geoFenceMarker.remove();
-
-            geoFenceMarker = mMap.addMarker(markerOptions);
-
-        }
-    }*/
 
     // Start Geofence creation process
     private void startGeofence() {
@@ -930,12 +777,10 @@ public class MapActivity extends AppCompatActivity
             ).setResultCallback(this);
     }
 
-    @Override
+   @Override
     public void onResult(@NonNull Status status) {
         Log.i(TAG, "onResult: " + status);
         if ( status.isSuccess() ) {
-            //saveGeofence();
-            //drawGeofence();
         } else {
             // inform about fail
         }
@@ -946,8 +791,8 @@ public class MapActivity extends AppCompatActivity
     private void drawGeofence() {
         Log.d(TAG, "drawGeofence()");
 
-        //if ( mMarkerArray != null )
-          //  geoFenceLimits.remove();
+        if ( geoFenceLimits != null )
+            geoFenceLimits.remove();
 
         CircleOptions circleOptions = new CircleOptions()
                 .center( mMarkerArray.get(0).getPosition())
@@ -960,30 +805,6 @@ public class MapActivity extends AppCompatActivity
     private final String KEY_GEOFENCE_LAT = "GEOFENCE LATITUDE";
     private final String KEY_GEOFENCE_LON = "GEOFENCE LONGITUDE";
 
-    // Saving GeoFence marker with prefs mng
-    /*private void saveGeofence() {
-        Log.d(TAG, "saveGeofence()");
-        SharedPreferences sharedPref = getPreferences( Context.MODE_PRIVATE );
-        SharedPreferences.Editor editor = sharedPref.edit();
-
-        editor.putLong( KEY_GEOFENCE_LAT, Double.doubleToRawLongBits( mMarkerArray.get(0).getPosition().latitude ));
-        editor.putLong( KEY_GEOFENCE_LON, Double.doubleToRawLongBits( mMarkerArray.get(0).getPosition().longitude ));
-        editor.apply();
-    }*/
-
-    // Recovering last Geofence marker
-    /*private void recoverGeofenceMarker() {
-        Log.d(TAG, "recoverGeofenceMarker");
-        SharedPreferences sharedPref = getPreferences( Context.MODE_PRIVATE );
-
-        if ( sharedPref.contains( KEY_GEOFENCE_LAT ) && sharedPref.contains( KEY_GEOFENCE_LON )) {
-            double lat = Double.longBitsToDouble( sharedPref.getLong( KEY_GEOFENCE_LAT, -1 ));
-            double lon = Double.longBitsToDouble( sharedPref.getLong( KEY_GEOFENCE_LON, -1 ));
-            LatLng latLng = new LatLng( lat, lon );
-            //markerForGeofence(latLng);
-            //drawGeofence();
-        }
-    }*/
 
     // Clear Geofence
     private void clearGeofence() {
