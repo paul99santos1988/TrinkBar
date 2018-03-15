@@ -441,21 +441,20 @@ public class MapActivity extends AppCompatActivity
             Double lon = Double.valueOf(mBarList.get(i).getCoordinates().getLongitude());
             String name = mBarList.get(i).getName();
             LatLng place = new LatLng(lat, lon);
-            List<Address> addresses=new ArrayList<>();
-            //https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.8670522,151.1957362&radius=500&types=food&name=cruise&key=YOUR_API_KEY
+            /*List<Address> addresses=new ArrayList<>();
             Geocoder geo = new Geocoder(this.getApplicationContext(), Locale.getDefault());
             try {
                 addresses = geo.getFromLocation(lat, lon, 1);
                 Log.d(TAG, "setMarker: ");
             } catch (IOException e) {
                 e.printStackTrace();
-            }
+            }*/
+
 
             Marker marker = mMap.addMarker(new MarkerOptions()
                     .icon(BitmapDescriptorFactory.fromBitmap(iconFactory.makeIcon(mBarList.get(i).getVisitor()))) // + "\n"
                     .position(place)
                     .title(name));
-           // marker.setDraggable(true);
             mMarkerArray.add(marker);
 
         }
@@ -720,7 +719,7 @@ public class MapActivity extends AppCompatActivity
     @Override
     public void onMapClick(LatLng latLng) {
         Log.d(TAG, "onMapClick("+latLng +")");
-        markerForGeofence(latLng);
+        //markerForGeofence(latLng);
     }
 
     @Override
@@ -761,7 +760,7 @@ public class MapActivity extends AppCompatActivity
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.d(TAG, "onLocationChanged ["+location+"]");
+        //Log.d(TAG, "onLocationChanged ["+loonLoccation+"]");
         lastLocation = location;
         writeActualLocation(location);
     }
@@ -771,7 +770,13 @@ public class MapActivity extends AppCompatActivity
     public void onConnected(@Nullable Bundle bundle) {
         Log.i(TAG, "onConnected()");
         getLastKnownLocation();
-        recoverGeofenceMarker();
+        //for(int i=0;i< mMarkerArray.size();i++) {
+            Geofence geofence = createGeofence(mMarkerArray.get(0).getPosition(), GEOFENCE_RADIUS);
+            GeofencingRequest geofenceRequest = createGeofenceRequest(geofence);
+            addGeofence(geofenceRequest);
+        //}
+        drawGeofence();
+        //recoverGeofenceMarker();
     }
 
     // GoogleApiClient.ConnectionCallbacks suspended
@@ -818,7 +823,7 @@ public class MapActivity extends AppCompatActivity
 
     private Marker locationMarker;
     private void markerLocation(LatLng latLng) {
-        Log.i(TAG, "markerLocation("+latLng+")");
+       // Log.i(TAG, "markerLocation("+latLng+")");
         String title = latLng.latitude + ", " + latLng.longitude;
         MarkerOptions markerOptions = new MarkerOptions()
                 .position(latLng)
@@ -917,8 +922,8 @@ public class MapActivity extends AppCompatActivity
     public void onResult(@NonNull Status status) {
         Log.i(TAG, "onResult: " + status);
         if ( status.isSuccess() ) {
-            saveGeofence();
-            drawGeofence();
+            //saveGeofence();
+           // drawGeofence();
         } else {
             // inform about fail
         }
@@ -929,11 +934,11 @@ public class MapActivity extends AppCompatActivity
     private void drawGeofence() {
         Log.d(TAG, "drawGeofence()");
 
-        if ( geoFenceLimits != null )
-            geoFenceLimits.remove();
+        //if ( mMarkerArray != null )
+          //  geoFenceLimits.remove();
 
         CircleOptions circleOptions = new CircleOptions()
-                .center( geoFenceMarker.getPosition())
+                .center( mMarkerArray.get(0).getPosition())
                 .strokeColor(Color.argb(50, 70,70,70))
                 .fillColor( Color.argb(100, 150,150,150) )
                 .radius( GEOFENCE_RADIUS );
