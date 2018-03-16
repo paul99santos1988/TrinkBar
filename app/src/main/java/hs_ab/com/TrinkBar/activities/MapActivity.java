@@ -102,6 +102,7 @@ public class MapActivity extends AppCompatActivity
     private DatabaseReference mDatabase;
     private ArrayList<Marker> mMarkerArray;
     private GeofencingClient mGeofencingClient;
+    private ArrayList<Circle> geoFenceLimits;
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private boolean mPermissionDenied = false;
@@ -127,6 +128,7 @@ public class MapActivity extends AppCompatActivity
         initMap();
 
         mMarkerArray = new ArrayList<>();
+        geoFenceLimits =new ArrayList<>();
         mGeoDataClient = Places.getGeoDataClient(this, null);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mGeofencingClient = LocationServices.getGeofencingClient(this);
@@ -275,7 +277,7 @@ public class MapActivity extends AppCompatActivity
                 return true;
             }
             case R.id.geofence: {
-                startGeofence();
+                restoreGeofences();
                 return true;
             }
             case R.id.clear: {
@@ -356,9 +358,10 @@ public class MapActivity extends AppCompatActivity
                     .icon(BitmapDescriptorFactory.fromBitmap(iconFactory.makeIcon(mBarList.get(i).getVisitor()))) // + "\n"
                     .position(place)
                     .title(name));
+            startGeofence(marker,i);
             mMarkerArray.add(marker);
         }
-        startGeofence();
+
 
     }
 
@@ -404,6 +407,7 @@ public class MapActivity extends AppCompatActivity
 
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
             // Enable the my location layer if the permission has been granted.
+            enableMyLocation();
             mPermissionDenied=false;
 
         } else {
@@ -576,27 +580,30 @@ public class MapActivity extends AppCompatActivity
     }
 
     // Start Geofence creation process
-    private void startGeofence() {
+    private void startGeofence(Marker marker,int req_code) {
         Log.i(TAG, "startGeofence()");
-        if( mMarkerArray.get(0) != null ) {
-            Geofence geofence = createGeofence( mMarkerArray.get(0) .getPosition(), GEOFENCE_RADIUS );
+            Geofence geofence = createGeofence( marker.getPosition(), GEOFENCE_RADIUS,marker.getTitle() );
             GeofencingRequest geofenceRequest = createGeofenceRequest( geofence );
-            addGeofence( geofenceRequest );
-            drawGeofence();
-        } else {
-            Log.e(TAG, "Geofence marker is null");
+            addGeofence( geofenceRequest, req_code );
+            drawGeofence(marker);
+    }
+
+    private void restoreGeofences(){
+        for (int i=0;i<mMarkerArray.size();i++){
+            startGeofence(mMarkerArray.get(i),i);
         }
+
     }
 
     private static final long GEO_DURATION = 60 * 60 * 1000;
     private static final String GEOFENCE_REQ_ID = "My Geofence";
-    private static final float GEOFENCE_RADIUS = 500.0f; // in meters
+    private static final float GEOFENCE_RADIUS = 50.0f; // in meters
 
     // Create a Geofence
-    private Geofence createGeofence( LatLng latLng, float radius ) {
+    private Geofence createGeofence( LatLng latLng, float radius, String req_id ) {
         Log.d(TAG, "createGeofence");
         return new Geofence.Builder()
-                .setRequestId(GEOFENCE_REQ_ID)
+                .setRequestId(req_id)
                 .setCircularRegion( latLng.latitude, latLng.longitude, radius)
                 .setExpirationDuration( GEO_DURATION )
                 .setTransitionTypes( Geofence.GEOFENCE_TRANSITION_ENTER
@@ -615,21 +622,21 @@ public class MapActivity extends AppCompatActivity
 
     private PendingIntent geoFencePendingIntent;
     private final int GEOFENCE_REQ_CODE = 0;
-    private PendingIntent createGeofencePendingIntent() {
+    private PendingIntent createGeofencePendingIntent(int req_code) {
         Log.d(TAG, "createGeofencePendingIntent");
         if ( geoFencePendingIntent != null )
             return geoFencePendingIntent;
 
         Intent intent = new Intent( this, GeofenceTrasitionService.class);
         return PendingIntent.getService(
-                this, GEOFENCE_REQ_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT );
+                this, req_code, intent, PendingIntent.FLAG_UPDATE_CURRENT );
     }
 
     // Add the created GeofenceRequest to the device's monitoring list
-    private void addGeofence(GeofencingRequest request) {
+    private void addGeofence(GeofencingRequest request,int req_code) {
         Log.d(TAG, "addGeofence");
         if (checkPermission())
-            mGeofencingClient.addGeofences(request, createGeofencePendingIntent()
+            mGeofencingClient.addGeofences(request, createGeofencePendingIntent(req_code)
             ).addOnSuccessListener(this, new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
@@ -646,43 +653,45 @@ public class MapActivity extends AppCompatActivity
     }
 
     // Draw Geofence circle on GoogleMap
-    private Circle geoFenceLimits;
-    private void drawGeofence() {
+
+    private void drawGeofence(Marker marker) {
         Log.d(TAG, "drawGeofence()");
 
-        if ( geoFenceLimits != null )
-            geoFenceLimits.remove();
-
         CircleOptions circleOptions = new CircleOptions()
-                .center( mMarkerArray.get(0).getPosition())
+                .center( marker.getPosition())
                 .strokeColor(Color.argb(50, 70,70,70))
                 .fillColor( Color.argb(100, 150,150,150) )
                 .radius( GEOFENCE_RADIUS );
-        geoFenceLimits = mMap.addCircle( circleOptions );
+        geoFenceLimits.add(mMap.addCircle( circleOptions));
     }
 
     // Clear Geofence
     private void clearGeofence() {
         Log.d(TAG, "clearGeofence()");
-        mGeofencingClient.removeGeofences( createGeofencePendingIntent()).addOnSuccessListener(this, new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                removeGeofenceDraw();
-            }
-        }).addOnFailureListener(this, new OnFailureListener() {
+        if(mMarkerArray != null) {
+            for (int i=0; i<mMarkerArray.size();i++) {
+                mGeofencingClient.removeGeofences(createGeofencePendingIntent(i)).addOnSuccessListener(this, new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        removeGeofenceDraw();
+                    }
+                }).addOnFailureListener(this, new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         // Failed to remove geofences
                         // ...
                     }
-        });
+                });
+            }
+        }
     }
 
     private void removeGeofenceDraw() {
         Log.d(TAG, "removeGeofenceDraw()");
-        /*if ( geoFenceMarker != null)
-            geoFenceMarker.remove();*/
         if ( geoFenceLimits != null )
-            geoFenceLimits.remove();
+            for (int i=0;i<geoFenceLimits.size();i++) {
+                geoFenceLimits.get(i).remove();
+            }
+        geoFenceLimits.clear();
     }
 }
