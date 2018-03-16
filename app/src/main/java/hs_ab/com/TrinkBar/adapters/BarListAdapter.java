@@ -49,9 +49,6 @@ public class BarListAdapter extends RecyclerView.Adapter<BarListAdapter.BarViewH
                 public void onClick(View v)
                 {
                     Log.d(TAG, "onClick: "+ name.getText());
-                    //Snackbar.make(v, name.getText(), Snackbar.LENGTH_LONG)
-                     //       .setAction("Action", null).show();
-
                     for (int i=0;i<bars.size();i++){
                         if(bars.get(i).getName() == name.getText()){
 
@@ -59,8 +56,6 @@ public class BarListAdapter extends RecyclerView.Adapter<BarListAdapter.BarViewH
                         }
 
                     }
-
-
                     Intent i = new Intent(v.getContext(), DetailsActivity.class);
                     i.putExtra("EXTRA_DETAILS_TITLE", barId);
                     v.getContext().startActivity(i);
@@ -102,14 +97,12 @@ public class BarListAdapter extends RecyclerView.Adapter<BarListAdapter.BarViewH
         byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
         Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
         barViewHolder.photo.setImageBitmap(decodedByte);
-
     }
 
     @Override
     public int getItemCount() {
         return bars.size();
     }
-
 
 
 }

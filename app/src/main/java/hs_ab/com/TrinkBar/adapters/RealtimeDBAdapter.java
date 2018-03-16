@@ -22,14 +22,12 @@ public class RealtimeDBAdapter {
     private Context mctx;
     private List<Bar> mbarList = null;
     private List<Image> mimageList = null;
-    private Gson gson;
 
 
     protected RealtimeDBAdapter(Context context){
         mctx= context;
         mbarList = new ArrayList<>();
         mimageList = new ArrayList<>();
-        gson= new Gson();
     }
 
 
