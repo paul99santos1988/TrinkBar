@@ -60,6 +60,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -115,27 +116,21 @@ public class MapActivity extends AppCompatActivity
     private Location lastLocation;
     private GeofencingClient mGeofencingClient;
 
-    private static final String NOTIFICATION_MSG = "NOTIFICATION MSG";
+
+
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    private boolean mPermissionDenied = false;
+
+    private ArrayList<Geofence> mGeofenceList;
+    private PendingIntent mGeofencePendingIntent;
+
+    private static final String NOTIFICATION_MSG = "NOTIFICATION";
 
     public static Intent makeNotificationIntent(Context context, String msg) {
         Intent intent = new Intent( context, MapActivity.class );
         intent.putExtra( NOTIFICATION_MSG, msg );
         return intent;
     }
-    /**
-     * Request code for location permission request.
-     *
-     * @see #onRequestPermissionsResult(int, String[], int[])
-     */
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-
-    /**
-     * Flag indicating whether a requested permission has been denied after returning in
-     * {@link #onRequestPermissionsResult(int, String[], int[])}.
-     */
-    private boolean mPermissionDenied = false;
-    private ArrayList<Geofence> mGeofenceList;
-    private PendingIntent mGeofencePendingIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,14 +154,14 @@ public class MapActivity extends AppCompatActivity
     private void initSideMenu() {
 
         //mark selected menu item
-        NavigationView navigationView = findViewById(R.id.nav_view);
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -183,10 +178,10 @@ public class MapActivity extends AppCompatActivity
 
 
     private void initFAB() {
-        mFabBottom = findViewById(R.id.fab_bottom);
-        mFabLocation = findViewById(R.id.fab_location);
-        mFabTarget = findViewById(R.id.fab_target);
-        mFabShare = findViewById(R.id.fab_share);
+        mFabBottom = (FloatingActionButton) findViewById(R.id.fab_bottom);
+        mFabLocation = (FloatingActionButton) findViewById(R.id.fab_location);
+        mFabTarget = (FloatingActionButton) findViewById(R.id.fab_target);
+        mFabShare = (FloatingActionButton) findViewById(R.id.fab_share);
 
 
         mFabBottom.setOnClickListener(new View.OnClickListener() {
@@ -333,7 +328,7 @@ public class MapActivity extends AppCompatActivity
 
         }
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -523,9 +518,15 @@ public class MapActivity extends AppCompatActivity
 
         mRtDatabase = RealtimeDBAdapter.getInstance(mCtx);
 
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        try{
+            database.setPersistenceEnabled(true);
+        }catch (Exception e){
+            Log.w(TAG,"SetPresistenceEnabled:Fail"+FirebaseDatabase.getInstance().toString());
+            e.printStackTrace();
+        }
 
+        mDatabase = database.getReference();
 
         ChildEventListener childEventListener = new ChildEventListener() {
             @Override

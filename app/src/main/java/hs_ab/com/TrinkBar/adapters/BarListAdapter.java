@@ -40,10 +40,10 @@ public class BarListAdapter extends RecyclerView.Adapter<BarListAdapter.BarViewH
 
         BarViewHolder(View itemView) {
             super(itemView);
-            cv = itemView.findViewById(R.id.cv);
-            name = itemView.findViewById(R.id.name);
-            description = itemView.findViewById(R.id.description);
-            photo = itemView.findViewById(R.id.photo);
+            cv = (CardView) itemView.findViewById(R.id.cv);
+            name = (TextView) itemView.findViewById(R.id.name);
+            description = (TextView) itemView.findViewById(R.id.description);
+            photo = (ImageView) itemView.findViewById(R.id.photo);
             itemView.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v)
