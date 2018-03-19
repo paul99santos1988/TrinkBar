@@ -343,11 +343,10 @@ public class MapActivity extends AppCompatActivity
         iconFactory.setColor(Color.WHITE);
         iconFactory.setTextAppearance(R.style.iconGenText);
 
-
-        for(int j = 0; j < mMarkerArray.size(); j++) {
-                    mMarkerArray.get(j).remove();
-                    mMarkerArray.remove(j);
+        if (mMarkerArray!=null){
+            mMarkerArray.clear();
         }
+
         for (int i = 0; i < mBarList.size(); i++) {
             Double lat = Double.valueOf(mBarList.get(i).getCoordinates().getLatitude());
             Double lon = Double.valueOf(mBarList.get(i).getCoordinates().getLongitude());
@@ -640,14 +639,13 @@ public class MapActivity extends AppCompatActivity
             ).addOnSuccessListener(this, new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
-                    Log.i(TAG, "onResult: " + aVoid);
+                    Log.i(TAG, "succsess add Geofence " + aVoid);
                     // ...
                 }
             }).addOnFailureListener(this, new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    // Failed to add geofences
-                    // ...
+                    Log.d(TAG, "onFailure: add Geofence " + e);
                 }
             });
     }
