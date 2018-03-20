@@ -7,8 +7,10 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
@@ -39,7 +41,7 @@ import hs_ab.com.TrinkBar.adapters.RealtimeDBAdapter;
 import hs_ab.com.TrinkBar.models.Bar;
 import hs_ab.com.TrinkBar.models.Image;
 
-public class DetailsActivity extends AppCompatActivity {
+public class DetailsActivity extends AppCompatActivity implements AppBarLayout.OnOffsetChangedListener{
 
     private static DetailsActivity mInstance;
 
@@ -58,6 +60,8 @@ public class DetailsActivity extends AppCompatActivity {
     private RequestQueue queue;
     private boolean mIsFav = false;
     private Button mPhoneButton;
+    private Menu menu;
+    private MenuItem mfavItem;
 
 
 
@@ -85,6 +89,8 @@ public class DetailsActivity extends AppCompatActivity {
         mImg = (ImageView) findViewById(R.id.imageview_details);
         initTextViews();
 
+        AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.app_bar);
+        appBarLayout.addOnOffsetChangedListener(this);
 
 
 
@@ -98,36 +104,18 @@ public class DetailsActivity extends AppCompatActivity {
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mIsFav=!mIsFav;
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    if (mIsFav) {
-                        mFab.setImageDrawable(getResources().getDrawable(R.drawable.ic_favorite_black_24dp, getApplicationContext().getTheme()));
-                    } else {
-                        mFab.setImageDrawable(getResources().getDrawable(R.drawable.ic_favorite_border_black_24dp, getApplicationContext().getTheme()));
-                    }
-                }
-
-
-                /*try {
-                    Intent callIntent = new Intent();
-                    callIntent.setAction(Intent.ACTION_DIAL);
-                    callIntent.setData(Uri.parse("tel:" + mBarObject.getPhone()));
-               //Snackbar.make(view, "Öffnungszeiten: " + mOpeninghours, Snackbar.LENGTH_LONG).setAction("Action", null).show();
-                    startActivity(callIntent);
-                } catch (Exception e) {
-                    Snackbar.make(view, "Keine Telefonapp installiert", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-            }*/
-
+                changeFavItem();
             }
         });
     }
 
-    /*@Override
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_details, menu);
+        mfavItem = menu.findItem(R.id.action_favorite);
+        this.menu = menu;
+
         return true;
     }
 
@@ -140,12 +128,13 @@ public class DetailsActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_favorite) {
-            Toast.makeText(DetailsActivity.this, "Action clicked", Toast.LENGTH_LONG).show();
+            changeFavItem();
+            //Toast.makeText(DetailsActivity.this, "Action clicked", Toast.LENGTH_LONG).show();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
-    }*/
+    }
 
 
 
@@ -178,7 +167,7 @@ public class DetailsActivity extends AppCompatActivity {
         Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
         mImg.setImageBitmap(decodedByte);
 
-        queue = Volley.newRequestQueue(this);
+        /*queue = Volley.newRequestQueue(this);
 
                          String url = "https://maps.googleapis.com/maps/api/place/textsearch/json?query="+mBarObject.getName()+"+Aschaffenburg&key="+mPlacesAPIKey;
 
@@ -229,7 +218,7 @@ public class DetailsActivity extends AppCompatActivity {
                                  });
 
                          // Access the RequestQueue through your singleton class.
-                         queue.add(jsObjRequest);
+                         queue.add(jsObjRequest);*/
 
     }
 
@@ -250,17 +239,21 @@ public class DetailsActivity extends AppCompatActivity {
         mOpenSat = (TextView) findViewById(R.id.details_table_content_Saturday);
         mFood= (TextView) findViewById(R.id.textView_details_food);
         mAddress= (TextView) findViewById(R.id.textView_details_address);
-        //mPhone=(TextView) findViewById(R.id.textView_details_phone);
         mPhoneButton = (Button) findViewById(R.id.button_details_phone);
 
 
         mPhoneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent callIntent = new Intent();
-                callIntent.setAction(Intent.ACTION_DIAL);
-                callIntent.setData(Uri.parse("tel:" + mBarObject.getPhone()));
-                startActivity(callIntent);
+                try {
+                    Intent callIntent = new Intent();
+                    callIntent.setAction(Intent.ACTION_DIAL);
+                    callIntent.setData(Uri.parse("tel:" + mBarObject.getPhone()));
+                    startActivity(callIntent);
+                } catch (Exception e) {
+                    Snackbar.make(v, "Keine Telefonapp installiert", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+            }
             }
         });
     }
@@ -274,7 +267,6 @@ public class DetailsActivity extends AppCompatActivity {
         mOpenFri.setText(mBarObject.getOpeningHours().getFriday());
         mOpenSat.setText(mBarObject.getOpeningHours().getSaturday());
         mAddress.setText(mBarObject.getAddress());
-        //mPhone.setText(mBarObject.getPhone());
         mPhoneButton.setText(mBarObject.getPhone());
 
         if(mBarObject.getFood().equals("true")){
@@ -284,5 +276,59 @@ public class DetailsActivity extends AppCompatActivity {
             mFood.setText("Lieder kein Essen verfügbar");
         }
 
+    }
+
+    @Override
+    public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+        if (verticalOffset == 0) {
+            Log.d(TAG, "if"+ verticalOffset);
+            if(mfavItem != null) {
+                mfavItem.setVisible(false);
+            }
+
+        } else if (Math.abs(verticalOffset) >= appBarLayout.getTotalScrollRange()) {
+            Log.d(TAG, " else if"+ verticalOffset);
+            if(mfavItem != null) {
+                mfavItem.setVisible(true);
+                if(mIsFav){
+                    mfavItem.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_favorite_black_24dp));
+                }
+                else{
+                    mfavItem.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_favorite_border_black_24dp));
+                }
+            }
+
+
+        } else {
+            Log.d(TAG, "else" + verticalOffset);
+            if(mfavItem != null) {
+                mfavItem.setVisible(false);
+            }
+
+
+        }
+    }
+
+    private void changeFavItem(){
+        mIsFav=!mIsFav;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (mIsFav) {
+                addFavItem();
+                mFab.setImageDrawable(getResources().getDrawable(R.drawable.ic_favorite_black_24dp, getApplicationContext().getTheme()));
+            } else {
+                removeFavItem();
+                mFab.setImageDrawable(getResources().getDrawable(R.drawable.ic_favorite_border_black_24dp, getApplicationContext().getTheme()));
+            }
+        }
+    }
+
+    private void addFavItem(){
+        //TODO
+    }
+
+    private void removeFavItem(){
+
+        //TODO
     }
 }
