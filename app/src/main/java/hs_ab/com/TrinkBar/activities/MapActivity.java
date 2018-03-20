@@ -108,11 +108,17 @@ public class MapActivity extends AppCompatActivity
     private boolean mPermissionDenied = false;
 
     private static final String NOTIFICATION_MSG = "NOTIFICATION";
+    private static DatabaseReference databaseReference;
 
     public static Intent makeNotificationIntent(Context context, String msg) {
         Intent intent = new Intent( context, MapActivity.class );
         intent.putExtra( NOTIFICATION_MSG, msg );
         return intent;
+    }
+
+    public static DatabaseReference getDatabaseInstance(){
+
+        return  databaseReference;
     }
 
     @Override
@@ -126,6 +132,7 @@ public class MapActivity extends AppCompatActivity
         initSideMenu();
         setupRealtimeDB();
         initMap();
+
 
         mMarkerArray = new ArrayList<>();
         geoFenceLimits =new ArrayList<>();
@@ -513,7 +520,7 @@ public class MapActivity extends AppCompatActivity
         }
 
         mDatabase = database.getReference();
-
+        databaseReference=mDatabase;
         ChildEventListener childEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
@@ -563,6 +570,8 @@ public class MapActivity extends AppCompatActivity
         mDatabase.addChildEventListener(childEventListener);
 
     }
+
+
 
     @Override
     public boolean onMarkerClick(Marker marker) {

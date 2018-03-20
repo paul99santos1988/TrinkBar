@@ -19,11 +19,15 @@ import android.util.Log;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.GeofencingEvent;
+import com.google.firebase.database.DatabaseReference;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 import hs_ab.com.TrinkBar.R;
+import hs_ab.com.TrinkBar.adapters.RealtimeDBAdapter;
+import hs_ab.com.TrinkBar.models.Bar;
 
 
 public class GeofenceTrasitionService extends IntentService {
@@ -61,6 +65,8 @@ public class GeofenceTrasitionService extends IntentService {
         }
     }
 
+    private RealtimeDBAdapter mRtDatabase;
+    private DatabaseReference mDatabase;
 
     private String getGeofenceTrasitionDetails(int geoFenceTransition, List<Geofence> triggeringGeofences) {
         // get the ID of each geofence triggered
@@ -69,13 +75,65 @@ public class GeofenceTrasitionService extends IntentService {
             triggeringGeofencesList.add( geofence.getRequestId() );
         }
 
+        //Test
+        Context mCtx = getApplicationContext();
+        mRtDatabase = RealtimeDBAdapter.getInstance(mCtx);
+        /*FirebaseDatabase database = FirebaseDatabase.getInstance();
+        try{
+            database.setPersistenceEnabled(true);
+        }catch (Exception e){
+            Log.w(TAG,"SetPresistenceEnabled:Fail"+FirebaseDatabase.getInstance().toString());
+            e.printStackTrace();
+        }*/
+
+        triggeringGeofences.get(0);
+        ListIterator<String> iterator = triggeringGeofencesList.listIterator();
+        //Log.i(TAG, "Value iteration next (0) =" + iterator.next());
+        String barName = iterator.next();
+        //mDatabase = database.getReference();
+        mDatabase= MapActivity.getDatabaseInstance();
+        String barNumber = null;
+        String barVisitors = null;
+        String barNameFromList = null;
+        //Log.i(TAG, "Value iteration next (1) =" + iterator.next());
+        List<Bar> mbarList = mRtDatabase.getBarList();
+
+        for(int i = 0 ; i < mbarList.size(); i++){
+            //get id/bar name or something else
+            Log.i(TAG, "Name =" + mbarList.get(i).getName());
+            barNameFromList = mbarList.get(i).getName();
+            if(barNameFromList.equals(barName)){
+                barNumber = String.valueOf(i);
+                barVisitors = mbarList.get(i).getVisitor();
+                break;
+            }
+
+        }
+
+        if(barNumber == null || barVisitors == null){
+            Log.w(TAG, "Can not iterate visitor count, no bars(barNumber="+barNumber+") or visitors(barVisitors="+barVisitors+"); failure value = null");
+        }
+        String childPath = mDatabase.child("bars").child(barNumber).child("visitor").toString();
+
         String status = null;
         if ( geoFenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ){
             status = "Entering ";
-        Log.d(TAG, "onHandleIntent: Enter");}
-        else if ( geoFenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT ){
+            Log.d(TAG, "onHandleIntent: Enter");
+            Log.i(TAG, "bars key = " +mDatabase.child("bars").getKey());
+            Log.i(TAG, "bars toString = " +mDatabase.child("bars").toString());
+            Log.i(TAG, "bars barNumber toString = " +mDatabase.child("bars").child(barNumber).toString());
+            Log.i(TAG, "bars barNumber toString = " +mDatabase.child("bars").child(barNumber).child("visitor").getKey());
+
+          /*  Map<String, Object> childUpdates = new HashMap<>();
+            childUpdates.put(childPath, getString((Integer.valueOf(barVisitors)+1)));
+            mDatabase.updateChildren(childUpdates);*/
+            mDatabase.child("bars").child(barNumber).child("visitor").setValue(String.valueOf((Integer.valueOf(barVisitors)+1))); //iterate visitor number
+        //Log.i(TAG, "Database content = " + mDatabase.child("bars").child("0"));
+        }else if ( geoFenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT ){
             status = "Exiting ";
             Log.d(TAG, "onHandleIntent: Exit");
+            mDatabase.child("bars").child(barNumber).child("visitor").setValue(getString((Integer.valueOf(barVisitors)-1))); //iterate visitor number
+            mDatabase.child("visitor").setValue(getString((Integer.valueOf(barVisitors)-1))); //iterate visitor number
         }
         return status + TextUtils.join( ", ", triggeringGeofencesList);
     }
