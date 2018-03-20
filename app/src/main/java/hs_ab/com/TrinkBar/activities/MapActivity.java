@@ -538,7 +538,7 @@ public class MapActivity extends AppCompatActivity
                 mRtDatabase.DataSnapshotHandler(dataSnapshot);
                 mBarList = mRtDatabase.getBarList();
                 if (mMap != null) {
-                    setMarker();
+                    //setMarker();
                 }
             }
 
@@ -549,7 +549,7 @@ public class MapActivity extends AppCompatActivity
                 mRtDatabase.DataSnapshotHandler(dataSnapshot);
                 mBarList = mRtDatabase.getBarList();
                 if (mMap != null) {
-                    setMarker();
+                    //setMarker();
                 }
 
             }
