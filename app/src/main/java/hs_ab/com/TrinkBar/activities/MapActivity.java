@@ -9,7 +9,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
+import android.support.design.internal.NavigationMenu;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -21,10 +21,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -68,6 +64,8 @@ import java.util.List;
 import hs_ab.com.TrinkBar.R;
 import hs_ab.com.TrinkBar.adapters.RealtimeDBAdapter;
 import hs_ab.com.TrinkBar.models.Bar;
+import io.github.yavski.fabspeeddial.FabSpeedDial;
+
 
 
 public class MapActivity extends AppCompatActivity
@@ -78,36 +76,26 @@ public class MapActivity extends AppCompatActivity
         NavigationView.OnNavigationItemSelectedListener,
         GoogleMap.OnMarkerClickListener{
 
-    private GoogleMap mMap;
     private static final String TAG = "MapActivity";
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    private static final String NOTIFICATION_MSG = "NOTIFICATION";
+    private static final long GEO_DURATION = 60 * 60 * 1000;
+    private static final String GEOFENCE_REQ_ID = "My Geofence";
+    private static final float GEOFENCE_RADIUS = 50.0f; // in meters
+    private final int GEOFENCE_REQ_CODE = 0;
+    private GoogleMap mMap;
     private Context mCtx;
     private List<Bar> mBarList;
     private LatLng mlocation = null;
     private RealtimeDBAdapter mRtDatabase;
-    private FloatingActionButton mFabBottom;
-    private FloatingActionButton mFabLocation;
-    private FloatingActionButton mFabTarget;
-    private FloatingActionButton mFabShare;
     private FusedLocationProviderClient mFusedLocationClient;
     private GeoDataClient mGeoDataClient;
-    private boolean mFabStatus = false;
-    //Animations
-    private Animation show_fab_location;
-    private Animation hide_fab_location;
-    private Animation show_fab_target;
-    private Animation hide_fab_target;
-    private Animation show_fab_share;
-    private Animation hide_fab_share;
-
     private DatabaseReference mDatabase;
     private ArrayList<Marker> mMarkerArray;
     private GeofencingClient mGeofencingClient;
     private ArrayList<Circle> geoFenceLimits;
-
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private boolean mPermissionDenied = false;
-
-    private static final String NOTIFICATION_MSG = "NOTIFICATION";
+    private PendingIntent geoFencePendingIntent;
 
     public static Intent makeNotificationIntent(Context context, String msg) {
         Intent intent = new Intent( context, MapActivity.class );
@@ -121,7 +109,6 @@ public class MapActivity extends AppCompatActivity
         mCtx = getApplicationContext();
         setContentView(R.layout.activity_main);
 
-        initAnimations();
         initFAB();
         initSideMenu();
         setupRealtimeDB();
@@ -160,97 +147,75 @@ public class MapActivity extends AppCompatActivity
         mapFragment.getMapAsync(this);
     }
 
-
     private void initFAB() {
-        mFabBottom = (FloatingActionButton) findViewById(R.id.fab_bottom);
-        mFabLocation = (FloatingActionButton) findViewById(R.id.fab_location);
-        mFabTarget = (FloatingActionButton) findViewById(R.id.fab_target);
-        mFabShare = (FloatingActionButton) findViewById(R.id.fab_share);
-
-
-        mFabBottom.setOnClickListener(new View.OnClickListener() {
+        FabSpeedDial fabSpeedDial = (FabSpeedDial) findViewById(R.id.fab_speed_dial);
+        fabSpeedDial.setMenuListener(new FabSpeedDial.MenuListener() {
             @Override
-            public void onClick(View view) {
+            public boolean onPrepareMenu(NavigationMenu navigationMenu) {
+                return true; //false: don't show menu
+            }
 
-                if (mFabStatus == false) {
-                    //Display FAB menu
-                    expandFAB();
-                    mFabStatus = true;
-                } else {
-                    //Close FAB menu
-                    hideFAB();
-                    mFabStatus = false;
+            @Override
+            public boolean onMenuItemSelected(MenuItem menuItem) {
+                //Toast.makeText(MapActivity.this,""+menuItem.getTitle(),Toast.LENGTH_SHORT).show();
+                switch ( menuItem.getItemId() ) {
+
+                    case R.id.action_location: {
+                        if (checkPermission()) {
+                            mFusedLocationClient.getLastLocation()
+                                    .addOnSuccessListener(MapActivity.this, new OnSuccessListener<Location>() {
+                                        @Override
+                                        public void onSuccess(Location location) {
+                                            // Got last known location. In some rare situations this can be null.
+                                            if (location != null) {
+                                                Toast.makeText(getApplication(), "Aktuelle Position", Toast.LENGTH_SHORT).show();
+                                                mlocation = new LatLng(location.getLatitude(), location.getLongitude());
+                                                CameraUpdate center = CameraUpdateFactory.newLatLng(mlocation);
+                                                mMap.moveCamera(center);
+                                            } else {
+                                                Toast.makeText(getApplication(), "Bitte Standort aktivieren", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
+                        }
+                        else{
+                            askPermission();
+                        }
+                        return true;
+                    }
+                    case R.id.action_share: {
+                        Toast.makeText(getApplication(), "Share Location", Toast.LENGTH_SHORT).show();
+                        Intent sendIntent = new Intent();
+                        sendIntent.setAction(Intent.ACTION_SEND);
+                        sendIntent.putExtra(Intent.EXTRA_TEXT, "Hallo Du, ich befinde mich zur Zeit bei xx komm doch vorbei!");
+                        sendIntent.setType("text/plain");
+                        //sendIntent.setPackage("com.whatsapp");
+                        Intent chooser = Intent.createChooser(sendIntent, "Share");
+                        if (sendIntent.resolveActivity(getPackageManager()) != null) {
+                            //startActivity(sendIntent);
+                            startActivity(chooser);
+                        }
+                        return true;
+                    }
+                    case R.id.action_target: {
+                        Toast.makeText(getApplication(), "Aschaffenburg", Toast.LENGTH_SHORT).show();
+                        CameraUpdate center =
+                                CameraUpdateFactory.newLatLng(new LatLng(49.969527, 9.150233));
+                        mMap.moveCamera(center);
+                        return true;
+                    }
                 }
+
+                return true;
+            }
+
+            @Override
+            public void onMenuClosed() {
+
             }
         });
 
-        mFabLocation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (checkPermission()) {
-                    mFusedLocationClient.getLastLocation()
-                            .addOnSuccessListener(MapActivity.this, new OnSuccessListener<Location>() {
-                                @Override
-                                public void onSuccess(Location location) {
-                                    // Got last known location. In some rare situations this can be null.
-                                    if (location != null) {
-                                        Toast.makeText(getApplication(), "Aktuelle Position", Toast.LENGTH_SHORT).show();
-                                        mlocation = new LatLng(location.getLatitude(), location.getLongitude());
-                                        CameraUpdate center = CameraUpdateFactory.newLatLng(mlocation);
-                                        mMap.moveCamera(center);
-                                    } else {
-                                        Toast.makeText(getApplication(), "Bitte Standort aktivieren", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            });
-                }
-                else{
-                    askPermission();
-                }
-            }
-        });
-
-
-
-
-        mFabTarget.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getApplication(), "Aschaffenburg", Toast.LENGTH_SHORT).show();
-                CameraUpdate center =
-                        CameraUpdateFactory.newLatLng(new LatLng(49.969527, 9.150233));
-                mMap.moveCamera(center);
-            }
-        });
-
-        mFabShare.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getApplication(), "Share Location", Toast.LENGTH_SHORT).show();
-                Intent sendIntent = new Intent();
-                sendIntent.setAction(Intent.ACTION_SEND);
-                sendIntent.putExtra(Intent.EXTRA_TEXT, "Hallo Du, ich befinde mich zur Zeit bei xx komm doch vorbei!");
-                sendIntent.setType("text/plain");
-                //sendIntent.setPackage("com.whatsapp");
-                Intent chooser = Intent.createChooser(sendIntent, "Share");
-                if (sendIntent.resolveActivity(getPackageManager()) != null) {
-                    //startActivity(sendIntent);
-                    startActivity(chooser);
-                }
-            }
-        });
     }
-
-    private void initAnimations() {
-        //Animations
-        show_fab_location = AnimationUtils.loadAnimation(getApplication(), R.anim.fablocation_show);
-        hide_fab_location = AnimationUtils.loadAnimation(getApplication(), R.anim.fablocation_hide);
-        show_fab_target = AnimationUtils.loadAnimation(getApplication(), R.anim.fabtarget_show);
-        hide_fab_target = AnimationUtils.loadAnimation(getApplication(), R.anim.fabtarget_hide);
-        show_fab_share = AnimationUtils.loadAnimation(getApplication(), R.anim.fabshare_show);
-        hide_fab_share = AnimationUtils.loadAnimation(getApplication(), R.anim.fabshare_hide);
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -316,7 +281,6 @@ public class MapActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
 
     // Map
     @Override
@@ -396,7 +360,6 @@ public class MapActivity extends AppCompatActivity
                 LOCATION_PERMISSION_REQUEST_CODE);
     }
 
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
@@ -421,61 +384,6 @@ public class MapActivity extends AppCompatActivity
         if (mPermissionDenied) {
             askPermission();
         }
-    }
-
-    private void expandFAB() {
-
-        //Floating Action Location
-        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) mFabLocation.getLayoutParams();
-        layoutParams.rightMargin += (int) (mFabLocation.getWidth() * 1.7);
-        layoutParams.bottomMargin += (int) (mFabLocation.getHeight() * 0.25);
-        mFabLocation.setLayoutParams(layoutParams);
-        mFabLocation.startAnimation(show_fab_location);
-        mFabLocation.setClickable(true);
-
-        //Floating Action Target
-        FrameLayout.LayoutParams layoutParams2 = (FrameLayout.LayoutParams) mFabTarget.getLayoutParams();
-        layoutParams2.rightMargin += (int) (mFabTarget.getWidth() * 1.5);
-        layoutParams2.bottomMargin += (int) (mFabTarget.getHeight() * 1.5);
-        mFabTarget.setLayoutParams(layoutParams2);
-        mFabTarget.startAnimation(show_fab_target);
-        mFabTarget.setClickable(true);
-
-        //Floating Action Share
-        FrameLayout.LayoutParams layoutParams3 = (FrameLayout.LayoutParams) mFabShare.getLayoutParams();
-        layoutParams3.rightMargin += (int) (mFabShare.getWidth() * 0.25);
-        layoutParams3.bottomMargin += (int) (mFabShare.getHeight() * 1.7);
-        mFabShare.setLayoutParams(layoutParams3);
-        mFabShare.startAnimation(show_fab_share);
-        mFabShare.setClickable(true);
-    }
-
-
-    private void hideFAB() {
-
-        //Floating Action Location
-        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) mFabLocation.getLayoutParams();
-        layoutParams.rightMargin -= (int) (mFabLocation.getWidth() * 1.6);
-        layoutParams.bottomMargin -= (int) (mFabLocation.getHeight() * 0.24);
-        mFabLocation.setLayoutParams(layoutParams);
-        mFabLocation.startAnimation(hide_fab_location);
-        mFabLocation.setClickable(false);
-
-        //Floating Action Target
-        FrameLayout.LayoutParams layoutParams2 = (FrameLayout.LayoutParams) mFabTarget.getLayoutParams();
-        layoutParams2.rightMargin -= (int) (mFabTarget.getWidth() * 1.4);
-        layoutParams2.bottomMargin -= (int) (mFabTarget.getHeight() * 1.4);
-        mFabTarget.setLayoutParams(layoutParams2);
-        mFabTarget.startAnimation(hide_fab_target);
-        mFabTarget.setClickable(false);
-
-        //Floating Action Share
-        FrameLayout.LayoutParams layoutParams3 = (FrameLayout.LayoutParams) mFabShare.getLayoutParams();
-        layoutParams3.rightMargin -= (int) (mFabShare.getWidth() * 0.24);
-        layoutParams3.bottomMargin -= (int) (mFabShare.getHeight() * 1.6);
-        mFabShare.setLayoutParams(layoutParams3);
-        mFabShare.startAnimation(hide_fab_share);
-        mFabShare.setClickable(false);
     }
 
     @Override
@@ -594,10 +502,6 @@ public class MapActivity extends AppCompatActivity
 
     }
 
-    private static final long GEO_DURATION = 60 * 60 * 1000;
-    private static final String GEOFENCE_REQ_ID = "My Geofence";
-    private static final float GEOFENCE_RADIUS = 50.0f; // in meters
-
     // Create a Geofence
     private Geofence createGeofence( LatLng latLng, float radius, String req_id ) {
         Log.d(TAG, "createGeofence");
@@ -619,8 +523,6 @@ public class MapActivity extends AppCompatActivity
                 .build();
     }
 
-    private PendingIntent geoFencePendingIntent;
-    private final int GEOFENCE_REQ_CODE = 0;
     private PendingIntent createGeofencePendingIntent(int req_code) {
         Log.d(TAG, "createGeofencePendingIntent");
         if ( geoFencePendingIntent != null )
