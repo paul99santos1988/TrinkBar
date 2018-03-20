@@ -216,10 +216,11 @@
 
         <TableRow
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:layout_marginLeft="16dp"
-            android:layout_marginBottom="10dp">
+            android:layout_marginBottom="10dp"
+            android:gravity="center_vertical">
 
             <ImageView
                 android:id="@+id/imageView_details_phone"
@@ -227,12 +228,19 @@
                 android:layout_height="wrap_content"
                 app:srcCompat="@drawable/ic_call_black_24dp" />
 
-            <TextView
+            <Button
+                android:id="@+id/button_details_phone"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp" />
+
+            <!--<TextView
                 android:id="@+id/textView_details_phone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
-                />
+                />-->
 
         </TableRow>
 

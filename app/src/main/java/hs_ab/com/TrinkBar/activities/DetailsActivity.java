@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -56,6 +57,7 @@ public class DetailsActivity extends AppCompatActivity {
     private String mPlacesAPIKey = "AIzaSyC2144RCdtuiUP2HF-lMNg3Q9raPDmQy2M";
     private RequestQueue queue;
     private boolean mIsFav = false;
+    private Button mPhoneButton;
 
 
 
@@ -248,7 +250,19 @@ public class DetailsActivity extends AppCompatActivity {
         mOpenSat = (TextView) findViewById(R.id.details_table_content_Saturday);
         mFood= (TextView) findViewById(R.id.textView_details_food);
         mAddress= (TextView) findViewById(R.id.textView_details_address);
-        mPhone=(TextView) findViewById(R.id.textView_details_phone);
+        //mPhone=(TextView) findViewById(R.id.textView_details_phone);
+        mPhoneButton = (Button) findViewById(R.id.button_details_phone);
+
+
+        mPhoneButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent callIntent = new Intent();
+                callIntent.setAction(Intent.ACTION_DIAL);
+                callIntent.setData(Uri.parse("tel:" + mBarObject.getPhone()));
+                startActivity(callIntent);
+            }
+        });
     }
 
     private void setTextViews(){
@@ -260,7 +274,8 @@ public class DetailsActivity extends AppCompatActivity {
         mOpenFri.setText(mBarObject.getOpeningHours().getFriday());
         mOpenSat.setText(mBarObject.getOpeningHours().getSaturday());
         mAddress.setText(mBarObject.getAddress());
-        mPhone.setText(mBarObject.getPhone());
+        //mPhone.setText(mBarObject.getPhone());
+        mPhoneButton.setText(mBarObject.getPhone());
 
         if(mBarObject.getFood().equals("true")){
             mFood.setText("Essen verfügbar");
