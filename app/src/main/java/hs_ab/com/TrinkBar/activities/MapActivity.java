@@ -57,6 +57,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.maps.android.ui.IconGenerator;
 
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -128,7 +129,6 @@ public class MapActivity extends AppCompatActivity
         mGeoDataClient = Places.getGeoDataClient(this, null);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mGeofencingClient = LocationServices.getGeofencingClient(this);
-
     }
 
     private void initSideMenu() {
@@ -311,12 +311,15 @@ public class MapActivity extends AppCompatActivity
     }
 
     // set marker on the map with the coordinates from the server
-    private void setMarker() {
+    /*private void setMarker() {
         IconGenerator iconFactory = new IconGenerator(this);
         iconFactory.setColor(Color.WHITE);
         iconFactory.setTextAppearance(R.style.iconGenText);
 
         if (mMarkerArray!=null){
+            for (int i = 0; i < mMarkerArray.size(); i++) {
+                mMarkerArray.get(i).remove();
+            }
             mMarkerArray.clear();
         }
 
@@ -331,10 +334,55 @@ public class MapActivity extends AppCompatActivity
                     .position(place)
                     .title(name));
             startGeofence(marker,i);
+            marker.setTag(mBarList.get(i));
+            //Object bar=marker.getTag();
             mMarkerArray.add(marker);
         }
 
 
+    }*/
+
+    private Marker findMarker(Bar bar) {
+        for (int j = 0; j < mMarkerArray.size(); j++) {
+            Marker myMarker = mMarkerArray.get(j);
+            if (myMarker.getTitle().equals(bar.getName())) {
+                return myMarker;
+            }
+        }
+
+        return null;
+    }
+
+    private void setMarker(){
+        IconGenerator iconFactory = new IconGenerator(this);
+        iconFactory.setColor(Color.WHITE);
+        iconFactory.setTextAppearance(R.style.iconGenText);
+
+
+        for (int i = 0; i < mBarList.size(); i++) {
+            Double lat = Double.valueOf(mBarList.get(i).getCoordinates().getLatitude());
+            Double lon = Double.valueOf(mBarList.get(i).getCoordinates().getLongitude());
+            String name = mBarList.get(i).getName();
+            LatLng place = new LatLng(lat, lon);
+            MarkerOptions markerOptions =new MarkerOptions()
+                    .icon(BitmapDescriptorFactory.fromBitmap(iconFactory.makeIcon(mBarList.get(i).getVisitor()))) // + "\n"
+                    .position(place)
+                    .title(name);
+
+            Marker myMarker = findMarker(mBarList.get(i));
+            if (myMarker != null) {
+                myMarker.remove();
+                mMarkerArray.remove(myMarker);
+                Marker marker = mMap.addMarker(markerOptions);
+                mMarkerArray.add(marker);
+                myMarker = null;
+            }else {
+                Marker marker = mMap.addMarker(markerOptions);
+                startGeofence(marker,i);
+                mMarkerArray.add(marker);
+            }
+
+        }
     }
 
     /**
@@ -386,6 +434,7 @@ public class MapActivity extends AppCompatActivity
             mPermissionDenied = true;
         }
     }
+
 
     @Override
     protected void onResumeFragments() {
@@ -447,7 +496,7 @@ public class MapActivity extends AppCompatActivity
                 mRtDatabase.DataSnapshotHandler(dataSnapshot);
                 mBarList = mRtDatabase.getBarList();
                 if (mMap != null) {
-                    //setMarker();
+                    setMarker();
                 }
             }
 
@@ -458,7 +507,7 @@ public class MapActivity extends AppCompatActivity
                 mRtDatabase.DataSnapshotHandler(dataSnapshot);
                 mBarList = mRtDatabase.getBarList();
                 if (mMap != null) {
-                    //setMarker();
+                    setMarker();
                 }
 
             }
@@ -502,7 +551,7 @@ public class MapActivity extends AppCompatActivity
         Log.i(TAG, "startGeofence()");
             Geofence geofence = createGeofence( marker.getPosition(), GEOFENCE_RADIUS,marker.getTitle() );
             GeofencingRequest geofenceRequest = createGeofenceRequest( geofence );
-            addGeofence( geofenceRequest, req_code );
+            addGeofence(geofenceRequest,req_code );
             drawGeofence(marker);
     }
 

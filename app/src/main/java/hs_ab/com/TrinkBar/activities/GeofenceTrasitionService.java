@@ -111,7 +111,8 @@ public class GeofenceTrasitionService extends IntentService {
         }else if ( geoFenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT ){
             status = "Exiting ";
             Log.d(TAG, "onHandleIntent: Exit");
-            mDatabase.child("bars").child(barNumber).child("visitor").setValue(getString((Integer.valueOf(barVisitors)-1))); //decrement of visitor number
+            int visitors = Integer.valueOf(barVisitors)-1;
+            mDatabase.child("bars").child(barNumber).child("visitor").setValue(Integer.toString(visitors)); //decrement of visitor number
         }
         return status + TextUtils.join( ", ", triggeringGeofencesList);
     }
@@ -125,10 +126,16 @@ public class GeofenceTrasitionService extends IntentService {
                 getApplicationContext(), msg
         );
 
+        /*
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         stackBuilder.addParentStack(MapActivity.class);
         stackBuilder.addNextIntent(notificationIntent);
-        PendingIntent notificationPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent notificationPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_CANCEL_CURRENT);*/
+
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                |Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+        PendingIntent notificationPendingIntent = PendingIntent.getActivity(this, 1000, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 
         // Creating and sending Notification
