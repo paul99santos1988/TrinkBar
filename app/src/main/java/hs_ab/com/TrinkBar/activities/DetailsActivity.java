@@ -21,18 +21,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 
@@ -278,6 +268,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
 
     }
 
+    //TODO save status of fav-icon (set/unset)
     @Override
     public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
         if (verticalOffset == 0) {
@@ -325,6 +316,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
 
     private void addFavItem(){
         //TODO
+
     }
 
     private void removeFavItem(){

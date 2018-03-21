@@ -269,6 +269,11 @@ public class MapActivity extends AppCompatActivity
             Intent i = new Intent(MapActivity.this, ListActivity.class);
             startActivity(i);
 
+        } else if (id == R.id.nav_favorites) {
+            //TODO change icon of favorites list
+            Intent i = new Intent(MapActivity.this, FavoritesActivity.class);
+            startActivity(i);
+
         } else if (id == R.id.nav_acc) {
 
         } else if (id == R.id.nav_settings) {

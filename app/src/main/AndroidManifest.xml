@@ -48,6 +48,10 @@
             android:name=".activities.DetailsActivity"
             android:label="@string/title_activity_scrolling"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".activities.FavoritesActivity"
+            android:label="@string/title_favorites_list"
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <service android:name=".activities.GeofenceTrasitionService" />
 

@@ -132,7 +132,10 @@ public class ListActivity extends AppCompatActivity
         } else if (id == R.id.nav_gallery) {
             Intent i = new Intent(ListActivity.this, ListActivity.class);
             startActivity(i);
-
+        } else if (id == R.id.nav_favorites) {
+            //TODO change icon of favorites list
+            Intent i = new Intent(ListActivity.this, FavoritesActivity.class);
+            startActivity(i);
         } else if (id == R.id.nav_acc) {
 
         } else if (id == R.id.nav_settings) {
