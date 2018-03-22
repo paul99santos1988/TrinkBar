@@ -50,7 +50,6 @@ public class GeofenceTrasitionService extends IntentService {
         // Check if the transition type is of interest
         if ( geoFenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ||
                 geoFenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT ) {
-            Log.d(TAG, "onHandleIntent: Enter/Exit");
             // Get the geofence that were triggered
             List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
 
@@ -102,11 +101,11 @@ public class GeofenceTrasitionService extends IntentService {
         String status = null;
         if ( geoFenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ){
             status = "Entering ";
-            Log.d(TAG, "onHandleIntent: Enter");
+            Log.d(TAG, "Enter Geofence");
             mDatabase.child("bars").child(barNumber).child("visitor").setValue(String.valueOf((Integer.valueOf(barVisitors)+1))); //iterate visitor number
         }else if ( geoFenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT ){
             status = "Exiting ";
-            Log.d(TAG, "onHandleIntent: Exit");
+            Log.d(TAG, "Exit Geofence");
             int visitors = Integer.valueOf(barVisitors)-1;
             mDatabase.child("bars").child(barNumber).child("visitor").setValue(Integer.toString(visitors)); //decrement of visitor number
         }

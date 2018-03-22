@@ -78,11 +78,7 @@ public class MapActivity extends AppCompatActivity
         GoogleMap.OnMarkerClickListener{
 
     private static final String TAG = "MapActivity";
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-    private static final long GEO_DURATION = 60 * 60 * 1000;
-    private static final String GEOFENCE_REQ_ID = "My Geofence";
-    private static final float GEOFENCE_RADIUS = 50.0f; // in meters
-    private final int GEOFENCE_REQ_CODE = 0;
+
     private GoogleMap mMap;
     private Context mCtx;
     private List<Bar> mBarList;
@@ -414,13 +410,13 @@ public class MapActivity extends AppCompatActivity
         // Permission to access the location is missing.
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                LOCATION_PERMISSION_REQUEST_CODE);
+                Constants.LOCATION_PERMISSION_REQUEST_CODE);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        if (requestCode != LOCATION_PERMISSION_REQUEST_CODE) {
+        if (requestCode != Constants.LOCATION_PERMISSION_REQUEST_CODE) {
             return;
         }
 
@@ -549,7 +545,7 @@ public class MapActivity extends AppCompatActivity
     // Start Geofence creation process
     private void startGeofence(Marker marker,int req_code) {
         Log.i(TAG, "startGeofence()");
-            Geofence geofence = createGeofence( marker.getPosition(), GEOFENCE_RADIUS,marker.getTitle() );
+            Geofence geofence = createGeofence( marker.getPosition(), Constants.GEOFENCE_RADIUS,marker.getTitle() );
             GeofencingRequest geofenceRequest = createGeofenceRequest( geofence );
             addGeofence(geofenceRequest,req_code );
             drawGeofence(marker);
@@ -568,7 +564,7 @@ public class MapActivity extends AppCompatActivity
         return new Geofence.Builder()
                 .setRequestId(req_id)
                 .setCircularRegion( latLng.latitude, latLng.longitude, radius)
-                .setExpirationDuration( GEO_DURATION )
+                .setExpirationDuration( Constants.GEO_DURATION )
                 .setTransitionTypes( Geofence.GEOFENCE_TRANSITION_ENTER
                         | Geofence.GEOFENCE_TRANSITION_EXIT )
                 .build();
@@ -621,7 +617,7 @@ public class MapActivity extends AppCompatActivity
                 .center( marker.getPosition())
                 .strokeColor(Color.argb(50, 70,70,70))
                 .fillColor( Color.argb(100, 150,150,150) )
-                .radius( GEOFENCE_RADIUS );
+                .radius( Constants.GEOFENCE_RADIUS );
         geoFenceLimits.add(mMap.addCircle( circleOptions));
     }
 
