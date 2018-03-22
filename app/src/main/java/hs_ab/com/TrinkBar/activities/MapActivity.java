@@ -1,13 +1,18 @@
 package hs_ab.com.TrinkBar.activities;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.internal.NavigationMenu;
 import android.support.design.widget.NavigationView;
@@ -73,6 +78,7 @@ public class MapActivity extends AppCompatActivity
         implements
         GoogleMap.OnPoiClickListener,
         OnMapReadyCallback,
+        OnFailureListener,
         ActivityCompat.OnRequestPermissionsResultCallback,
         NavigationView.OnNavigationItemSelectedListener,
         GoogleMap.OnMarkerClickListener{
@@ -111,6 +117,7 @@ public class MapActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        networkCheck();
         mCtx = getApplicationContext();
         setContentView(R.layout.activity_main);
 
@@ -649,5 +656,52 @@ public class MapActivity extends AppCompatActivity
                 geoFenceLimits.get(i).remove();
             }
         geoFenceLimits.clear();
+    }
+    
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    private void networkCheck(){
+        boolean wifi = isNetworkAvailable();
+        if(!wifi){
+            final AlertDialog.Builder dialog = new AlertDialog.Builder(this).setTitle("App beenden").setMessage("Um diese App nutzen zu können, wird einen aktive Internetverbidung benötigt. Bitte überprüfe deine Verbindung");
+            dialog.setPositiveButton("Sofort Beenden", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    MapActivity.this.finish();
+                }
+            });
+            final AlertDialog alert = dialog.create();
+            alert.show();
+
+            // Hide after some seconds
+            final Handler handler  = new Handler();
+            final Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                    if (alert.isShowing()) {
+                        MapActivity.this.finish();
+                    }
+                }
+            };
+
+            alert.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    handler.removeCallbacks(runnable);
+                }
+            });
+
+            handler.postDelayed(runnable, 20000);
+        }
+    }
+
+    @Override
+    public void onFailure(@NonNull Exception e) {
+
     }
 }
