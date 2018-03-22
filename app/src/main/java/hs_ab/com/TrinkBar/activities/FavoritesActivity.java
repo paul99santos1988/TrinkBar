@@ -39,6 +39,7 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
         private List<Bar> barList;
         private RecyclerView mRv;
         private RealtimeDBAdapter mRtDatabase;
+        public List<Bar> barFavoritesList;
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -61,12 +62,15 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
 
             barList = new ArrayList<Bar>();
             mRtDatabase = RealtimeDBAdapter.getInstance(mCtx);
-
+            if(barFavoritesList == null) {
+                barFavoritesList = new ArrayList<Bar>();
+            }
             // RV for List
             mRv = (RecyclerView) findViewById(R.id.rv_favorites);
             LinearLayoutManager llm = new LinearLayoutManager(this);
             mRv.setLayoutManager(llm);
             mRv.setHasFixedSize(true);
+
         }
 
 
@@ -77,22 +81,28 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
             //barList.clear();
             barList= mRtDatabase.getBarList();
             // init Adapter with Data from Server
-            for (int i=0;i<barList.size();i++ ){
-
-                Image image = mRtDatabase.getImagebyId(barList.get(i).getId());
-                barList.get(i).setImageData(image.getImage());
-
+            if(barFavoritesList != null){
+                for (int i=0; i < barFavoritesList.size(); i++ ){
+                    for(int j=0; j < barList.size(); j++) {
+                        if (barFavoritesList.get(i).getId() == barList.get(j).getId()) {
+                            Image image = mRtDatabase.getImagebyId(barList.get(j).getId());
+                            barList.get(i).setImageData(image.getImage());
+                        }
+                    }
+                }
             }
+
             if(mRv.getAdapter()==null) {
                 initializeAdapter();
             }
+
             mRv.getAdapter().notifyDataSetChanged();
         }
 
 
     private void initializeAdapter() {
         Log.d(TAG, "initializeFavAdapter");
-        FavoritesListAdapter adapter = new FavoritesListAdapter(this, barList);
+        FavoritesListAdapter adapter = new FavoritesListAdapter(this, barFavoritesList);
         mRv.setAdapter(adapter);
     }
 
