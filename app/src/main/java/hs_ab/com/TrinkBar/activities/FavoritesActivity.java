@@ -69,7 +69,7 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
             mRv = (RecyclerView) findViewById(R.id.rv_favorites);
             LinearLayoutManager llm = new LinearLayoutManager(this);
             mRv.setLayoutManager(llm);
-            mRv.setHasFixedSize(true);
+            //mRv.setHasFixedSize(true);
 
         }
 
@@ -80,6 +80,13 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
             super.onResume();
             //barList.clear();
             barList= mRtDatabase.getBarList();
+            barFavoritesList = mRtDatabase.getBarList();
+            Bar dummyBar = new Bar();
+            dummyBar.setAddress("Musterstrasse");
+            //dummyBar.setCoordinates();
+            dummyBar.setDescription("Only a dummy to show you a possible favorite");
+            dummyBar.setName("Musterbar");
+            //barFavoritesList.add(dummyBar);
             // init Adapter with Data from Server
             if(barFavoritesList != null){
                 for (int i=0; i < barFavoritesList.size(); i++ ){
@@ -88,6 +95,7 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
                             Image image = mRtDatabase.getImagebyId(barList.get(j).getId());
                             barList.get(i).setImageData(image.getImage());
                         }
+
                     }
                 }
             }

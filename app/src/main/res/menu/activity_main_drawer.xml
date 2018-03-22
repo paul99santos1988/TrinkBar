@@ -14,7 +14,7 @@
             android:title="@string/title_activity_details" />
         <item
             android:id="@+id/nav_favorites"
-            android:icon="@drawable/ic_menu_myplaces"
+            android:icon="@drawable/ic_favorite_black_24dp"
             android:title="@string/title_favorites_list" />
     </group>
 
