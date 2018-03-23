@@ -318,9 +318,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
 
     private void addFavItem(){
         //TODO
-        if(FavoritesActivity.getInstance().barFavoritesList == null){
-            FavoritesActivity.getInstance().barFavoritesList = new ArrayList<Bar>();
-        }
+
 
         FavoritesActivity.getInstance().barFavoritesList.add(mBarObject);
         Toast.makeText(mInstance, "Added favorite to list", Toast.LENGTH_SHORT).show();

@@ -61,15 +61,14 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
             navigationView.setNavigationItemSelectedListener(this);
 
             barList = new ArrayList<Bar>();
-            mRtDatabase = RealtimeDBAdapter.getInstance(mCtx);
-            if(barFavoritesList == null) {
-                barFavoritesList = new ArrayList<Bar>();
-            }
+            //mRtDatabase = RealtimeDBAdapter.getInstance(mCtx);
+            barFavoritesList = new ArrayList<Bar>();
+
             // RV for List
             mRv = (RecyclerView) findViewById(R.id.rv_favorites);
             LinearLayoutManager llm = new LinearLayoutManager(this);
             mRv.setLayoutManager(llm);
-            //mRv.setHasFixedSize(true);
+            mRv.setHasFixedSize(true);
 
         }
 
@@ -81,12 +80,12 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
             //barList.clear();
             barList= mRtDatabase.getBarList();
             barFavoritesList = mRtDatabase.getBarList();
-            Bar dummyBar = new Bar();
-            dummyBar.setAddress("Musterstrasse");
-            //dummyBar.setCoordinates();
-            dummyBar.setDescription("Only a dummy to show you a possible favorite");
-            dummyBar.setName("Musterbar");
-            //barFavoritesList.add(dummyBar);
+//            Bar dummyBar = new Bar();
+//            dummyBar.setAddress("Musterstrasse");
+//            //dummyBar.setCoordinates();
+//            dummyBar.setDescription("Only a dummy to show you a possible favorite");
+//            dummyBar.setName("Musterbar");
+//            //barFavoritesList.add(dummyBar);
             // init Adapter with Data from Server
             if(barFavoritesList != null){
                 for (int i=0; i < barFavoritesList.size(); i++ ){
