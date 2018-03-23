@@ -52,6 +52,8 @@
 
         <service android:name=".activities.GeofenceTrasitionService" />
 
+        <service android:name=".activities.DistanceService"/>
+
     </application>
 
 </manifest>
