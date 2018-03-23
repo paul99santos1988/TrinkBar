@@ -52,6 +52,7 @@ public class ListActivity extends AppCompatActivity
     private RecyclerView mRv;
     private RealtimeDBAdapter mRtDatabase;
     private FusedLocationProviderClient mFusedLocationClient;
+    private LocationDistance mDistance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,8 +89,10 @@ public class ListActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 
-        Intent intent = new Intent(this, DistanceService.class);
-        startService(new Intent(this, DistanceService.class));
+        mDistance= LocationDistance.getInstance(mCtx);
+        mDistance.setCallbacks(this);
+        mDistance.calculateDistance();
+
 
         //barList.clear();
         barList= mRtDatabase.getBarList();
@@ -107,6 +110,14 @@ public class ListActivity extends AppCompatActivity
 
 
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mDistance.close();
+
+    }
+
 
 
     private void initializeAdapter() {
