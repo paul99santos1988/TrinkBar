@@ -35,6 +35,8 @@ public class Bar {
 
     private String imageData;
 
+    private String distance;
+
     public String getAddress() {
         return address;
     }
@@ -106,5 +108,9 @@ public class Bar {
     public String getImageData() {return imageData;}
 
     public void setImageData(String imageData) {this.imageData = imageData;}
+
+    public void setDistance(String distance){this.distance = distance;}
+
+    public String getDistance(){return distance;}
 
 }

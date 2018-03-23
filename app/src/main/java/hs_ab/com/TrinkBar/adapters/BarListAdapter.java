@@ -90,13 +90,18 @@ public class BarListAdapter extends RecyclerView.Adapter<BarListAdapter.BarViewH
         mitem= i;
         Log.d(TAG, "onBindViewHolder: "+i);
         barViewHolder.name.setText(bars.get(i).getName());
+        barViewHolder.description.setText(bars.get(i).getDistance());
+        try {
+            String base64String = bars.get(i).getImageData();
+            String base64Image = base64String.split(",")[1];
+            byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
+            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+            barViewHolder.photo.setImageBitmap(decodedByte);
+        }catch(Exception ex){
 
-        String base64String = bars.get(i).getImageData();
-                String base64Image = base64String.split(",")[1];
+        }
 
-        byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
-        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-        barViewHolder.photo.setImageBitmap(decodedByte);
+
     }
 
     @Override

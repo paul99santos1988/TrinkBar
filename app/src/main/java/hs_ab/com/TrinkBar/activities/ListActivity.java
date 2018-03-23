@@ -1,7 +1,10 @@
 package hs_ab.com.TrinkBar.activities;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -15,7 +18,16 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
+import android.widget.Toast;
 
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +40,7 @@ import hs_ab.com.TrinkBar.models.Image;
 
 public class ListActivity extends AppCompatActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback,
-        NavigationView.OnNavigationItemSelectedListener {
+        NavigationView.OnNavigationItemSelectedListener, DistanceCallback {
 
 
     private static ListActivity mInstance;
@@ -39,11 +51,13 @@ public class ListActivity extends AppCompatActivity
     private List<Bar> barList;
     private RecyclerView mRv;
     private RealtimeDBAdapter mRtDatabase;
+    private FusedLocationProviderClient mFusedLocationClient;
+    private LocationDistance mDistance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mInstance=this;
+        mInstance = this;
         mCtx = getApplicationContext();
         setContentView(R.layout.activity_list);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -66,12 +80,19 @@ public class ListActivity extends AppCompatActivity
         LinearLayoutManager llm = new LinearLayoutManager(this);
         mRv.setLayoutManager(llm);
         mRv.setHasFixedSize(true);
+
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
     }
 
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        mDistance= LocationDistance.getInstance(mCtx);
+        mDistance.setCallbacks(this);
+        mDistance.calculateDistance();
+
 
         //barList.clear();
         barList= mRtDatabase.getBarList();
@@ -86,7 +107,17 @@ public class ListActivity extends AppCompatActivity
             initializeAdapter();
         }
         mRv.getAdapter().notifyDataSetChanged();
+
+
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mDistance.close();
+
+    }
+
 
 
     private void initializeAdapter() {
@@ -153,5 +184,11 @@ public class ListActivity extends AppCompatActivity
     public static synchronized ListActivity getInstance()
     {
         return mInstance;
+    }
+
+    @Override
+    public void callbackCall(List<Bar> barList) {
+        this.barList=barList;
+        mRv.getAdapter().notifyDataSetChanged();
     }
 }
