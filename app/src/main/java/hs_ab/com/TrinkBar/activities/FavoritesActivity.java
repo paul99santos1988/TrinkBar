@@ -18,7 +18,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -44,6 +43,9 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
         public List<Bar> barFavoritesList;
         FavoritesListAdapter adapter;
         private LocationDistance mDistance;
+        private SharedPreferences sharedPrefFavorites;
+        private Map savedFavorites;
+        private SharedPreferences.Editor editor;
         private String[] favorites;
 
     @Override
@@ -65,19 +67,19 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
             NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view_details);
             navigationView.setNavigationItemSelectedListener(this);
 
-            SharedPreferences sharedPref = mCtx.getSharedPreferences(getString(R.string.preference_file_key), mCtx.MODE_PRIVATE);
-            Map savedFavorites = sharedPref.getAll();
-            savedFavorites.size();
-            Collection favoritesCollection = savedFavorites.values();
-            favorites = new String[savedFavorites.size()];
+            sharedPrefFavorites = mCtx.getSharedPreferences(getString(R.string.preference_file_key), mCtx.MODE_PRIVATE);
+            savedFavorites = sharedPrefFavorites.getAll();
 
-            //favorites = (String[]) favoritesCollection.toArray(new Objectl[0]);
+            //Collection favoritesCollection = savedFavorites.values();
+            //favorites = new String[savedFavorites.size()];
 
-            String barId = sharedPref.getString(getString(R.string.barId_key_appendix), getString(R.string.default_favorites_value));
-            Log.d(TAG, "sharedPref -> barId= "+barId);
+
+
             //SharedPreferences.Editor edtior = sharedPref.edit();
             barList = new ArrayList<Bar>();
-            //mRtDatabase = RealtimeDBAdapter.getInstance(mCtx);
+            mRtDatabase = RealtimeDBAdapter.getInstance(mCtx);
+
+
             if(barFavoritesList == null){
                 barFavoritesList = new ArrayList<Bar>();
             }
@@ -107,11 +109,22 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
             mDistance.setCallbacks(this);
             mDistance.calculateDistance();
 
-            //barList.clear();
-            //barList= mRtDatabase.getBarList();
-            //barFavoritesList = mRtDatabase.getBarList();
+            if(mRv.getAdapter()==null & savedFavorites.size()!=0) {
+                //barList.clear();
+                barList = mRtDatabase.getBarList();
+                for (int i = 0; i < barList.size(); i++) {
 
-            // init Adapter with Data from Server
+                    Bar barToCompare = barList.get(i);
+                    String key_favorite_bar = barToCompare.getName();
+                    String savedBarId = sharedPrefFavorites.getString(key_favorite_bar, getString(R.string.default_favorites_value));
+                    Log.d(TAG, "sharedPref -> barId= " + savedBarId);
+                    if (barToCompare.getId().equals(savedBarId)) {
+                        barFavoritesList.add(barToCompare);
+                    }
+
+                }
+                initializeAdapter();
+                // init Adapter with Data from Server
             /*if(barFavoritesList != null){
                 for (int i=0; i < barFavoritesList.size(); i++ ){
                     for(int j=0; j < barList.size(); j++) {
@@ -123,8 +136,8 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
                     }
                 }
             }*/
-            Log.i(TAG,"mRv.getAdapter()= "+mRv.getAdapter());
-            if(mRv.getAdapter()==null) {
+                //Log.i(TAG,"mRv.getAdapter()= "+mRv.getAdapter());
+            } else {
                 Bar dummyBar = new Bar();
                 dummyBar.setId("DummyId_0815");
                 dummyBar.setAddress("Musterstrasse");
