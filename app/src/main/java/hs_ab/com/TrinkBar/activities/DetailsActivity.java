@@ -2,6 +2,7 @@ package hs_ab.com.TrinkBar.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -25,6 +26,7 @@ import android.widget.Toast;
 import com.android.volley.RequestQueue;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Map;
 
 import hs_ab.com.TrinkBar.R;
 import hs_ab.com.TrinkBar.adapters.RealtimeDBAdapter;
@@ -48,6 +50,8 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
     private Button mPhoneButton;
     private Menu mMenu;
     private MenuItem mfavItem;
+    private SharedPreferences sharedPrefFavorites;
+    private SharedPreferences.Editor editor;
 
 
     @Override
@@ -56,9 +60,11 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
         mCtx = getApplicationContext();
+        sharedPrefFavorites = mCtx.getSharedPreferences(getString(R.string.preference_file_key), mCtx.MODE_PRIVATE);
+        editor = sharedPrefFavorites.edit();
 
-        initFAB();
         getDetailsData();
+        initFAB();
         initToolBar();
         initViews();
 
@@ -166,11 +172,18 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.app_bar);
         appBarLayout.addOnOffsetChangedListener(this);
     }
-
+    //TODO pick out multiple used variables and declare it at the beginning, like favorite_key
     private void initFAB(){
         mFab = (FloatingActionButton) findViewById(R.id.fab_bottom);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mFab.setImageDrawable(getResources().getDrawable(R.drawable.ic_favorite_border_black_24dp, getApplicationContext().getTheme()));
+            String favorite_key = mBarObject.getName();
+            String savedBarId = sharedPrefFavorites.getString(favorite_key, getString(R.string.default_favorites_value));
+            if(savedBarId.equals(mBarId)){
+                mFab.setImageDrawable(getResources().getDrawable(R.drawable.ic_favorite_black_24dp, getApplicationContext().getTheme()));
+            }
+            else {
+                mFab.setImageDrawable(getResources().getDrawable(R.drawable.ic_favorite_border_black_24dp, getApplicationContext().getTheme()));
+            }
         }
 
         mFab.setOnClickListener(new View.OnClickListener() {
@@ -232,7 +245,6 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         }
         mImg.setImageBitmap(decodeImg(image.getImage()));
 
-
         if(mBarObject.getFood().equals("true")){
             mFood.setText(R.string.food);
         }
@@ -282,15 +294,54 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
 
     private void addFavItem(){
         //TODO
-        FavoritesActivity.getInstance().barFavoritesList.add(mBarObject);
+        //String barId = sharedPrefFavorites.getString(getString(R.string.barId_key_appendix)+favoritesNumber, getString(R.string.default_favorites_value));
+        Map savedFavorites = sharedPrefFavorites.getAll();
+        Integer favoritesNumber = savedFavorites.size();
+        String savedBarId;
+        String favorite_key = mBarObject.getName();
+        String mBarId = mBarObject.getId();
+        if(favoritesNumber == 0){
+            editor.putString(favorite_key, mBarObject.getId());
+        }
+        else {
+            for (int i = 0; i <= favoritesNumber; i++) {
+                savedBarId = sharedPrefFavorites.getString(favorite_key, getString(R.string.default_favorites_value));
+                if (savedBarId.equals(mBarId)) {
+                    break; //favorite already saved
+                } else if ((savedBarId != mBarObject.getId()) & (i == favoritesNumber)) {
+                    editor.putString(favorite_key, mBarObject.getId());
+                    break;
+                }
+            }
+        }
+        //editor.clear(); //delete all favorites
+        editor.commit();
         Toast.makeText(mInstance, "Added favorite to list", Toast.LENGTH_SHORT).show();
 
     }
 
     private void removeFavItem(){
-        FavoritesActivity.getInstance().barFavoritesList.remove(mBarObject);
-        Toast.makeText(mInstance, "Removed favorite from list", Toast.LENGTH_SHORT).show();
 
+        Map savedFavorites = sharedPrefFavorites.getAll();
+        Integer favoritesNumber = savedFavorites.size();
+        String savedBarId;
+        String favorite_key = mBarObject.getName();
+        String mBarId = mBarObject.getId();
+        if(favoritesNumber != 0) {
+            //if favorite exists it will be removed
+            savedBarId = sharedPrefFavorites.getString(favorite_key, getString(R.string.default_favorites_value));
+            if (savedBarId.equals(mBarId)) {
+                editor.remove(favorite_key); //favorite will be removed
+                editor.commit();
+                Toast.makeText(mInstance, "Removed favorite from list", Toast.LENGTH_SHORT).show();
+            }
+            else{
+                Toast.makeText(mInstance, "This favorite not exists", Toast.LENGTH_SHORT).show();
+            }
+        }
+        else{
+            Toast.makeText(mInstance, "It exists no favorite!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private Bitmap decodeImg(String data){

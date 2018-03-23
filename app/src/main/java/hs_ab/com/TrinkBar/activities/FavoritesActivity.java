@@ -18,7 +18,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import hs_ab.com.TrinkBar.R;
 import hs_ab.com.TrinkBar.adapters.FavoritesListAdapter;
@@ -29,18 +31,20 @@ import hs_ab.com.TrinkBar.models.Bar;
  * Created by tabo on 3/21/18.
  */
 
-public class FavoritesActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback, NavigationView.OnNavigationItemSelectedListener {
+public class FavoritesActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback, NavigationView.OnNavigationItemSelectedListener, DistanceCallback {
 
         private static FavoritesActivity mInstance;
 
 
         private Context mCtx;
-        private static final String TAG = "LOG";
+        private static final String TAG = "FavoritesActivity";
         private List<Bar> barList;
         private RecyclerView mRv;
         private RealtimeDBAdapter mRtDatabase;
         public List<Bar> barFavoritesList;
         FavoritesListAdapter adapter;
+        private LocationDistance mDistance;
+        private String[] favorites;
 
     @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +66,16 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
             navigationView.setNavigationItemSelectedListener(this);
 
             SharedPreferences sharedPref = mCtx.getSharedPreferences(getString(R.string.preference_file_key), mCtx.MODE_PRIVATE);
+            Map savedFavorites = sharedPref.getAll();
+            savedFavorites.size();
+            Collection favoritesCollection = savedFavorites.values();
+            favorites = new String[savedFavorites.size()];
+
+            //favorites = (String[]) favoritesCollection.toArray(new Objectl[0]);
+
+            String barId = sharedPref.getString(getString(R.string.barId_key_appendix), getString(R.string.default_favorites_value));
+            Log.d(TAG, "sharedPref -> barId= "+barId);
+            //SharedPreferences.Editor edtior = sharedPref.edit();
             barList = new ArrayList<Bar>();
             //mRtDatabase = RealtimeDBAdapter.getInstance(mCtx);
             if(barFavoritesList == null){
@@ -77,10 +91,22 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
         }
 
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mDistance.close();
+
+    }
+
         @Override
         protected void onResume() {
 
             super.onResume();
+
+            mDistance= LocationDistance.getInstance(mCtx);
+            mDistance.setCallbacks(this);
+            mDistance.calculateDistance();
+
             //barList.clear();
             //barList= mRtDatabase.getBarList();
             //barFavoritesList = mRtDatabase.getBarList();
@@ -180,5 +206,10 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
     public static synchronized FavoritesActivity getInstance()
     {
         return mInstance;
+    }
+
+    @Override
+    public void callbackCall(List<Bar> barList) {
+        Log.d(TAG, "callbackCall: "+barList);
     }
 }

@@ -28,6 +28,8 @@
     <string name="noDial">Keine Telefonapp installiert</string>
 
     <!-- Favorites preferences -->
-    <string name="preference_file_key">SAVED_FAVORITES</string>
+    <string name="preference_file_key">saved_favorites</string>
+    <string name="default_favorites_value">NO FAVORITES SAVED</string>
+    <string name="barId_key_appendix">barId</string>
 
 </resources>
