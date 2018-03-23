@@ -25,6 +25,7 @@ import hs_ab.com.TrinkBar.R;
 import hs_ab.com.TrinkBar.adapters.FavoritesListAdapter;
 import hs_ab.com.TrinkBar.adapters.RealtimeDBAdapter;
 import hs_ab.com.TrinkBar.models.Bar;
+import hs_ab.com.TrinkBar.models.Image;
 
 /**
  * Created by tabo on 3/21/18.
@@ -109,6 +110,7 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
             mDistance.setCallbacks(this);
             mDistance.calculateDistance();
 
+            //TODO change AND to OR -> list will be displayed twice
             if(mRv.getAdapter()==null & savedFavorites.size()!=0) {
                 //barList.clear();
                 barList = mRtDatabase.getBarList();
@@ -117,9 +119,16 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
                     Bar barToCompare = barList.get(i);
                     String key_favorite_bar = barToCompare.getName();
                     String savedBarId = sharedPrefFavorites.getString(key_favorite_bar, getString(R.string.default_favorites_value));
-                    Log.d(TAG, "sharedPref -> barId= " + savedBarId);
+                    Log.i(TAG, "sharedPref -> barId= " + savedBarId);
                     if (barToCompare.getId().equals(savedBarId)) {
                         barFavoritesList.add(barToCompare);
+                        Image image = mRtDatabase.getImagebyId(barList.get(i).getId());
+                        for(int j=0; j < barFavoritesList.size();j++) {
+                            //for loop needed -> barFavorites.size() != barList.size()
+                            if(barToCompare.getId().equals(barFavoritesList.get(j).getId())) {
+                                barFavoritesList.get(j).setImageData(image.getImage()); //adding image to corresponding bar in favorites list
+                            }
+                        }
                     }
 
                 }
@@ -154,7 +163,7 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
 
 
     private void initializeAdapter() {
-        Log.d(TAG, "initializeFavAdapter");
+        Log.i(TAG, "initializeFavAdapter");
         adapter = new FavoritesListAdapter(this, barFavoritesList);
         mRv.setAdapter(adapter);
     }

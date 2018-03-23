@@ -44,6 +44,7 @@ public class FavoritesListAdapter extends RecyclerView.Adapter<FavoritesListAdap
             name = (TextView) itemView.findViewById(R.id.favorites_list_barname);
             //description = (TextView) itemView.findViewById(R.id.description);
             photo = (ImageView) itemView.findViewById(R.id.favorites_list_photo);
+            //TODO clicking on bar in favorites list -> push back button -> "musterbar" is added
             itemView.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v)
