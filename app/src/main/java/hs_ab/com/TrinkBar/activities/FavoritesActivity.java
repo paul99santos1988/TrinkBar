@@ -2,6 +2,7 @@ package hs_ab.com.TrinkBar.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -23,7 +24,6 @@ import hs_ab.com.TrinkBar.R;
 import hs_ab.com.TrinkBar.adapters.FavoritesListAdapter;
 import hs_ab.com.TrinkBar.adapters.RealtimeDBAdapter;
 import hs_ab.com.TrinkBar.models.Bar;
-import hs_ab.com.TrinkBar.models.Image;
 
 /**
  * Created by tabo on 3/21/18.
@@ -40,8 +40,9 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
         private RecyclerView mRv;
         private RealtimeDBAdapter mRtDatabase;
         public List<Bar> barFavoritesList;
+        FavoritesListAdapter adapter;
 
-        @Override
+    @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             mInstance=this;
@@ -60,9 +61,12 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
             NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view_details);
             navigationView.setNavigationItemSelectedListener(this);
 
+            SharedPreferences sharedPref = mCtx.getSharedPreferences(getString(R.string.preference_file_key), mCtx.MODE_PRIVATE);
             barList = new ArrayList<Bar>();
             //mRtDatabase = RealtimeDBAdapter.getInstance(mCtx);
-            barFavoritesList = new ArrayList<Bar>();
+            if(barFavoritesList == null){
+                barFavoritesList = new ArrayList<Bar>();
+            }
 
             // RV for List
             mRv = (RecyclerView) findViewById(R.id.rv_favorites);
@@ -78,16 +82,11 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
 
             super.onResume();
             //barList.clear();
-            barList= mRtDatabase.getBarList();
-            barFavoritesList = mRtDatabase.getBarList();
-//            Bar dummyBar = new Bar();
-//            dummyBar.setAddress("Musterstrasse");
-//            //dummyBar.setCoordinates();
-//            dummyBar.setDescription("Only a dummy to show you a possible favorite");
-//            dummyBar.setName("Musterbar");
-//            //barFavoritesList.add(dummyBar);
+            //barList= mRtDatabase.getBarList();
+            //barFavoritesList = mRtDatabase.getBarList();
+
             // init Adapter with Data from Server
-            if(barFavoritesList != null){
+            /*if(barFavoritesList != null){
                 for (int i=0; i < barFavoritesList.size(); i++ ){
                     for(int j=0; j < barList.size(); j++) {
                         if (barFavoritesList.get(i).getId() == barList.get(j).getId()) {
@@ -97,9 +96,17 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
 
                     }
                 }
-            }
-
+            }*/
+            Log.i(TAG,"mRv.getAdapter()= "+mRv.getAdapter());
             if(mRv.getAdapter()==null) {
+                Bar dummyBar = new Bar();
+                dummyBar.setId("DummyId_0815");
+                dummyBar.setAddress("Musterstrasse");
+                //dummyBar.setCoordinates();
+                dummyBar.setDescription("Only a dummy to show you a possible favorite");
+                dummyBar.setName("Musterbar");
+                dummyBar.setImageData("This is the imageData, dummyText instead of an image");
+                barFavoritesList.add(dummyBar);
                 initializeAdapter();
             }
 
@@ -109,7 +116,7 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
 
     private void initializeAdapter() {
         Log.d(TAG, "initializeFavAdapter");
-        FavoritesListAdapter adapter = new FavoritesListAdapter(this, barFavoritesList);
+        adapter = new FavoritesListAdapter(this, barFavoritesList);
         mRv.setAdapter(adapter);
     }
 

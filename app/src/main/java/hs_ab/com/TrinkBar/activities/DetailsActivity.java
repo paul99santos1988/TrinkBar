@@ -20,11 +20,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 
 import hs_ab.com.TrinkBar.R;
 import hs_ab.com.TrinkBar.adapters.RealtimeDBAdapter;
@@ -282,17 +282,12 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
 
     private void addFavItem(){
         //TODO
-
-
         FavoritesActivity.getInstance().barFavoritesList.add(mBarObject);
         Toast.makeText(mInstance, "Added favorite to list", Toast.LENGTH_SHORT).show();
 
     }
 
     private void removeFavItem(){
-        if(FavoritesActivity.getInstance().barFavoritesList == null){
-            FavoritesActivity.getInstance().barFavoritesList = new ArrayList<Bar>();
-        }
         FavoritesActivity.getInstance().barFavoritesList.remove(mBarObject);
         Toast.makeText(mInstance, "Removed favorite from list", Toast.LENGTH_SHORT).show();
 

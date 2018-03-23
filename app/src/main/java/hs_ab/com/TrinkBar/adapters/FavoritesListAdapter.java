@@ -90,13 +90,15 @@ public class FavoritesListAdapter extends RecyclerView.Adapter<FavoritesListAdap
         mitem= i;
         Log.d(TAG, "onBindViewHolder: "+i);
         barViewHolder.name.setText(bars.get(i).getName());
+        if(bars.get(i).getId() != "DummyId_0815") {
+            String base64String = bars.get(i).getImageData();
+            String base64Image = base64String.split(",")[1];
 
-        String base64String = bars.get(i).getImageData();
-                String base64Image = base64String.split(",")[1];
+            byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
+            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+            barViewHolder.photo.setImageBitmap(decodedByte);
+        }
 
-        byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
-        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-        barViewHolder.photo.setImageBitmap(decodedByte);
     }
 
     @Override
