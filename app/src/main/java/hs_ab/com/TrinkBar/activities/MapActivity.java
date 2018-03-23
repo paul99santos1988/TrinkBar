@@ -1,13 +1,18 @@
 package hs_ab.com.TrinkBar.activities;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.internal.NavigationMenu;
 import android.support.design.widget.NavigationView;
@@ -57,6 +62,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.maps.android.ui.IconGenerator;
 
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,17 +78,13 @@ public class MapActivity extends AppCompatActivity
         implements
         GoogleMap.OnPoiClickListener,
         OnMapReadyCallback,
+        OnFailureListener,
         ActivityCompat.OnRequestPermissionsResultCallback,
         NavigationView.OnNavigationItemSelectedListener,
         GoogleMap.OnMarkerClickListener{
 
     private static final String TAG = "MapActivity";
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-    private static final String NOTIFICATION_MSG = "NOTIFICATION";
-    private static final long GEO_DURATION = 60 * 60 * 1000;
-    private static final String GEOFENCE_REQ_ID = "My Geofence";
-    private static final float GEOFENCE_RADIUS = 50.0f; // in meters
-    private final int GEOFENCE_REQ_CODE = 0;
+
     private GoogleMap mMap;
     private Context mCtx;
     private List<Bar> mBarList;
@@ -95,7 +97,11 @@ public class MapActivity extends AppCompatActivity
     private GeofencingClient mGeofencingClient;
     private ArrayList<Circle> geoFenceLimits;
     private boolean mPermissionDenied = false;
+
+    private static final String NOTIFICATION_MSG = "NOTIFICATION";
+    private static DatabaseReference databaseReference;
     private PendingIntent geoFencePendingIntent;
+
 
     public static Intent makeNotificationIntent(Context context, String msg) {
         Intent intent = new Intent( context, MapActivity.class );
@@ -103,9 +109,15 @@ public class MapActivity extends AppCompatActivity
         return intent;
     }
 
+    public static DatabaseReference getDatabaseInstance(){
+
+        return  databaseReference;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        networkCheck();
         mCtx = getApplicationContext();
         setContentView(R.layout.activity_main);
 
@@ -114,12 +126,12 @@ public class MapActivity extends AppCompatActivity
         setupRealtimeDB();
         initMap();
 
+
         mMarkerArray = new ArrayList<>();
         geoFenceLimits =new ArrayList<>();
         mGeoDataClient = Places.getGeoDataClient(this, null);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mGeofencingClient = LocationServices.getGeofencingClient(this);
-
     }
 
     private void initSideMenu() {
@@ -307,12 +319,15 @@ public class MapActivity extends AppCompatActivity
     }
 
     // set marker on the map with the coordinates from the server
-    private void setMarker() {
+    /*private void setMarker() {
         IconGenerator iconFactory = new IconGenerator(this);
         iconFactory.setColor(Color.WHITE);
         iconFactory.setTextAppearance(R.style.iconGenText);
 
         if (mMarkerArray!=null){
+            for (int i = 0; i < mMarkerArray.size(); i++) {
+                mMarkerArray.get(i).remove();
+            }
             mMarkerArray.clear();
         }
 
@@ -327,10 +342,55 @@ public class MapActivity extends AppCompatActivity
                     .position(place)
                     .title(name));
             startGeofence(marker,i);
+            marker.setTag(mBarList.get(i));
+            //Object bar=marker.getTag();
             mMarkerArray.add(marker);
         }
 
 
+    }*/
+
+    private Marker findMarker(Bar bar) {
+        for (int j = 0; j < mMarkerArray.size(); j++) {
+            Marker myMarker = mMarkerArray.get(j);
+            if (myMarker.getTitle().equals(bar.getName())) {
+                return myMarker;
+            }
+        }
+
+        return null;
+    }
+
+    private void setMarker(){
+        IconGenerator iconFactory = new IconGenerator(this);
+        iconFactory.setColor(Color.WHITE);
+        iconFactory.setTextAppearance(R.style.iconGenText);
+
+
+        for (int i = 0; i < mBarList.size(); i++) {
+            Double lat = Double.valueOf(mBarList.get(i).getCoordinates().getLatitude());
+            Double lon = Double.valueOf(mBarList.get(i).getCoordinates().getLongitude());
+            String name = mBarList.get(i).getName();
+            LatLng place = new LatLng(lat, lon);
+            MarkerOptions markerOptions =new MarkerOptions()
+                    .icon(BitmapDescriptorFactory.fromBitmap(iconFactory.makeIcon(mBarList.get(i).getVisitor()))) // + "\n"
+                    .position(place)
+                    .title(name);
+
+            Marker myMarker = findMarker(mBarList.get(i));
+            if (myMarker != null) {
+                myMarker.remove();
+                mMarkerArray.remove(myMarker);
+                Marker marker = mMap.addMarker(markerOptions);
+                mMarkerArray.add(marker);
+                myMarker = null;
+            }else {
+                Marker marker = mMap.addMarker(markerOptions);
+                startGeofence(marker,i);
+                mMarkerArray.add(marker);
+            }
+
+        }
     }
 
     /**
@@ -362,13 +422,13 @@ public class MapActivity extends AppCompatActivity
         // Permission to access the location is missing.
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                LOCATION_PERMISSION_REQUEST_CODE);
+                Constants.LOCATION_PERMISSION_REQUEST_CODE);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        if (requestCode != LOCATION_PERMISSION_REQUEST_CODE) {
+        if (requestCode != Constants.LOCATION_PERMISSION_REQUEST_CODE) {
             return;
         }
 
@@ -382,6 +442,7 @@ public class MapActivity extends AppCompatActivity
             mPermissionDenied = true;
         }
     }
+
 
     @Override
     protected void onResumeFragments() {
@@ -425,7 +486,7 @@ public class MapActivity extends AppCompatActivity
         }
 
         mDatabase = database.getReference();
-
+        databaseReference=mDatabase;
         ChildEventListener childEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
@@ -476,6 +537,8 @@ public class MapActivity extends AppCompatActivity
 
     }
 
+
+
     @Override
     public boolean onMarkerClick(Marker marker) {
         Log.d(TAG, marker.getTitle());
@@ -494,9 +557,9 @@ public class MapActivity extends AppCompatActivity
     // Start Geofence creation process
     private void startGeofence(Marker marker,int req_code) {
         Log.i(TAG, "startGeofence()");
-            Geofence geofence = createGeofence( marker.getPosition(), GEOFENCE_RADIUS,marker.getTitle() );
+            Geofence geofence = createGeofence( marker.getPosition(), Constants.GEOFENCE_RADIUS,marker.getTitle() );
             GeofencingRequest geofenceRequest = createGeofenceRequest( geofence );
-            addGeofence( geofenceRequest, req_code );
+            addGeofence(geofenceRequest,req_code );
             drawGeofence(marker);
     }
 
@@ -513,7 +576,7 @@ public class MapActivity extends AppCompatActivity
         return new Geofence.Builder()
                 .setRequestId(req_id)
                 .setCircularRegion( latLng.latitude, latLng.longitude, radius)
-                .setExpirationDuration( GEO_DURATION )
+                .setExpirationDuration( Constants.GEO_DURATION )
                 .setTransitionTypes( Geofence.GEOFENCE_TRANSITION_ENTER
                         | Geofence.GEOFENCE_TRANSITION_EXIT )
                 .build();
@@ -566,7 +629,7 @@ public class MapActivity extends AppCompatActivity
                 .center( marker.getPosition())
                 .strokeColor(Color.argb(50, 70,70,70))
                 .fillColor( Color.argb(100, 150,150,150) )
-                .radius( GEOFENCE_RADIUS );
+                .radius( Constants.GEOFENCE_RADIUS );
         geoFenceLimits.add(mMap.addCircle( circleOptions));
     }
 
@@ -598,5 +661,52 @@ public class MapActivity extends AppCompatActivity
                 geoFenceLimits.get(i).remove();
             }
         geoFenceLimits.clear();
+    }
+    
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    private void networkCheck(){
+        boolean wifi = isNetworkAvailable();
+        if(!wifi){
+            final AlertDialog.Builder dialog = new AlertDialog.Builder(this).setTitle("App beenden").setMessage("Um diese App nutzen zu können, wird einen aktive Internetverbidung benötigt. Bitte überprüfe deine Verbindung");
+            dialog.setPositiveButton("Sofort Beenden", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    MapActivity.this.finish();
+                }
+            });
+            final AlertDialog alert = dialog.create();
+            alert.show();
+
+            // Hide after some seconds
+            final Handler handler  = new Handler();
+            final Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                    if (alert.isShowing()) {
+                        MapActivity.this.finish();
+                    }
+                }
+            };
+
+            alert.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    handler.removeCallbacks(runnable);
+                }
+            });
+
+            handler.postDelayed(runnable, 20000);
+        }
+    }
+
+    @Override
+    public void onFailure(@NonNull Exception e) {
+
     }
 }
