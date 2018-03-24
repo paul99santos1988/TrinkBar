@@ -279,13 +279,21 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
     }
 
     private void changeFavItem(){
-        mIsFav=!mIsFav;
-
+        //mIsFav=!mIsFav;
+        String savedBarId = sharedPrefFavorites.getString(mBarObject.getName(), getString(R.string.default_favorites_value));
+        if(savedBarId.equals("NO FAVORITES SAVED")){
+            mIsFav = false;
+        }
+        else {
+            mIsFav = true;
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (mIsFav) {
+            if (mIsFav==false) {
+                mIsFav = true;
                 addFavItem();
                 mFab.setImageDrawable(getResources().getDrawable(R.drawable.ic_favorite_black_24dp, getApplicationContext().getTheme()));
             } else {
+                mIsFav = false;
                 removeFavItem();
                 mFab.setImageDrawable(getResources().getDrawable(R.drawable.ic_favorite_border_black_24dp, getApplicationContext().getTheme()));
             }

@@ -111,7 +111,8 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
             mDistance.calculateDistance();
 
             //TODO change AND to OR -> list will be displayed twice
-            if(mRv.getAdapter()==null & savedFavorites.size()!=0) {
+            //if((mRv.getAdapter()==null & savedFavorites.size()!=0))
+            if(savedFavorites.size()!=0 ) {
                 //barList.clear();
                 barList = mRtDatabase.getBarList();
                 for (int i = 0; i < barList.size(); i++) {
