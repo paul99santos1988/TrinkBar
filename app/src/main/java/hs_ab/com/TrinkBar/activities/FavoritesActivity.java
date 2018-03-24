@@ -45,6 +45,7 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
         FavoritesListAdapter adapter;
         private LocationDistance mDistance;
         private SharedPreferences sharedPrefFavorites;
+        private Map sharedPrefTempFav;
         private Map savedFavorites;
         private SharedPreferences.Editor editor;
         private String[] favorites;
@@ -110,10 +111,13 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
             mDistance.setCallbacks(this);
             mDistance.calculateDistance();
 
+            //update of current favorites list
+            savedFavorites = sharedPrefFavorites.getAll();
             //TODO change AND to OR -> list will be displayed twice
-            //if((mRv.getAdapter()==null & savedFavorites.size()!=0))
-            if(savedFavorites.size()!=0 ) {
+            //if(((mRv.getAdapter()==null & savedFavorites.size()!=0)|(sharedPrefTempFav.size() != savedFavorites.size())))
+            if(((mRv.getAdapter()==null & savedFavorites.size()!=0))){
                 //barList.clear();
+                barFavoritesList.clear();
                 barList = mRtDatabase.getBarList();
                 for (int i = 0; i < barList.size(); i++) {
 
@@ -147,7 +151,8 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
                 }
             }*/
                 //Log.i(TAG,"mRv.getAdapter()= "+mRv.getAdapter());
-            } else {
+            } else if(savedFavorites.size() == 0){
+                barFavoritesList.clear();
                 Bar dummyBar = new Bar();
                 dummyBar.setId("DummyId_0815");
                 dummyBar.setAddress("Musterstrasse");
@@ -158,7 +163,7 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
                 barFavoritesList.add(dummyBar);
                 initializeAdapter();
             }
-
+            sharedPrefTempFav = sharedPrefFavorites.getAll();
             mRv.getAdapter().notifyDataSetChanged();
         }
 
