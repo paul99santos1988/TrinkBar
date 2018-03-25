@@ -19,6 +19,7 @@ import java.util.List;
 
 import hs_ab.com.TrinkBar.R;
 import hs_ab.com.TrinkBar.activities.DetailsActivity;
+import hs_ab.com.TrinkBar.activities.ListActivity;
 import hs_ab.com.TrinkBar.models.Bar;
 
 public class FavoritesListAdapter extends RecyclerView.Adapter<FavoritesListAdapter.BarViewHolder> {
@@ -29,21 +30,23 @@ public class FavoritesListAdapter extends RecyclerView.Adapter<FavoritesListAdap
     private static List<Bar> bars;
     Context mCtx;
 
+
     public static class BarViewHolder extends RecyclerView.ViewHolder {
 
         CardView cv;
         TextView name;
-        //TextView description;
+        TextView distance;
         ImageView photo;
-
+        String dummyBarText;
 
 
         BarViewHolder(View itemView) {
             super(itemView);
             cv = (CardView) itemView.findViewById(R.id.favorites_list_item);
             name = (TextView) itemView.findViewById(R.id.favorites_list_barname);
-            //description = (TextView) itemView.findViewById(R.id.description);
+            distance = (TextView) itemView.findViewById(R.id.favorites_list_distance);
             photo = (ImageView) itemView.findViewById(R.id.favorites_list_photo);
+
             //TODO clicking on bar in favorites list -> push back button -> "musterbar" is added
             itemView.setOnClickListener(new View.OnClickListener(){
                 @Override
@@ -57,9 +60,18 @@ public class FavoritesListAdapter extends RecyclerView.Adapter<FavoritesListAdap
                         }
 
                     }
-                    Intent i = new Intent(v.getContext(), DetailsActivity.class);
-                    i.putExtra("EXTRA_DETAILS_TITLE", barId);
-                    v.getContext().startActivity(i);
+                    //if no favorites added jump to the bar list instead of the details of a specific bar
+                    dummyBarText = v.getResources().getString(R.string.dummy_text_no_favorites);
+                    if(name.getText().equals(dummyBarText)){
+                        Intent i = new Intent (v.getContext(), ListActivity.class);
+                        v.getContext().startActivity(i);
+                    }
+                    else{
+                        Intent i = new Intent(v.getContext(), DetailsActivity.class);
+                        i.putExtra("EXTRA_DETAILS_TITLE", barId);
+                        v.getContext().startActivity(i);
+                    }
+
                 }
 
             });
@@ -91,15 +103,20 @@ public class FavoritesListAdapter extends RecyclerView.Adapter<FavoritesListAdap
         mitem= i;
         Log.d(TAG, "onBindViewHolder: "+i);
         barViewHolder.name.setText(bars.get(i).getName());
-        if(bars.get(i).getId() != "DummyId_0815") {
+
+        if(bars.get(i).getId() != mCtx.getResources().getString(R.string.dummy_id_favorites)) {
             String base64String = bars.get(i).getImageData();
             String base64Image = base64String.split(",")[1];
 
             byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
             Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
             barViewHolder.photo.setImageBitmap(decodedByte);
-        }
 
+            barViewHolder.distance.setText("Entfernung: " + bars.get(i).getDistance() + " m");
+        }
+        else{
+            barViewHolder.distance.setText(bars.get(i).getDistance());
+        }
     }
 
     @Override

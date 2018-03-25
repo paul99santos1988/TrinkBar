@@ -153,11 +153,11 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
                 } else if (savedFavorites.size() == 0) {
                     barFavoritesList.clear();
                     Bar dummyBar = new Bar();
-                    dummyBar.setId("DummyId_0815");
+                    dummyBar.setId(getString(R.string.dummy_id_favorites));
                     dummyBar.setAddress("Musterstrasse");
-                    //dummyBar.setCoordinates();
+                    dummyBar.setDistance(getString(R.string.dummy_distance_favorites));
                     dummyBar.setDescription("Only a dummy to show you a possible favorite");
-                    dummyBar.setName("Musterbar");
+                    dummyBar.setName(getString(R.string.dummy_text_no_favorites));
                     dummyBar.setImageData("This is the imageData, dummyText instead of an image");
                     barFavoritesList.add(dummyBar);
                     initializeAdapter();

@@ -30,6 +30,8 @@
     <!-- Favorites preferences -->
     <string name="preference_file_key">saved_favorites</string>
     <string name="default_favorites_value">NO FAVORITES SAVED</string>
-    <string name="barId_key_appendix">barId</string>
+    <string name="dummy_text_no_favorites">Sie haben aktuell keine Favoriten hinterlegt</string>
+    <string name="dummy_id_favorites">DummyId_0815</string>
+    <string name="dummy_distance_favorites">Bitte hier drücken</string>
 
 </resources>
