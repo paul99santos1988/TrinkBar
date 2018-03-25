@@ -61,11 +61,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.maps.android.ui.IconGenerator;
 
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
-
 
 import hs_ab.com.TrinkBar.R;
 import hs_ab.com.TrinkBar.adapters.RealtimeDBAdapter;
@@ -282,7 +279,6 @@ public class MapActivity extends AppCompatActivity
             startActivity(i);
 
         } else if (id == R.id.nav_favorites) {
-            //TODO change icon of favorites list
             Intent i = new Intent(MapActivity.this, FavoritesActivity.class);
             startActivity(i);
 

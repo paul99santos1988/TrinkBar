@@ -72,6 +72,7 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
             sharedPrefFavorites = mCtx.getSharedPreferences(getString(R.string.preference_file_key), mCtx.MODE_PRIVATE);
             savedFavorites = sharedPrefFavorites.getAll();
 
+
             //Collection favoritesCollection = savedFavorites.values();
             //favorites = new String[savedFavorites.size()];
 
@@ -107,63 +108,62 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
 
             super.onResume();
 
-            mDistance= LocationDistance.getInstance(mCtx);
+            mDistance = LocationDistance.getInstance(mCtx);
             mDistance.setCallbacks(this);
             mDistance.calculateDistance();
 
             //update of current favorites list
             savedFavorites = sharedPrefFavorites.getAll();
             //TODO change AND to OR -> list will be displayed twice
-            //if(((mRv.getAdapter()==null & savedFavorites.size()!=0)|(sharedPrefTempFav.size() != savedFavorites.size())))
-            if(((mRv.getAdapter()==null & savedFavorites.size()!=0))){
-                //barList.clear();
-                barFavoritesList.clear();
-                barList = mRtDatabase.getBarList();
-                for (int i = 0; i < barList.size(); i++) {
+            //init of sharedPrefTemFav to avoid breakdown because of <null> at next condition
+            if(sharedPrefTempFav == null){
+                sharedPrefTempFav = sharedPrefFavorites.getAll();
+                sharedPrefTempFav.clear();
+            }
+            //condition: -only after a change of favorites list size,
+            //- then distinguish if favList is filled or empty
+            //if (((savedFavorites.size() != sharedPrefTempFav.size()) & (savedFavorites.size() != 0)) | sharedPrefTempFav == null)
+            //if (savedFavorites.size() != sharedPrefTempFav.size()){
+                //if(((mRv.getAdapter()==null & savedFavorites.size()!=0)|(sharedPrefTempFav.size() != savedFavorites.size())))
+                if (((savedFavorites.size() != 0) & savedFavorites.size() != sharedPrefTempFav.size())) {
+                    //barList.clear();
+                    barFavoritesList.clear();
+                    barList = mRtDatabase.getBarList();
+                    for (int i = 0; i < barList.size(); i++) {
 
-                    Bar barToCompare = barList.get(i);
-                    String key_favorite_bar = barToCompare.getName();
-                    String savedBarId = sharedPrefFavorites.getString(key_favorite_bar, getString(R.string.default_favorites_value));
-                    Log.i(TAG, "sharedPref -> barId= " + savedBarId);
-                    if (barToCompare.getId().equals(savedBarId)) {
-                        barFavoritesList.add(barToCompare);
-                        Image image = mRtDatabase.getImagebyId(barList.get(i).getId());
-                        for(int j=0; j < barFavoritesList.size();j++) {
-                            //for loop needed -> barFavorites.size() != barList.size()
-                            if(barToCompare.getId().equals(barFavoritesList.get(j).getId())) {
-                                barFavoritesList.get(j).setImageData(image.getImage()); //adding image to corresponding bar in favorites list
+                        Bar barToCompare = barList.get(i);
+                        String key_favorite_bar = barToCompare.getName();
+                        String savedBarId = sharedPrefFavorites.getString(key_favorite_bar, getString(R.string.default_favorites_value));
+                        Log.i(TAG, "sharedPref -> barId= " + savedBarId);
+                        if (barToCompare.getId().equals(savedBarId)) {
+                            barFavoritesList.add(barToCompare);
+                            Image image = mRtDatabase.getImagebyId(barList.get(i).getId());
+                            for (int j = 0; j < barFavoritesList.size(); j++) {
+                                //for loop needed -> barFavorites.size() != barList.size()
+                                if (barToCompare.getId().equals(barFavoritesList.get(j).getId())) {
+                                    barFavoritesList.get(j).setImageData(image.getImage()); //adding image to corresponding bar in favorites list
+                                }
                             }
                         }
-                    }
-
-                }
-                initializeAdapter();
-                // init Adapter with Data from Server
-            /*if(barFavoritesList != null){
-                for (int i=0; i < barFavoritesList.size(); i++ ){
-                    for(int j=0; j < barList.size(); j++) {
-                        if (barFavoritesList.get(i).getId() == barList.get(j).getId()) {
-                            Image image = mRtDatabase.getImagebyId(barList.get(j).getId());
-                            barList.get(i).setImageData(image.getImage());
-                        }
 
                     }
+                    initializeAdapter();
+
+
+                } else if (savedFavorites.size() == 0) {
+                    barFavoritesList.clear();
+                    Bar dummyBar = new Bar();
+                    dummyBar.setId("DummyId_0815");
+                    dummyBar.setAddress("Musterstrasse");
+                    //dummyBar.setCoordinates();
+                    dummyBar.setDescription("Only a dummy to show you a possible favorite");
+                    dummyBar.setName("Musterbar");
+                    dummyBar.setImageData("This is the imageData, dummyText instead of an image");
+                    barFavoritesList.add(dummyBar);
+                    initializeAdapter();
                 }
-            }*/
-                //Log.i(TAG,"mRv.getAdapter()= "+mRv.getAdapter());
-            } else if(savedFavorites.size() == 0){
-                barFavoritesList.clear();
-                Bar dummyBar = new Bar();
-                dummyBar.setId("DummyId_0815");
-                dummyBar.setAddress("Musterstrasse");
-                //dummyBar.setCoordinates();
-                dummyBar.setDescription("Only a dummy to show you a possible favorite");
-                dummyBar.setName("Musterbar");
-                dummyBar.setImageData("This is the imageData, dummyText instead of an image");
-                barFavoritesList.add(dummyBar);
-                initializeAdapter();
-            }
-            sharedPrefTempFav = sharedPrefFavorites.getAll();
+            //}
+            sharedPrefTempFav = sharedPrefFavorites.getAll(); //temporary value to handle back-button (from DetailsActivity to FavoritesActivity)
             mRv.getAdapter().notifyDataSetChanged();
         }
 
@@ -213,7 +213,6 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
             startActivity(i);
 
         } else if (id == R.id.nav_favorites) {
-            //TODO change icon of favorites list in activity_main_drawer
             Intent i = new Intent(FavoritesActivity.this, FavoritesActivity.class);
             startActivity(i);
 
