@@ -111,7 +111,17 @@ public class FavoritesListAdapter extends RecyclerView.Adapter<FavoritesListAdap
             Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
             barViewHolder.photo.setImageBitmap(decodedByte);
 
-            barViewHolder.distance.setText("Entfernung: " + bars.get(i).getDistance() + " m");
+            if (bars.get(i).getDistance() == null){
+                barViewHolder.distance.setText("Ermittlung der Entfernung aktuell nicht möglich");
+            }
+            else {
+                if (Double.valueOf(bars.get(i).getDistance()) < 1000) {
+                    barViewHolder.distance.setText(bars.get(i).getDistance().split("\\.")[0] + " m");
+                } else {
+                    String distanceKm = String.valueOf(Double.valueOf(bars.get(i).getDistance()) / 1000).substring(0,4); //conversion to km
+                    barViewHolder.distance.setText(distanceKm.split("\\.")[0] + ","+ distanceKm.split("\\.")[1] +" km");
+                }
+            }
         }
         else{
             barViewHolder.distance.setText(bars.get(i).getDistance());

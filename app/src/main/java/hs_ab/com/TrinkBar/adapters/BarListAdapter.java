@@ -93,7 +93,14 @@ public class BarListAdapter extends RecyclerView.Adapter<BarListAdapter.BarViewH
         if (bars.get(i).getDistance() == null){
             barViewHolder.distance.setText("Ermittlung der Entfernung aktuell nicht möglich");
         }
-        barViewHolder.distance.setText(bars.get(i).getDistance());
+        else {
+            if (Double.valueOf(bars.get(i).getDistance()) < 1000) {
+                barViewHolder.distance.setText(bars.get(i).getDistance().split("\\.")[0] + " m");
+            } else {
+                String distanceKm = String.valueOf(Double.valueOf(bars.get(i).getDistance()) / 1000).substring(0,4); //conversion to km
+                barViewHolder.distance.setText(distanceKm.split("\\.")[0] + ","+ distanceKm.split("\\.")[1] +" km");
+            }
+        }
         try {
             String base64String = bars.get(i).getImageData();
             String base64Image = base64String.split(",")[1];
