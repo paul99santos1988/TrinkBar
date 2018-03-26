@@ -32,6 +32,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import hs_ab.com.TrinkBar.R;
@@ -143,8 +144,26 @@ public class ListActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-
+        switch (id) {
+            case R.id.list_sort_alphabetical:
+                Collections.sort(barList, new Comparator<Bar>(){
+                    public int compare(Bar obj1, Bar obj2) {
+                        // ## Ascending order
+                        return obj1.getName().compareToIgnoreCase(obj2.getName());
+                    }
+                });
+                mRv.getAdapter().notifyDataSetChanged();
+                break;
+            case R.id.list_sort_distance:
+                Collections.sort(barList, new Comparator<Bar>(){
+                    public int compare(Bar obj1, Bar obj2) {
+                        // ## Distance order
+                        return Double.valueOf(obj1.getDistance()).compareTo(Double.valueOf(obj2.getDistance()));
+                    }
+                });
+                mRv.getAdapter().notifyDataSetChanged();
+                break;
+        }
         return super.onOptionsItemSelected(item);
     }
 

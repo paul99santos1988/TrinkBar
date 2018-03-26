@@ -9,6 +9,7 @@ import android.util.Log;
 
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.Locale;
 
 import hs_ab.com.TrinkBar.adapters.RealtimeDBAdapter;
 import hs_ab.com.TrinkBar.models.Bar;
@@ -133,10 +134,10 @@ public class LocationDistance {
                     if(dis > 1000){
                         dis=dis/1000; //convert to km
                         DecimalFormat twoDForm = new DecimalFormat("#.##");
-                        mBarList.get(i).setDistance(String.valueOf(Double.valueOf(twoDForm.format(dis)))+ " km");
+                        mBarList.get(i).setDistance(String.valueOf(Double.valueOf(twoDForm.format(dis))));
                     }
                     else{
-                        mBarList.get(i).setDistance(String.valueOf((int)dis)+ " m");
+                        mBarList.get(i).setDistance(String.valueOf((int)dis));
                     }
 
 
