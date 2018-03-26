@@ -16,10 +16,10 @@
                 android:id="@+id/photo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:layout_weight="0.90"
-                android:cropToPadding="true"
-                android:padding="5dp"
-                android:scaleType="fitXY" />
+                android:padding="0dp"
+                android:scaleType="centerCrop" />
 
             <LinearLayout
                 android:layout_width="match_parent"
