@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import java.util.List;
+import java.util.Locale;
 
 import hs_ab.com.TrinkBar.adapters.RealtimeDBAdapter;
 import hs_ab.com.TrinkBar.models.Bar;
@@ -129,18 +130,7 @@ public class LocationDistance {
             if(mBarList!=null){
                 for (int i=0; i<mBarList.size();i++){
                     double dis= distance(location.getLatitude(),Double.valueOf(mBarList.get(i).getCoordinates().getLatitude()),location.getLongitude(),Double.valueOf(mBarList.get(i).getCoordinates().getLongitude()),0,0);
-                    //if(dis > 1000){
-                      //  dis=dis/1000; //convert to km
-                        //DecimalFormat twoDForm = new DecimalFormat("#.##");
-                        //mBarList.get(i).setDistance(String.valueOf(Double.valueOf(twoDForm.format(dis)))+ " km");
-                        mBarList.get(i).setDistance(String.valueOf(dis));
-                    //}
-                    //else{
-                    //    mBarList.get(i).setDistance(String.valueOf((int)dis));
-                    //}
-
-
-
+                    mBarList.get(i).setDistance(String.valueOf(dis));
                 }
                 mcallback.callbackCall(mBarList);
             }
