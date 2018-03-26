@@ -15,7 +15,7 @@ android:layout_margin="5dp">
     <ImageView
         android:id="@+id/favorites_list_photo"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_margin="5dp"
         android:layout_weight="0.90"
         android:padding="0dp"

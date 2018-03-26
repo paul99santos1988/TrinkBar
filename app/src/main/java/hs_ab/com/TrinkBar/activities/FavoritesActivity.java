@@ -18,6 +18,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -177,7 +179,28 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
+        switch (id) {
+            case R.id.list_sort_alphabetical:
+                Collections.sort(barFavoritesList, new Comparator<Bar>(){
+                    public int compare(Bar obj1, Bar obj2) {
+                        // ## Ascending order
+                        return obj1.getName().compareToIgnoreCase(obj2.getName());
+                    }
+                });
+                mRv.getAdapter().notifyDataSetChanged();
+                break;
+            case R.id.list_sort_distance:
+                if(barFavoritesList.get(0).getDistance() != null) {
+                    Collections.sort(barFavoritesList, new Comparator<Bar>() {
+                        public int compare(Bar obj1, Bar obj2) {
+                            // ## Distance order
+                            return Double.valueOf(obj1.getDistance()).compareTo(Double.valueOf(obj2.getDistance()));
+                        }
+                    });
+                    mRv.getAdapter().notifyDataSetChanged();
+                }
+                break;
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -225,6 +248,7 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
 
     @Override
     public void callbackCall(List<Bar> barList) {
-        Log.d(TAG, "callbackCall: "+barList);
+        this.barList=barList;
+        mRv.getAdapter().notifyDataSetChanged();
     }
 }
