@@ -7,6 +7,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 
+import java.text.DecimalFormat;
 import java.util.List;
 
 import hs_ab.com.TrinkBar.adapters.RealtimeDBAdapter;
@@ -128,8 +129,18 @@ public class LocationDistance {
             mBarList = mRtDatabase.getBarList();
             if(mBarList!=null){
                 for (int i=0; i<mBarList.size();i++){
-                    int dis= (int)distance(location.getLatitude(),Double.valueOf(mBarList.get(i).getCoordinates().getLatitude()),location.getLongitude(),Double.valueOf(mBarList.get(i).getCoordinates().getLongitude()),0,0);
-                    mBarList.get(i).setDistance(String.valueOf(dis));
+                    double dis= distance(location.getLatitude(),Double.valueOf(mBarList.get(i).getCoordinates().getLatitude()),location.getLongitude(),Double.valueOf(mBarList.get(i).getCoordinates().getLongitude()),0,0);
+                    if(dis > 1000){
+                        dis=dis/1000; //convert to km
+                        DecimalFormat twoDForm = new DecimalFormat("#.##");
+                        mBarList.get(i).setDistance(String.valueOf(Double.valueOf(twoDForm.format(dis)))+ " km");
+                    }
+                    else{
+                        mBarList.get(i).setDistance(String.valueOf((int)dis)+ " m");
+                    }
+
+
+
                 }
                 mcallback.callbackCall(mBarList);
             }

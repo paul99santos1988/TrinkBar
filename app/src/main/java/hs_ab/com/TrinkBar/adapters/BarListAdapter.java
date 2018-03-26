@@ -33,7 +33,7 @@ public class BarListAdapter extends RecyclerView.Adapter<BarListAdapter.BarViewH
 
         CardView cv;
         TextView name;
-        TextView description;
+        TextView distance;
         ImageView photo;
 
 
@@ -42,7 +42,7 @@ public class BarListAdapter extends RecyclerView.Adapter<BarListAdapter.BarViewH
             super(itemView);
             cv = (CardView) itemView.findViewById(R.id.cv);
             name = (TextView) itemView.findViewById(R.id.name);
-            description = (TextView) itemView.findViewById(R.id.description);
+            distance = (TextView) itemView.findViewById(R.id.description);
             photo = (ImageView) itemView.findViewById(R.id.photo);
             itemView.setOnClickListener(new View.OnClickListener(){
                 @Override
@@ -90,7 +90,10 @@ public class BarListAdapter extends RecyclerView.Adapter<BarListAdapter.BarViewH
         mitem= i;
         Log.d(TAG, "onBindViewHolder: "+i);
         barViewHolder.name.setText(bars.get(i).getName());
-        barViewHolder.description.setText(bars.get(i).getDistance());
+        if (bars.get(i).getDistance() == null){
+            barViewHolder.distance.setText("Ermittlung der Entfernung aktuell nicht möglich");
+        }
+        barViewHolder.distance.setText(bars.get(i).getDistance());
         try {
             String base64String = bars.get(i).getImageData();
             String base64Image = base64String.split(",")[1];
