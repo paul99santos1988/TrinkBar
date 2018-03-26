@@ -25,7 +25,7 @@ import hs_ab.com.TrinkBar.models.Bar;
 public class FavoritesListAdapter extends RecyclerView.Adapter<FavoritesListAdapter.BarViewHolder> {
 
     int mitem;
-    private static final String TAG = "LOG";
+    private static final String TAG = "FavoritesListAdapter";
     private static  String barId;
     private static List<Bar> bars;
     Context mCtx;
@@ -46,8 +46,7 @@ public class FavoritesListAdapter extends RecyclerView.Adapter<FavoritesListAdap
             name = (TextView) itemView.findViewById(R.id.favorites_list_barname);
             distance = (TextView) itemView.findViewById(R.id.favorites_list_distance);
             photo = (ImageView) itemView.findViewById(R.id.favorites_list_photo);
-
-            //TODO clicking on bar in favorites list -> push back button -> "musterbar" is added
+            
             itemView.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v)

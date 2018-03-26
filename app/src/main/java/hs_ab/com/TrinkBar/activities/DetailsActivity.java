@@ -37,7 +37,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
 
     private static DetailsActivity mInstance;
     private Context mCtx;
-    private static final String TAG = "LOG";
+    private static final String TAG = "DetailsActivity";
     private String mTitle;
     private ImageView mImg;
     private String mBarId;
@@ -151,7 +151,6 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_favorite) {
             changeFavItem();
-            //Toast.makeText(DetailsActivity.this, "Action clicked", Toast.LENGTH_LONG).show();
             return true;
         }
 
@@ -172,7 +171,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.app_bar);
         appBarLayout.addOnOffsetChangedListener(this);
     }
-    //TODO pick out multiple used variables and declare it at the beginning, like favorite_key
+
     private void initFAB(){
         mFab = (FloatingActionButton) findViewById(R.id.fab_bottom);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -254,7 +253,6 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
 
     }
 
-    //TODO save status of fav-icon (set/unset)
     @Override
     public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
         if (verticalOffset == 0) {
@@ -301,8 +299,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
     }
 
     private void addFavItem(){
-        //TODO
-        //String barId = sharedPrefFavorites.getString(getString(R.string.barId_key_appendix)+favoritesNumber, getString(R.string.default_favorites_value));
+
         Map savedFavorites = sharedPrefFavorites.getAll();
         Integer favoritesNumber = savedFavorites.size();
         String savedBarId;

@@ -47,8 +47,6 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
         private SharedPreferences sharedPrefFavorites;
         private Map sharedPrefTempFav;
         private Map savedFavorites;
-        private SharedPreferences.Editor editor;
-        private String[] favorites;
 
     @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -72,16 +70,8 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
             sharedPrefFavorites = mCtx.getSharedPreferences(getString(R.string.preference_file_key), mCtx.MODE_PRIVATE);
             savedFavorites = sharedPrefFavorites.getAll();
 
-
-            //Collection favoritesCollection = savedFavorites.values();
-            //favorites = new String[savedFavorites.size()];
-
-
-
-            //SharedPreferences.Editor edtior = sharedPref.edit();
             barList = new ArrayList<Bar>();
             mRtDatabase = RealtimeDBAdapter.getInstance(mCtx);
-
 
             if(barFavoritesList == null){
                 barFavoritesList = new ArrayList<Bar>();
@@ -114,19 +104,15 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
 
             //update of current favorites list
             savedFavorites = sharedPrefFavorites.getAll();
-            //TODO change AND to OR -> list will be displayed twice
+
             //init of sharedPrefTemFav to avoid breakdown because of <null> at next condition
             if(sharedPrefTempFav == null){
                 sharedPrefTempFav = sharedPrefFavorites.getAll();
                 sharedPrefTempFav.clear();
             }
-            //condition: -only after a change of favorites list size,
+            //condition: -only after a change of favorites list size
             //- then distinguish if favList is filled or empty
-            //if (((savedFavorites.size() != sharedPrefTempFav.size()) & (savedFavorites.size() != 0)) | sharedPrefTempFav == null)
-            //if (savedFavorites.size() != sharedPrefTempFav.size()){
-                //if(((mRv.getAdapter()==null & savedFavorites.size()!=0)|(sharedPrefTempFav.size() != savedFavorites.size())))
                 if (((savedFavorites.size() != 0) & savedFavorites.size() != sharedPrefTempFav.size())) {
-                    //barList.clear();
                     barFavoritesList.clear();
                     barList = mRtDatabase.getBarList();
                     for (int i = 0; i < barList.size(); i++) {
@@ -152,6 +138,7 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
 
                 } else if (savedFavorites.size() == 0) {
                     barFavoritesList.clear();
+                    //init dummy bar to set a visualization in an empty favorites list
                     Bar dummyBar = new Bar();
                     dummyBar.setId(getString(R.string.dummy_id_favorites));
                     dummyBar.setAddress("Musterstrasse");
@@ -166,6 +153,7 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
             sharedPrefTempFav = sharedPrefFavorites.getAll(); //temporary value to handle back-button (from DetailsActivity to FavoritesActivity)
             mRv.getAdapter().notifyDataSetChanged();
         }
+
 
 
     private void initializeAdapter() {
