@@ -37,6 +37,7 @@ public class FavoritesListAdapter extends RecyclerView.Adapter<FavoritesListAdap
         TextView name;
         TextView distance;
         ImageView photo;
+        ImageView icon_walker;
         String dummyBarText;
 
 
@@ -46,6 +47,7 @@ public class FavoritesListAdapter extends RecyclerView.Adapter<FavoritesListAdap
             name = (TextView) itemView.findViewById(R.id.favorites_list_barname);
             distance = (TextView) itemView.findViewById(R.id.favorites_list_distance);
             photo = (ImageView) itemView.findViewById(R.id.favorites_list_photo);
+            icon_walker = (ImageView) itemView.findViewById(R.id.imageView);
             
             itemView.setOnClickListener(new View.OnClickListener(){
                 @Override
@@ -124,6 +126,7 @@ public class FavoritesListAdapter extends RecyclerView.Adapter<FavoritesListAdap
             }
         }
         else{
+            barViewHolder.icon_walker.setVisibility(View.GONE);
             barViewHolder.distance.setText(bars.get(i).getDistance());
         }
     }
