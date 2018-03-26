@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">TrinkBar</string>
-    <string name="map_hybrid">Satellite</string>
-    <string name="map_roadmap">Roadmap</string>
-    <string name="map_terrain">Terrain</string>
+    <string name="map_hybrid">Satellit</string>
+    <string name="map_roadmap">Standard</string>
+    <string name="map_terrain">Gelände</string>
 
     <string name="UserName">Max Mustermann</string>
     <!--    Permissions    -->

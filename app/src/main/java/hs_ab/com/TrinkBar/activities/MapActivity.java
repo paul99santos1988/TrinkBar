@@ -208,8 +208,7 @@ public class MapActivity extends AppCompatActivity
                     }
                     case R.id.action_target: {
                         Toast.makeText(getApplication(), "Aschaffenburg", Toast.LENGTH_SHORT).show();
-                        CameraUpdate center =
-                                CameraUpdateFactory.newLatLng(new LatLng(49.969527, 9.150233));
+                        CameraUpdate center = CameraUpdateFactory.newLatLngZoom(new LatLng(49.977655, 9.146132),15);
                         mMap.moveCamera(center);
                         return true;
                     }

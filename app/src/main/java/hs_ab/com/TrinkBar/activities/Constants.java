@@ -12,6 +12,6 @@ public class Constants {
     static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     static final long GEO_DURATION = 60 * 60 * 1000;
     static final String GEOFENCE_REQ_ID = "My Geofence";
-    static final float GEOFENCE_RADIUS = 50.0f; // in meters
+    static final float GEOFENCE_RADIUS = 20.0f; // in meters
     static final int GEOFENCE_REQ_CODE = 0;
 }
