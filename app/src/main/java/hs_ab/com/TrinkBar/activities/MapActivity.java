@@ -94,13 +94,15 @@ public class MapActivity extends AppCompatActivity
     private GeofencingClient mGeofencingClient;
     private ArrayList<Circle> geoFenceLimits;
     private boolean mPermissionDenied = false;
+    private static Bar mCurrentBar;
 
     private static final String NOTIFICATION_MSG = "NOTIFICATION";
     private static DatabaseReference databaseReference;
     private PendingIntent geoFencePendingIntent;
 
 
-    public static Intent makeNotificationIntent(Context context, String msg) {
+    public static Intent makeNotificationIntent(Context context, String msg, Bar BarNr) {
+        mCurrentBar=BarNr;
         Intent intent = new Intent( context, MapActivity.class );
         intent.putExtra( NOTIFICATION_MSG, msg );
         return intent;
@@ -129,6 +131,20 @@ public class MapActivity extends AppCompatActivity
         mGeoDataClient = Places.getGeoDataClient(this, null);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mGeofencingClient = LocationServices.getGeofencingClient(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (mCurrentBar!=null) {
+            for(int i=0; i < mBarList.size();i++) {
+                if(mBarList.get(i).getId().equals(mCurrentBar.getId())){
+                int visitors = Integer.valueOf(mBarList.get(i).getVisitor()) - 1;
+                mDatabase.child("bars").child(String.valueOf(i)).child("visitor").setValue(Integer.toString(visitors));
+                Log.d(TAG, "onDestroy: MapActivtiy" + visitors + "Number" + i);
+                }
+            }
+        }
+        super.onDestroy();
     }
 
     private void initSideMenu() {

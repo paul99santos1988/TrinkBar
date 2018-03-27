@@ -31,6 +31,7 @@ public class GeofenceTrasitionService extends IntentService {
     private static final String TAG = GeofenceTrasitionService.class.getSimpleName();
 
     public static final int GEOFENCE_NOTIFICATION_ID = 0;
+    private Bar BarNR;
 
     public GeofenceTrasitionService() {
         super(TAG);
@@ -88,10 +89,12 @@ public class GeofenceTrasitionService extends IntentService {
             if(barNameFromList.equals(barName)){
                 barNumber = String.valueOf(i);
                 barVisitors = mbarList.get(i).getVisitor();
+                BarNR=mbarList.get(i);
                 break;
             }
 
         }
+
         //exception warning
         if(barNumber == null || barVisitors == null){
             Log.w(TAG, "Can not iterate visitor count, no bars(barNumber="+barNumber+") or visitors(barVisitors="+barVisitors+"); failure value = null");
@@ -117,7 +120,7 @@ public class GeofenceTrasitionService extends IntentService {
         Log.i(TAG, "sendNotification: " + msg );
 
         // Intent to start the main Activity
-        Intent notificationIntent = MapActivity.makeNotificationIntent(getApplicationContext(), msg);
+        Intent notificationIntent = MapActivity.makeNotificationIntent(getApplicationContext(), msg, BarNR);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent notificationPendingIntent = PendingIntent.getActivity(this, 1000, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -157,5 +160,13 @@ public class GeofenceTrasitionService extends IntentService {
             default:
                 return "Unknown error.";
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.d(TAG, "onDestroy: "+BarNR);
+        super.onDestroy();
+
+
     }
 }
