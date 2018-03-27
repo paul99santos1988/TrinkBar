@@ -147,11 +147,14 @@ public class MapActivity extends AppCompatActivity
         super.onDestroy();
     }
 
-    private void initSideMenu() {
-
-        //mark selected menu item
+    @Override
+    protected void onResume() {
+        super.onResume();
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        navigationView.setCheckedItem(R.id.nav_map);
+    }
+
+    private void initSideMenu() {
 
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -163,7 +166,14 @@ public class MapActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
+        //mark selected menu item
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        navigationView.setCheckedItem(R.id.nav_map);
+
     }
+    
 
     private void initMap() {
         // Map
@@ -284,6 +294,9 @@ public class MapActivity extends AppCompatActivity
         // Handle navigation view item_list clicks here.
         int id = item.getItemId();
 
+        item.setChecked(true);
+
+
         if (id == R.id.nav_map) {
             Intent i = new Intent(MapActivity.this, MapActivity.class);
             i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); // to resume on the existing map (and to create an new one)
@@ -291,10 +304,12 @@ public class MapActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_gallery) {
             Intent i = new Intent(MapActivity.this, ListActivity.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(i);
 
         } else if (id == R.id.nav_favorites) {
             Intent i = new Intent(MapActivity.this, FavoritesActivity.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(i);
 
         } else if (id == R.id.nav_acc) {

@@ -67,6 +67,8 @@ public class ListActivity extends AppCompatActivity
         barList = new ArrayList<Bar>();
         mRtDatabase = RealtimeDBAdapter.getInstance(mCtx);
 
+
+
         // RV for List
         mRv = (RecyclerView) findViewById(R.id.rv);
         LinearLayoutManager llm = new LinearLayoutManager(this);
@@ -80,6 +82,8 @@ public class ListActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view_details);
+        navigationView.setCheckedItem(R.id.nav_gallery);
 
         mDistance= LocationDistance.getInstance(mCtx);
         mDistance.setCallbacks(this);
@@ -167,6 +171,8 @@ public class ListActivity extends AppCompatActivity
         // Handle navigation view item_list clicks here.
         int id = item.getItemId();
 
+        item.setChecked(true);
+
         if (id == R.id.nav_map) {
             Intent i = new Intent(ListActivity.this, MapActivity.class);
             i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); // to resume on the existing map (and to create an new one)
@@ -174,9 +180,11 @@ public class ListActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_gallery) {
             Intent i = new Intent(ListActivity.this, ListActivity.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(i);
         } else if (id == R.id.nav_favorites) {
             Intent i = new Intent(ListActivity.this, FavoritesActivity.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(i);
         } else if (id == R.id.nav_acc) {
 

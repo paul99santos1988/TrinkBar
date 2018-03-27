@@ -99,6 +99,8 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
         protected void onResume() {
 
             super.onResume();
+            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view_details);
+            navigationView.setCheckedItem(R.id.nav_favorites);
 
             mDistance = LocationDistance.getInstance(mCtx);
             mDistance.setCallbacks(this);
@@ -221,10 +223,12 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
 
         } else if (id == R.id.nav_gallery) {
             Intent i = new Intent(FavoritesActivity.this, ListActivity.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(i);
 
         } else if (id == R.id.nav_favorites) {
             Intent i = new Intent(FavoritesActivity.this, FavoritesActivity.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(i);
 
         } else if (id == R.id.nav_acc) {
