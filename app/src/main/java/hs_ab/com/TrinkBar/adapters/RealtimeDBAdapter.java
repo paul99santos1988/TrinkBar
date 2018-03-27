@@ -12,14 +12,11 @@ import java.util.List;
 import hs_ab.com.TrinkBar.models.Bar;
 import hs_ab.com.TrinkBar.models.Image;
 
-/**
- * Created by agrein on 2/20/18.
- */
 
 public class RealtimeDBAdapter {
 
     private static RealtimeDBAdapter mRealtimeDBAdapter = null;
-    private Context mctx;
+    private final Context mctx;
     private List<Bar> mbarList = null;
     private List<Image> mimageList = null;
 

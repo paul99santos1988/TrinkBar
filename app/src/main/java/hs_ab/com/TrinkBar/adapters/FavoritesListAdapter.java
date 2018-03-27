@@ -24,20 +24,19 @@ import hs_ab.com.TrinkBar.models.Bar;
 
 public class FavoritesListAdapter extends RecyclerView.Adapter<FavoritesListAdapter.BarViewHolder> {
 
-    int mitem;
     private static final String TAG = "FavoritesListAdapter";
     private static  String barId;
     private static List<Bar> bars;
-    Context mCtx;
+    private final Context mCtx;
 
 
     public static class BarViewHolder extends RecyclerView.ViewHolder {
 
-        CardView cv;
-        TextView name;
-        TextView distance;
-        ImageView photo;
-        ImageView icon_walker;
+        final CardView cv;
+        final TextView name;
+        final TextView distance;
+        final ImageView photo;
+        final ImageView icon_walker;
         String dummyBarText;
 
 
@@ -95,13 +94,11 @@ public class FavoritesListAdapter extends RecyclerView.Adapter<FavoritesListAdap
     public BarViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
 
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.favorites_list_item, viewGroup, false);
-        BarViewHolder pvh = new BarViewHolder(v);
-        return pvh;
+        return new BarViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(final BarViewHolder barViewHolder, int i) {
-        mitem= i;
         Log.d(TAG, "onBindViewHolder: "+i);
         barViewHolder.name.setText(bars.get(i).getName());
 

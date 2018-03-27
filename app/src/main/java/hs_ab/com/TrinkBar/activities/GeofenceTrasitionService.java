@@ -32,6 +32,8 @@ public class GeofenceTrasitionService extends IntentService {
 
     public static final int GEOFENCE_NOTIFICATION_ID = 0;
     private Bar BarNR;
+    private RealtimeDBAdapter mRtDatabase;
+    private DatabaseReference mDatabase;
 
     public GeofenceTrasitionService() {
         super(TAG);
@@ -61,8 +63,7 @@ public class GeofenceTrasitionService extends IntentService {
         }
     }
 
-    private RealtimeDBAdapter mRtDatabase;
-    private DatabaseReference mDatabase;
+
 
     private String getGeofenceTrasitionDetails(int geoFenceTransition, List<Geofence> triggeringGeofences) {
         // get the ID of each geofence triggered
@@ -94,23 +95,23 @@ public class GeofenceTrasitionService extends IntentService {
             }
 
         }
-
+        String status = null;
         //exception warning
         if(barNumber == null || barVisitors == null){
             Log.w(TAG, "Can not iterate visitor count, no bars(barNumber="+barNumber+") or visitors(barVisitors="+barVisitors+"); failure value = null");
         }
-
-        //increment or decrement the count of visitors depending on the geoFenceTransition from the catched intent
-        String status = null;
-        if ( geoFenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ){
-            status = "Entering ";
-            Log.d(TAG, "Enter Geofence");
-            mDatabase.child("bars").child(barNumber).child("visitor").setValue(String.valueOf((Integer.valueOf(barVisitors)+1))); //iterate visitor number
-        }else if ( geoFenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT ){
-            status = "Exiting ";
-            Log.d(TAG, "Exit Geofence");
-            int visitors = Integer.valueOf(barVisitors)-1;
-            mDatabase.child("bars").child(barNumber).child("visitor").setValue(Integer.toString(visitors)); //decrement of visitor number
+        else {
+            //increment or decrement the count of visitors depending on the geoFenceTransition from the catched intent
+            if (geoFenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
+                status = "Entering ";
+                Log.d(TAG, "Enter Geofence");
+                mDatabase.child("bars").child(barNumber).child("visitor").setValue(String.valueOf((Integer.valueOf(barVisitors) + 1))); //iterate visitor number
+            } else if (geoFenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
+                status = "Exiting ";
+                Log.d(TAG, "Exit Geofence");
+                int visitors = Integer.valueOf(barVisitors) - 1;
+                mDatabase.child("bars").child(barNumber).child("visitor").setValue(Integer.toString(visitors)); //decrement of visitor number
+            }
         }
         return status + TextUtils.join( ", ", triggeringGeofencesList);
     }

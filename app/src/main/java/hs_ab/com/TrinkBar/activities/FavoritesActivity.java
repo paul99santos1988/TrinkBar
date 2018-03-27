@@ -29,22 +29,16 @@ import hs_ab.com.TrinkBar.adapters.RealtimeDBAdapter;
 import hs_ab.com.TrinkBar.models.Bar;
 import hs_ab.com.TrinkBar.models.Image;
 
-/**
- * Created by tabo on 3/21/18.
- */
 
 public class FavoritesActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback, NavigationView.OnNavigationItemSelectedListener, DistanceCallback {
-
-        private static FavoritesActivity mInstance;
-
 
         private Context mCtx;
         private static final String TAG = "FavoritesActivity";
         private List<Bar> barList;
         private RecyclerView mRv;
         private RealtimeDBAdapter mRtDatabase;
-        public List<Bar> barFavoritesList;
-        FavoritesListAdapter adapter;
+        private List<Bar> barFavoritesList;
+        private FavoritesListAdapter adapter;
         private LocationDistance mDistance;
         private SharedPreferences sharedPrefFavorites;
         private Map sharedPrefTempFav;
@@ -53,7 +47,6 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
     @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            mInstance=this;
             mCtx = getApplicationContext();
             setContentView(R.layout.activity_favorites_list);
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_fav);
@@ -72,11 +65,11 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
             sharedPrefFavorites = mCtx.getSharedPreferences(getString(R.string.preference_file_key), mCtx.MODE_PRIVATE);
             savedFavorites = sharedPrefFavorites.getAll();
 
-            barList = new ArrayList<Bar>();
+            barList = new ArrayList<>();
             mRtDatabase = RealtimeDBAdapter.getInstance(mCtx);
 
             if(barFavoritesList == null){
-                barFavoritesList = new ArrayList<Bar>();
+                barFavoritesList = new ArrayList<>();
             }
 
             // RV for List
@@ -210,7 +203,6 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
 
 
     // Side menu
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item_list clicks here.
@@ -244,11 +236,6 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
         return true;
     }
 
-
-    public static synchronized FavoritesActivity getInstance()
-    {
-        return mInstance;
-    }
 
     @Override
     public void callbackCall(List<Bar> barList) {

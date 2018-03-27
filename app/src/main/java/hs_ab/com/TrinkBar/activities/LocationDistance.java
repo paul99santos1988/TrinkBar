@@ -17,16 +17,16 @@ public class LocationDistance {
 
     private static final String TAG = "Location";
     private static LocationDistance mLocationDistance = null;
-    private Context mctx;
+    private final Context mctx;
     private List<Bar> mBarList;
-    DistanceCallback mcallback;
+    private DistanceCallback mcallback;
     private RealtimeDBAdapter mRtDatabase;
 
     private LocationManager mLocationManager = null;
     private static final int LOCATION_INTERVAL = 1000;
     private static final float LOCATION_DISTANCE = 10f;
 
-    LocationDistance.LocationListener[] mLocationListeners = new LocationDistance.LocationListener[] {
+    private final LocationDistance.LocationListener[] mLocationListeners = new LocationDistance.LocationListener[] {
             new LocationDistance.LocationListener(LocationManager.GPS_PROVIDER),
             new LocationDistance.LocationListener(LocationManager.NETWORK_PROVIDER)
     };

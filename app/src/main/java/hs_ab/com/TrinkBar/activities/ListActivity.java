@@ -35,8 +35,6 @@ public class ListActivity extends AppCompatActivity
         NavigationView.OnNavigationItemSelectedListener, DistanceCallback {
 
 
-    private static ListActivity mInstance;
-
 
     private Context mCtx;
     private static final String TAG = "LOG";
@@ -49,7 +47,6 @@ public class ListActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mInstance = this;
         mCtx = getApplicationContext();
         setContentView(R.layout.activity_list);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_list);
@@ -165,7 +162,6 @@ public class ListActivity extends AppCompatActivity
 
 
     // Side menu
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item_list clicks here.
@@ -197,12 +193,6 @@ public class ListActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout_details);
         drawer.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-
-    public static synchronized ListActivity getInstance()
-    {
-        return mInstance;
     }
 
     @Override

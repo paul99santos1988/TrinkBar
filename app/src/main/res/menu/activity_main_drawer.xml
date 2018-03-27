@@ -6,11 +6,11 @@
         <item
             android:id="@+id/nav_map"
             android:icon="@drawable/ic_map_black_24dp"
-            android:title="Karte" />
+            android:title="@string/title_map" />
         <item
             android:id="@+id/nav_gallery"
             android:icon="@drawable/ic_local_bar_black_24dp"
-            android:title="Barliste" />
+            android:title="@string/title_bar_list" />
         <item
             android:id="@+id/nav_favorites"
             android:icon="@drawable/ic_favorite_black_24dp"
@@ -23,15 +23,15 @@
         <item
             android:id="@+id/nav_acc"
             android:icon="@drawable/ic_person_black_24dp"
-            android:title="Account" />
+            android:title="@string/title_account" />
         <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/ic_settings_black_24dp"
-            android:title="Einstellungen" />
+            android:title="@string/title_settings" />
         <item
             android:id="@+id/nav_help"
             android:icon="@drawable/ic_help_outline_black_24dp"
-            android:title="Hilfe" />
+            android:title="@string/title_help" />
     </group>
 
 </menu>

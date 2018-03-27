@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginLeft="16dp"
-            android:text="Öffnungszeiten"/>
+            android:text="@string/textview_details_header_title_open"/>
 
 
         <View
@@ -44,7 +44,7 @@
                     android:id="@+id/details_table_openening_Monday"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Montag:"
+                    android:text="@string/details_table_title_openening_Monday"
                     android:layout_marginRight="10dp"/>
 
                 <TextView
@@ -60,7 +60,7 @@
                     android:id="@+id/details_table_openening_Tuesday"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Dienstag:"
+                    android:text="@string/details_table_title_openening_Tuesday"
                     android:layout_marginRight="10dp"/>
 
                 <TextView
@@ -76,7 +76,7 @@
                     android:id="@+id/details_table_openening_Wednesday"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Mittwoch:"
+                    android:text="@string/details_table_title_openening_Wednesday"
                     android:layout_marginRight="10dp"/>
 
                 <TextView
@@ -92,7 +92,7 @@
                     android:id="@+id/details_table_openening_Thursday"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Donnerstag:"
+                    android:text="@string/details_table_title_openening_Thursday"
                     android:layout_marginRight="10dp"/>
 
                 <TextView
@@ -108,7 +108,7 @@
                     android:id="@+id/details_table_openening_Friday"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Freitag:"
+                    android:text="@string/details_table_title_openening_Friday"
                     android:layout_marginRight="10dp"/>
 
                 <TextView
@@ -124,7 +124,7 @@
                     android:id="@+id/details_table_openening_Saturday"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Samstag:"
+                    android:text="@string/details_table_title_openening_Saturday"
                     android:layout_marginRight="10dp"/>
 
                 <TextView
@@ -140,7 +140,7 @@
                     android:id="@+id/details_table_openening_Sunday"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Sonntag:"
+                    android:text="@string/details_table_title_openening_Sunday"
                     android:layout_marginRight="10dp"/>
 
                 <TextView
@@ -157,7 +157,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginLeft="16dp"
-            android:text="Beschreibung"/>
+            android:text="@string/textview_details_title_header_description"/>
 
 
 
@@ -238,13 +238,6 @@
                 android:layout_marginLeft="10dp"
                 android:paddingLeft="0dp"/>
 
-            <!--<TextView
-                android:id="@+id/textView_details_phone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                />-->
-
         </TableRow>
 
 
@@ -263,9 +256,5 @@
            android:layout_marginTop="16dp"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"/>
-
-
     </LinearLayout>
-
-
 </android.support.v4.widget.NestedScrollView>

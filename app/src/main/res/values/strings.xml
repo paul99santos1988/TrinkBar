@@ -24,6 +24,11 @@
 
     <string name="settings">Settings</string>
     <string name="title_favorites_list">Favoritenliste</string>
+    <string name="title_bar_list">Barliste</string>
+    <string name="title_map">Karte</string>
+    <string name="title_account">Account</string>
+    <string name="title_settings">Einstellungen</string>
+    <string name="title_help">Hilfe</string>
     <string name="noFood">Lieder kein Essen verfügbar</string>
     <string name="food">Essen verfügbar</string>
     <string name="noDial">Keine Telefonapp installiert</string>
@@ -34,5 +39,19 @@
     <string name="dummy_text_no_favorites">Sie haben aktuell keine Favoriten hinterlegt</string>
     <string name="dummy_id_favorites">DummyId_0815</string>
     <string name="dummy_distance_favorites">Bitte hier drücken</string>
+
+    <string name="fab_menu_action_location">Standort</string>
+    <string name="fab_menu_action_target">Karte zentrieren</string>
+    <string name="fab_menu_action_share">Teilen</string>
+    <string name="menu_details_action_favorite">Favorite</string>
+    <string name="textview_details_header_title_open">Öffnungszeiten</string>
+    <string name="details_table_title_openening_Monday">Montag:</string>
+    <string name="details_table_title_openening_Tuesday">Dienstag:</string>
+    <string name="details_table_title_openening_Wednesday">Mittwoch:</string>
+    <string name="details_table_title_openening_Thursday">Donnerstag:</string>
+    <string name="details_table_title_openening_Friday">Freitag:</string>
+    <string name="details_table_title_openening_Saturday">Samstag:</string>
+    <string name="details_table_title_openening_Sunday">Sonntag:</string>
+    <string name="textview_details_title_header_description">Beschreibung</string>
 
 </resources>

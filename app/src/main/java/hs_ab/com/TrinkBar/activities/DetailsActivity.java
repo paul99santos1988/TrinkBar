@@ -35,7 +35,6 @@ import hs_ab.com.TrinkBar.models.Image;
 
 public class DetailsActivity extends AppCompatActivity implements AppBarLayout.OnOffsetChangedListener{
 
-    private static DetailsActivity mInstance;
     private Context mCtx;
     private static final String TAG = "DetailsActivity";
     private String mTitle;
@@ -48,7 +47,6 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
     private RequestQueue queue;
     private boolean mIsFav = false;
     private Button mPhoneButton;
-    private Menu mMenu;
     private MenuItem mfavItem;
     private SharedPreferences sharedPrefFavorites;
     private SharedPreferences.Editor editor;
@@ -56,7 +54,6 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        mInstance=this;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
         mCtx = getApplicationContext();
@@ -136,7 +133,6 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_details, menu);
         mfavItem = menu.findItem(R.id.action_favorite);
-        mMenu = menu;
 
         return true;
     }
@@ -287,7 +283,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
             mIsFav = true;
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (mIsFav==false) {
+            if (!mIsFav) {
                 mIsFav = true;
                 addFavItem();
                 mFab.setImageDrawable(getResources().getDrawable(R.drawable.ic_favorite_black_24dp, getApplicationContext().getTheme()));
@@ -322,7 +318,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         }
         //editor.clear(); //delete all favorites
         editor.commit();
-        Toast.makeText(mInstance, "Bar als Favorit markiert", Toast.LENGTH_SHORT).show();
+        Toast.makeText(mCtx, "Bar als Favorit markiert", Toast.LENGTH_SHORT).show();
 
     }
 
@@ -339,25 +335,22 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
             if (savedBarId.equals(mBarId)) {
                 editor.remove(favorite_key); //favorite will be removed
                 editor.commit();
-                Toast.makeText(mInstance, "Bar aus Favoritenliste entfernt", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mCtx, "Bar aus Favoritenliste entfernt", Toast.LENGTH_SHORT).show();
             }
             else{
-                Toast.makeText(mInstance, "Favorit existiert nicht", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mCtx, "Favorit existiert nicht", Toast.LENGTH_SHORT).show();
             }
         }
         else{
-            Toast.makeText(mInstance, "Keine Favoriten vorhanden", Toast.LENGTH_SHORT).show();
+            Toast.makeText(mCtx, "Keine Favoriten vorhanden", Toast.LENGTH_SHORT).show();
         }
     }
 
     private Bitmap decodeImg(String data){
         String base64Image = data.split(",")[1];
-
         byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
-        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
 
-
-        return decodedByte;
+        return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
     }
 
     private String base64ToUTF8(String data){

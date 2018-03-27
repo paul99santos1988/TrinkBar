@@ -288,7 +288,6 @@ public class MapActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item_list clicks here.
@@ -499,7 +498,7 @@ public class MapActivity extends AppCompatActivity
              });
     }
 
-    public void setupRealtimeDB(){
+    private void setupRealtimeDB(){
 
         mRtDatabase = RealtimeDBAdapter.getInstance(mCtx);
 
@@ -682,11 +681,12 @@ public class MapActivity extends AppCompatActivity
 
     private void removeGeofenceDraw() {
         Log.d(TAG, "removeGeofenceDraw()");
-        if ( geoFenceLimits != null )
-            for (int i=0;i<geoFenceLimits.size();i++) {
+        if ( geoFenceLimits != null ) {
+            for (int i = 0; i < geoFenceLimits.size(); i++) {
                 geoFenceLimits.get(i).remove();
             }
-        geoFenceLimits.clear();
+            geoFenceLimits.clear();
+        }
     }
     
     private boolean isNetworkAvailable() {

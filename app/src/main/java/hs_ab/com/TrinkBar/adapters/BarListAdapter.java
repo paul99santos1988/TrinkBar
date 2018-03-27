@@ -23,18 +23,17 @@ import hs_ab.com.TrinkBar.models.Bar;
 
 public class BarListAdapter extends RecyclerView.Adapter<BarListAdapter.BarViewHolder> {
 
-    int mitem;
     private static final String TAG = "LOG";
     private static  String barId;
     private static List<Bar> bars;
-    Context mCtx;
+    private final Context mCtx;
 
     public static class BarViewHolder extends RecyclerView.ViewHolder {
 
-        CardView cv;
-        TextView name;
-        TextView distance;
-        ImageView photo;
+        final CardView cv;
+        final TextView name;
+        final TextView distance;
+        final ImageView photo;
 
 
 
@@ -67,8 +66,8 @@ public class BarListAdapter extends RecyclerView.Adapter<BarListAdapter.BarViewH
 
 
 
-    public BarListAdapter(Context mCtx, List<Bar> bars) {
-        this.mCtx = mCtx;
+    public BarListAdapter(Context Ctx, List<Bar> bars) {
+        mCtx = Ctx;
         BarListAdapter.bars = bars;
     }
 
@@ -81,13 +80,11 @@ public class BarListAdapter extends RecyclerView.Adapter<BarListAdapter.BarViewH
     public BarViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
 
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_list, viewGroup, false);
-        BarViewHolder pvh = new BarViewHolder(v);
-        return pvh;
+        return new BarViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(final BarViewHolder barViewHolder, int i) {
-        mitem= i;
         Log.d(TAG, "onBindViewHolder: "+i);
         barViewHolder.name.setText(bars.get(i).getName());
         if (bars.get(i).getDistance() == null){
