@@ -20,7 +20,6 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -145,13 +144,15 @@ public class ListActivity extends AppCompatActivity
                 mRv.getAdapter().notifyDataSetChanged();
                 break;
             case R.id.list_sort_distance:
-                Collections.sort(barList, new Comparator<Bar>(){
-                    public int compare(Bar obj1, Bar obj2) {
-                        // ## Distance order
-                        return Double.valueOf(obj1.getDistance()).compareTo(Double.valueOf(obj2.getDistance()));
-                    }
-                });
-                mRv.getAdapter().notifyDataSetChanged();
+                if(barList.get(0).getDistance() != null) {
+                    Collections.sort(barList, new Comparator<Bar>() {
+                        public int compare(Bar obj1, Bar obj2) {
+                            // ## Distance order
+                            return Double.valueOf(obj1.getDistance()).compareTo(Double.valueOf(obj2.getDistance()));
+                        }
+                    });
+                    mRv.getAdapter().notifyDataSetChanged();
+                }
                 break;
         }
         return super.onOptionsItemSelected(item);

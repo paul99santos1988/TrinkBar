@@ -178,6 +178,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
             String favorite_key = mBarObject.getName();
             String savedBarId = sharedPrefFavorites.getString(favorite_key, getString(R.string.default_favorites_value));
             if(savedBarId.equals(mBarId)){
+                mIsFav = true;
                 mFab.setImageDrawable(getResources().getDrawable(R.drawable.ic_favorite_black_24dp, getApplicationContext().getTheme()));
             }
             else {
@@ -321,7 +322,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         }
         //editor.clear(); //delete all favorites
         editor.commit();
-        Toast.makeText(mInstance, "Added favorite to list", Toast.LENGTH_SHORT).show();
+        Toast.makeText(mInstance, "Bar als Favorit markiert", Toast.LENGTH_SHORT).show();
 
     }
 
@@ -338,14 +339,14 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
             if (savedBarId.equals(mBarId)) {
                 editor.remove(favorite_key); //favorite will be removed
                 editor.commit();
-                Toast.makeText(mInstance, "Removed favorite from list", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mInstance, "Bar aus Favoritenliste entfernt", Toast.LENGTH_SHORT).show();
             }
             else{
-                Toast.makeText(mInstance, "This favorite not exists", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mInstance, "Favorit existiert nicht", Toast.LENGTH_SHORT).show();
             }
         }
         else{
-            Toast.makeText(mInstance, "It exists no favorite!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(mInstance, "Keine Favoriten vorhanden", Toast.LENGTH_SHORT).show();
         }
     }
 
