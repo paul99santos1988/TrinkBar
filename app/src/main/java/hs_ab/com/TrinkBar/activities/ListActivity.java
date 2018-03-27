@@ -52,7 +52,7 @@ public class ListActivity extends AppCompatActivity
         mInstance = this;
         mCtx = getApplicationContext();
         setContentView(R.layout.activity_list);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_list);
         setSupportActionBar(toolbar);
 
         // Side menu
@@ -62,7 +62,7 @@ public class ListActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view_details);
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view_list);
         navigationView.setNavigationItemSelectedListener(this);
         barList = new ArrayList<Bar>();
         mRtDatabase = RealtimeDBAdapter.getInstance(mCtx);
@@ -82,7 +82,7 @@ public class ListActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view_details);
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view_list);
         navigationView.setCheckedItem(R.id.nav_gallery);
 
         mDistance= LocationDistance.getInstance(mCtx);

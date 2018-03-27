@@ -150,14 +150,14 @@ public class MapActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view_map);
         navigationView.setCheckedItem(R.id.nav_map);
     }
 
     private void initSideMenu() {
 
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_map);
         setSupportActionBar(toolbar);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -167,13 +167,13 @@ public class MapActivity extends AppCompatActivity
         toggle.syncState();
 
         //mark selected menu item
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view_map);
         navigationView.setNavigationItemSelectedListener(this);
 
         navigationView.setCheckedItem(R.id.nav_map);
 
     }
-    
+
 
     private void initMap() {
         // Map

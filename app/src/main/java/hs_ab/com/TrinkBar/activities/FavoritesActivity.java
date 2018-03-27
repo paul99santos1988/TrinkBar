@@ -56,7 +56,7 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
             mInstance=this;
             mCtx = getApplicationContext();
             setContentView(R.layout.activity_favorites_list);
-            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_fav);
             setSupportActionBar(toolbar);
 
             // Side menu
@@ -66,7 +66,7 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
             drawer.addDrawerListener(toggle);
             toggle.syncState();
 
-            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view_details);
+            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view_fav);
             navigationView.setNavigationItemSelectedListener(this);
 
             sharedPrefFavorites = mCtx.getSharedPreferences(getString(R.string.preference_file_key), mCtx.MODE_PRIVATE);
@@ -99,7 +99,7 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
         protected void onResume() {
 
             super.onResume();
-            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view_details);
+            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view_fav);
             navigationView.setCheckedItem(R.id.nav_favorites);
 
             mDistance = LocationDistance.getInstance(mCtx);
