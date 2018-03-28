@@ -54,6 +54,9 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -99,6 +102,8 @@ public class MapActivity extends AppCompatActivity
     private static final String NOTIFICATION_MSG = "NOTIFICATION";
     private static DatabaseReference databaseReference;
     private PendingIntent geoFencePendingIntent;
+    private FirebaseAuth mAuth;
+
 
 
     public static Intent makeNotificationIntent(Context context, String msg, Bar BarNr) {
@@ -125,6 +130,29 @@ public class MapActivity extends AppCompatActivity
         setupRealtimeDB();
         initMap();
 
+        mAuth = FirebaseAuth.getInstance();
+        mAuth.signInAnonymously()
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(TAG, "signInAnonymously:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            Log.d(TAG, "onComplete: User"+ user);
+                            //updateUI(user);
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w(TAG, "signInAnonymously:failure", task.getException());
+                            Toast.makeText(MapActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                            //updateUI(null);
+                        }
+
+                        // ...
+                    }
+                });
+
 
         mMarkerArray = new ArrayList<>();
         geoFenceLimits =new ArrayList<>();
@@ -132,6 +160,8 @@ public class MapActivity extends AppCompatActivity
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mGeofencingClient = LocationServices.getGeofencingClient(this);
     }
+
+
 
     @Override
     protected void onDestroy() {
