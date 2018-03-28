@@ -68,6 +68,16 @@ public class RealtimeDBAdapter {
         return bar;
     }
 
+    public Bar getBarbyName(String name){
+        Bar bar= null;
+        for(int i=0;i<mbarList.size();i++){
+            if(mbarList.get(i).getName().equals(name)) {
+                bar = mbarList.get(i);
+            }
+        }
+        return bar;
+    }
+
     public void setBarList(Iterator<DataSnapshot> iterator){
         mbarList.clear();
         while((iterator.hasNext())){

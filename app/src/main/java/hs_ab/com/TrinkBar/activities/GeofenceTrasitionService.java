@@ -88,7 +88,7 @@ public class GeofenceTrasitionService extends IntentService {
         for(int i = 0 ; i < mbarList.size(); i++){
             barNameFromList = mbarList.get(i).getName();
             if(barNameFromList.equals(barName)){
-                barNumber = String.valueOf(i);
+                barNumber = mbarList.get(i).getId();
                 barVisitors = mbarList.get(i).getVisitor();
                 BarNR=mbarList.get(i);
                 break;

@@ -61,7 +61,7 @@ public class ListActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view_list);
         navigationView.setNavigationItemSelectedListener(this);
-        barList = new ArrayList<Bar>();
+        //barList = new ArrayList<Bar>();
         mRtDatabase = RealtimeDBAdapter.getInstance(mCtx);
 
 
@@ -86,9 +86,9 @@ public class ListActivity extends AppCompatActivity
         mDistance.setCallbacks(this);
         mDistance.calculateDistance();
 
-
+        //System.arraycopy( mRtDatabase.getBarList(), 0, barList, 0, mRtDatabase.getBarList().size());
         //barList.clear();
-        barList= mRtDatabase.getBarList();
+        barList = mRtDatabase.getBarList();
         // init Adapter with Data from Server
         for (int i=0;i<barList.size();i++ ){
 
@@ -136,12 +136,15 @@ public class ListActivity extends AppCompatActivity
 
         switch (id) {
             case R.id.list_sort_alphabetical:
+                Log.d(TAG, "onOptionsItemSelected: Barrlist unsorted"+barList.toString());
                 Collections.sort(barList, new Comparator<Bar>(){
                     public int compare(Bar obj1, Bar obj2) {
                         // ## Ascending order
                         return obj1.getName().compareToIgnoreCase(obj2.getName());
                     }
                 });
+                Log.d(TAG, "onOptionsItemSelected: Barrlist sorted"+barList.toString());
+                Log.d(TAG, "onOptionsItemSelected: Barlist from Adapter"+mRtDatabase.getBarList().toString());
                 mRv.getAdapter().notifyDataSetChanged();
                 break;
             case R.id.list_sort_distance:
