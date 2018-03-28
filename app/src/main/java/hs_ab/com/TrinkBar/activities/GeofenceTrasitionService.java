@@ -123,7 +123,7 @@ public class GeofenceTrasitionService extends IntentService {
         // Intent to start the main Activity
         Intent notificationIntent = MapActivity.makeNotificationIntent(getApplicationContext(), msg, BarNR);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        PendingIntent notificationPendingIntent = PendingIntent.getActivity(this, 1000, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent notificationPendingIntent = PendingIntent.getActivity(this, Constants.INTENT_REQ_CODE_NOTIFICATION, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         // Creating and sending Notification
         NotificationManager notificatioMng =

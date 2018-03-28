@@ -100,7 +100,6 @@ public class LocationDistance {
     }
 
     public void close(){
-
         Log.d(TAG, "onDestroy");
         if (mLocationManager != null) {
             for (int i = 0; i < mLocationListeners.length; i++) {
