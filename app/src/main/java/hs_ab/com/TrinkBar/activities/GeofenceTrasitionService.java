@@ -34,6 +34,7 @@ public class GeofenceTrasitionService extends IntentService {
     private Bar BarNR;
     private RealtimeDBAdapter mRtDatabase;
     private DatabaseReference mDatabase;
+    private Bar mEnteredBar;
 
     public GeofenceTrasitionService() {
         super(TAG);
@@ -73,44 +74,36 @@ public class GeofenceTrasitionService extends IntentService {
         }
 
         //get Firebase database reference
-        Context mCtx = getApplicationContext();
-        mRtDatabase = RealtimeDBAdapter.getInstance(mCtx);
         triggeringGeofences.get(0);
         ListIterator<String> iterator = triggeringGeofencesList.listIterator();
         String barName = iterator.next();
+
+
         mDatabase= MapActivity.getDatabaseInstance();
-        String barNumber = null;
-        String barVisitors = null;
-        String barNameFromList = null;
-        List<Bar> mbarList = mRtDatabase.getBarList();
+        mRtDatabase = RealtimeDBAdapter.getInstance(getApplicationContext());
+        mEnteredBar= mRtDatabase.getBarbyName(barName);
 
-        //iteration through mbarList to get bar number and current count of visitors
-        for(int i = 0 ; i < mbarList.size(); i++){
-            barNameFromList = mbarList.get(i).getName();
-            if(barNameFromList.equals(barName)){
-                barNumber = mbarList.get(i).getId();
-                barVisitors = mbarList.get(i).getVisitor();
-                BarNR=mbarList.get(i);
-                break;
-            }
-
-        }
+        String barId= mEnteredBar.getId();
+        String barVisitors= mEnteredBar.getVisitor();
         String status = null;
         //exception warning
-        if(barNumber == null || barVisitors == null){
-            Log.w(TAG, "Can not iterate visitor count, no bars(barNumber="+barNumber+") or visitors(barVisitors="+barVisitors+"); failure value = null");
+        if(barId == null || barVisitors == null){
+            Log.w(TAG, "Can not iterate visitor count, no bars(barId="+barId+") or visitors(barVisitors="+barVisitors+"); failure value = null");
         }
         else {
             //increment or decrement the count of visitors depending on the geoFenceTransition from the catched intent
             if (geoFenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
                 status = "Entering ";
                 Log.d(TAG, "Enter Geofence");
-                mDatabase.child("bars").child(barNumber).child("visitor").setValue(String.valueOf((Integer.valueOf(barVisitors) + 1))); //iterate visitor number
+                int visitors = Integer.valueOf(barVisitors) + 1;
+                mEnteredBar.setVisitor(String.valueOf(visitors));
+                mDatabase.child("bars").child(barId).child("visitor").setValue(mEnteredBar.getVisitor()); //iterate visitor number
             } else if (geoFenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
                 status = "Exiting ";
                 Log.d(TAG, "Exit Geofence");
                 int visitors = Integer.valueOf(barVisitors) - 1;
-                mDatabase.child("bars").child(barNumber).child("visitor").setValue(Integer.toString(visitors)); //decrement of visitor number
+                mEnteredBar.setVisitor(String.valueOf(visitors));
+                mDatabase.child("bars").child(barId).child("visitor").setValue(mEnteredBar.getVisitor()); //decrement of visitor number
             }
         }
         return status + TextUtils.join( ", ", triggeringGeofencesList);
@@ -121,7 +114,7 @@ public class GeofenceTrasitionService extends IntentService {
         Log.i(TAG, "sendNotification: " + msg );
 
         // Intent to start the main Activity
-        Intent notificationIntent = MapActivity.makeNotificationIntent(getApplicationContext(), msg, BarNR);
+        Intent notificationIntent = MapActivity.makeNotificationIntent(getApplicationContext(), msg, mEnteredBar);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent notificationPendingIntent = PendingIntent.getActivity(this, Constants.INTENT_REQ_CODE_NOTIFICATION, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -163,11 +156,4 @@ public class GeofenceTrasitionService extends IntentService {
         }
     }
 
-    @Override
-    public void onDestroy() {
-        Log.d(TAG, "onDestroy: "+BarNR);
-        super.onDestroy();
-
-
-    }
 }

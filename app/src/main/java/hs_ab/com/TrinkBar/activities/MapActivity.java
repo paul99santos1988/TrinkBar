@@ -135,14 +135,13 @@ public class MapActivity extends AppCompatActivity
 
     @Override
     protected void onDestroy() {
+
+
         if (mCurrentBar!=null) {
-            for(int i=0; i < mBarList.size();i++) {
-                if(mBarList.get(i).getId().equals(mCurrentBar.getId())){
-                int visitors = Integer.valueOf(mBarList.get(i).getVisitor()) - 1;
-                mDatabase.child("bars").child(String.valueOf(i)).child("visitor").setValue(Integer.toString(visitors));
-                Log.d(TAG, "onDestroy: MapActivtiy" + visitors + "Number" + i);
-                }
-            }
+            Bar bar =mRtDatabase.getBarbyId(mCurrentBar.getId());
+            int visitors = Integer.valueOf(bar.getVisitor()) - 1;
+            bar.setVisitor(String.valueOf(visitors));
+            mDatabase.child("bars").child(bar.getId()).child("visitor").setValue(bar.getVisitor());
         }
         super.onDestroy();
     }
