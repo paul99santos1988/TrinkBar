@@ -57,7 +57,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
         mCtx = getApplicationContext();
-        sharedPrefFavorites = mCtx.getSharedPreferences(getString(R.string.preference_file_key), mCtx.MODE_PRIVATE);
+        sharedPrefFavorites = mCtx.getSharedPreferences(getString(R.string.preference_file_key), MODE_PRIVATE);
         editor = sharedPrefFavorites.edit();
 
         getDetailsData();
@@ -276,12 +276,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
     private void changeFavItem(){
         //mIsFav=!mIsFav;
         String savedBarId = sharedPrefFavorites.getString(mBarObject.getName(), getString(R.string.default_favorites_value));
-        if(savedBarId.equals("NO FAVORITES SAVED")){
-            mIsFav = false;
-        }
-        else {
-            mIsFav = true;
-        }
+        mIsFav = !savedBarId.equals("NO FAVORITES SAVED");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             if (!mIsFav) {
                 mIsFav = true;

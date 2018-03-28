@@ -104,6 +104,7 @@ public class GeofenceTrasitionService extends IntentService {
                 int visitors = Integer.valueOf(barVisitors) - 1;
                 mEnteredBar.setVisitor(String.valueOf(visitors));
                 mDatabase.child("bars").child(barId).child("visitor").setValue(mEnteredBar.getVisitor()); //decrement of visitor number
+                mEnteredBar=null;
             }
         }
         return status + TextUtils.join( ", ", triggeringGeofencesList);

@@ -142,6 +142,7 @@ public class MapActivity extends AppCompatActivity
             int visitors = Integer.valueOf(bar.getVisitor()) - 1;
             bar.setVisitor(String.valueOf(visitors));
             mDatabase.child("bars").child(bar.getId()).child("visitor").setValue(bar.getVisitor());
+            Log.d(TAG, "onDestroy: Remove Bar");
         }
         super.onDestroy();
     }
@@ -623,7 +624,7 @@ public class MapActivity extends AppCompatActivity
             return geoFencePendingIntent;
 
         Intent intent = new Intent( this, GeofenceTrasitionService.class);
-        geoFencePendingIntent= PendingIntent.getService(this, Constants.INTENT_REQ_CODE_GEOFENCE, intent, PendingIntent.FLAG_UPDATE_CURRENT );
+        geoFencePendingIntent= PendingIntent.getService(this, Constants.INTENT_REQ_CODE_GEOFENCE, intent, PendingIntent.FLAG_CANCEL_CURRENT);
         return geoFencePendingIntent;
     }
 

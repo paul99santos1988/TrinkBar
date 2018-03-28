@@ -62,7 +62,7 @@ public class FavoritesActivity extends AppCompatActivity implements ActivityComp
             NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view_fav);
             navigationView.setNavigationItemSelectedListener(this);
 
-            sharedPrefFavorites = mCtx.getSharedPreferences(getString(R.string.preference_file_key), mCtx.MODE_PRIVATE);
+            sharedPrefFavorites = mCtx.getSharedPreferences(getString(R.string.preference_file_key), MODE_PRIVATE);
             savedFavorites = sharedPrefFavorites.getAll();
 
             barList = new ArrayList<>();
