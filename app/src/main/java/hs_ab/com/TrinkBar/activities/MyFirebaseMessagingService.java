@@ -84,9 +84,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.ic_sheep)
                         .setContentTitle(title)
-                        .setContentText(messageBody)
+                        .setContentText("Jemand hat die Bar betreten.")
                         .setAutoCancel(true)
-                        .setContentIntent(pendingIntent);
+                        .setContentIntent(pendingIntent)
+                        .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(messageBody));
 
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);

@@ -174,7 +174,7 @@ public class GeofenceTrasitionService extends IntentService {
 
     public void requestWithSomeHttpHeaders(String topic, String title, String body) {
         //String jsonString= "{'message':{'topic' : 'news','notification' : {'body' : 'This is a Firebase Cloud Messaging Topic Message!','title' : 'FCM Message'}}}";
-        String jsonString = "{'notification':{'title': '"+title+"', 'body': 'Jemand hat die Bar betreten. Aktuell befinden sich "+body+" Personen hier', 'click_action' : 'https://dummypage.com'},'to' : '/topics/"+topic+"'}";
+        String jsonString = "{'notification':{'title': '"+title+"', 'body': 'Aktuell befinden sich "+body+" Personen hier', 'click_action' : 'https://dummypage.com'},'to' : '/topics/"+topic+"'}";
 
 
         JSONObject jsonObj=null;
