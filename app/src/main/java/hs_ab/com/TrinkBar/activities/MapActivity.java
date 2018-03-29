@@ -28,12 +28,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
@@ -67,12 +62,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.maps.android.ui.IconGenerator;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -428,69 +417,7 @@ public class MapActivity extends AppCompatActivity
                 mMarkerArray.add(marker);
             }
 
-            initBarRating(mBarList.get(i));
         }
-    }
-
-    //init of the bar rating from Google during setMarker()
-    public void initBarRating(final Bar mBar){
-
-            queue = Volley.newRequestQueue(this);
-            String encodedBarname; //to avoid spaces of the bar names inside URL
-        try {
-            encodedBarname = URLEncoder.encode(mBar.getName(), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            encodedBarname = mBar.getName();
-            e.printStackTrace();
-        }
-
-        String url = "https://maps.googleapis.com/maps/api/place/textsearch/json?query=" + encodedBarname + "+Aschaffenburg&key=" + Constants.PLACES_API_KEY;
-
-            JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                    (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            Log.d("Response: ", response.toString());
-                            try {
-                                JSONArray jsonArray = new JSONArray(response.get("results").toString());
-                                JSONObject object = jsonArray.getJSONObject(0);
-                                String place = object.get("place_id").toString();
-                                Float rating;
-                                //get Place Details
-                                mGeoDataClient.getPlaceById(place).addOnCompleteListener(new OnCompleteListener<PlaceBufferResponse>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<PlaceBufferResponse> task) {
-                                        if (task.isSuccessful()) {
-                                            PlaceBufferResponse places = task.getResult();
-                                            Place myPlace = places.get(0);
-                                            mBar.setRating(Float.toString(myPlace.getRating()));
-                                            Log.i(TAG, "rating: " + myPlace.getRating());
-
-                                            places.release();
-                                        } else {
-                                            Toast.makeText(getApplicationContext(), "Bar-Bewertungen nicht verfügbar",
-                                                    Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                });
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }, new Response.ErrorListener() {
-
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Log.d(TAG, "onErrorResponse: ");
-
-                        }
-                    });
-
-            // Access the RequestQueue.
-            queue.add(jsObjRequest);
-
     }
 
     /**

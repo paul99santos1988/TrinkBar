@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -15,6 +16,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,9 +25,25 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.android.gms.location.places.GeoDataClient;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.PlaceBufferResponse;
+import com.google.android.gms.location.places.Places;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Map;
 
 import hs_ab.com.TrinkBar.R;
@@ -50,6 +68,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
     private MenuItem mfavItem;
     private SharedPreferences sharedPrefFavorites;
     private SharedPreferences.Editor editor;
+    private GeoDataClient mGeoDataClient;
 
 
     @Override
@@ -59,9 +78,12 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         mCtx = getApplicationContext();
         sharedPrefFavorites = mCtx.getSharedPreferences(getString(R.string.preference_file_key), MODE_PRIVATE);
         editor = sharedPrefFavorites.edit();
+        mGeoDataClient = Places.getGeoDataClient(this, null);
+
 
         getDetailsData();
         initFAB();
+        initBarRating();
         initToolBar();
         initViews();
 
@@ -153,6 +175,67 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         return super.onOptionsItemSelected(item);
     }
 
+    //init of the bar rating from Google during setMarker()
+    private void initBarRating(){
+
+        queue = Volley.newRequestQueue(this);
+        String encodedBarname; //to avoid spaces of the bar names inside URL
+        try {
+            encodedBarname = URLEncoder.encode(mBarObject.getName(), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            encodedBarname = mBarObject.getName();
+            e.printStackTrace();
+        }
+
+        String url = "https://maps.googleapis.com/maps/api/place/textsearch/json?query=" + encodedBarname + "+Aschaffenburg&key=" + Constants.PLACES_API_KEY;
+
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.d("Response: ", response.toString());
+                        try {
+                            JSONArray jsonArray = new JSONArray(response.get("results").toString());
+                            JSONObject object = jsonArray.getJSONObject(0);
+                            String place = object.get("place_id").toString();
+                            Float rating;
+                            //get Place Details
+                            mGeoDataClient.getPlaceById(place).addOnCompleteListener(new OnCompleteListener<PlaceBufferResponse>() {
+                                @Override
+                                public void onComplete(@NonNull Task<PlaceBufferResponse> task) {
+                                    if (task.isSuccessful()) {
+                                        PlaceBufferResponse places = task.getResult();
+                                        Place myPlace = places.get(0);
+                                        mBarObject.setRating(Float.toString(myPlace.getRating()));
+                                        Log.i(TAG, "rating: " + myPlace.getRating());
+
+                                        places.release();
+                                    } else {
+                                        Toast.makeText(getApplicationContext(), "Bar-Bewertungen nicht verfügbar",
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d(TAG, "onErrorResponse: ");
+
+                    }
+                });
+
+        // Access the RequestQueue.
+        queue.add(jsObjRequest);
+
+    }
+
     private void getDetailsData(){
         mBarId = getIntent().getStringExtra("EXTRA_DETAILS_TITLE");
         mRtDatabase = RealtimeDBAdapter.getInstance(mCtx);
@@ -206,6 +289,13 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         mPhoneButton = (Button) findViewById(R.id.button_details_phone);
         mImg = (ImageView) findViewById(R.id.imageview_details);
         mRating = (TextView) findViewById(R.id.textview_details_rating);
+
+        mRating.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mRating.setText(mBarObject.getRating());//update
+            }
+        });
 
         mPhoneButton.setOnClickListener(new View.OnClickListener() {
             @Override
