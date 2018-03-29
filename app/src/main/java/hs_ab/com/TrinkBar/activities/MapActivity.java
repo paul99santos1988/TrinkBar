@@ -107,7 +107,7 @@ public class MapActivity extends AppCompatActivity
     private ArrayList<Circle> geoFenceLimits;
     private boolean mPermissionDenied = false;
     private static Bar mCurrentBar;
-
+    private RequestQueue queue;
     private static final String NOTIFICATION_MSG = "NOTIFICATION";
     private static DatabaseReference databaseReference;
     private PendingIntent geoFencePendingIntent;
@@ -432,12 +432,11 @@ public class MapActivity extends AppCompatActivity
         }
     }
 
-    private RequestQueue queue;
-
+    //init of the bar rating from Google during setMarker()
     public void initBarRating(final Bar mBar){
 
             queue = Volley.newRequestQueue(this);
-            String encodedBarname;
+            String encodedBarname; //to avoid spaces of the bar names inside URL
         try {
             encodedBarname = URLEncoder.encode(mBar.getName(), "UTF-8");
         } catch (UnsupportedEncodingException e) {
@@ -470,31 +469,11 @@ public class MapActivity extends AppCompatActivity
 
                                             places.release();
                                         } else {
-                                            Toast.makeText(getApplicationContext(), "Place not found.",
+                                            Toast.makeText(getApplicationContext(), "Bar-Bewertungen nicht verfügbar",
                                                     Toast.LENGTH_SHORT).show();
                                         }
                                     }
                                 });
-
-                                //return myPlace.getRating();
-                                /*String url2 = "https://maps.googleapis.com/maps/api/place/details/json?placeid=" + place + "&key=" + Constants.PLACES_API_KEY;
-
-                                JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                                        (Request.Method.GET, url2, null, new Response.Listener<JSONObject>() {
-
-                                            @Override
-                                            public void onResponse(JSONObject response) {
-                                                Log.d("Response: ", response.toString());
-                                            }
-                                        }, new Response.ErrorListener() {
-
-                                            @Override
-                                            public void onErrorResponse(VolleyError error) {
-                                                Log.d(TAG, "onErrorResponse: ");
-
-                                            }
-                                        });
-                                queue.add(jsObjRequest);*/
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -509,10 +488,8 @@ public class MapActivity extends AppCompatActivity
                         }
                     });
 
-            // Access the RequestQueue through your singleton class.
+            // Access the RequestQueue.
             queue.add(jsObjRequest);
-
-            //return "error initBarRating";
 
     }
 
