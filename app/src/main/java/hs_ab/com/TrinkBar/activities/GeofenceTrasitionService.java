@@ -112,7 +112,6 @@ public class GeofenceTrasitionService extends IntentService {
                 mEnteredBar.setVisitor(String.valueOf(visitors));
                 mDatabase.child("bars").child(barId).child("visitor").setValue(mEnteredBar.getVisitor()); //iterate visitor number
                 requestWithSomeHttpHeaders(mEnteredBar.getId(), mEnteredBar.getName(), mEnteredBar.getVisitor());
-                FirebaseMessaging.getInstance().subscribeToTopic(mEnteredBar.getId());
             } else if (geoFenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
                 status = "Exiting ";
                 Log.d(TAG, "Exit Geofence");
@@ -192,7 +191,7 @@ public class GeofenceTrasitionService extends IntentService {
                 {
                     @Override
                     public void onResponse(JSONObject  response) {
-                        // response
+                        FirebaseMessaging.getInstance().subscribeToTopic(mEnteredBar.getId());
                         Log.d("Response", response.toString());
                     }
                 },
