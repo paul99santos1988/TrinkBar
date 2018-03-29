@@ -14,23 +14,30 @@
 
     <ImageView
         android:id="@+id/imageViewProfile"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:layout_marginStart="2dp"
+        android:layout_marginTop="2dp"
+        android:layout_weight="2"
+        android:scaleType="fitStart"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         app:srcCompat="@drawable/ic_sheep3" />
 
     <TextView
-        android:id="@+id/textViewUserName"
+        android:id="@+id/textViewAppName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="@dimen/nav_header_vertical_spacing"
-        android:text="@string/UserName"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+        android:layout_gravity="start"
+        android:scaleType="fitStart"
+        android:layout_marginBottom="2dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginTop="2dp"
+        android:layout_weight="0"
+        android:paddingTop="2dp"
+        android:textStyle="bold"
+        android:text="@string/app_name"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
-    <TextView
-        android:id="@+id/textViewEmail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/Email" />
 
 </LinearLayout>

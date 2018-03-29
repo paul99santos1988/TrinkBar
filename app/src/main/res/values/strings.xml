@@ -4,13 +4,11 @@
     <string name="map_roadmap">Standard</string>
     <string name="map_terrain">Gelände</string>
 
-    <string name="UserName">Max Mustermann</string>
     <!--    Permissions    -->
     <string name="permission_rationale_location">Standort Zugriff wird benötigt, um den aktuellen Standort anzuzeigen.</string>
     <string name="location_permission_denied">Diese App benötigt den Zugriff auf den Standort. \nWenn der Zugriff permanent entzogen wurde, kann dies unter Einstellungen > Apps > Sightseeing Aschaffenburg wiederufen werden.</string>
     <string name="permission_required_toast">Der Standort Zugriff wird für diese App benötigt.</string>
 
-    <string name="Email">android.studio@android.com</string>
     <string name="PlacesAPIKey">AIzaSyC2144RCdtuiUP2HF-lMNg3Q9raPDmQy2M</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -29,7 +27,7 @@
     <string name="title_account">Account</string>
     <string name="title_settings">Einstellungen</string>
     <string name="title_help">Hilfe</string>
-    <string name="noFood">Lieder kein Essen verfügbar</string>
+    <string name="noFood">Leider kein Essen verfügbar</string>
     <string name="food">Essen verfügbar</string>
     <string name="noDial">Keine Telefonapp installiert</string>
 
