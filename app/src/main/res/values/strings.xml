@@ -33,7 +33,7 @@
     <string name="food">Essen verfügbar</string>
     <string name="noDial">Keine Telefonapp installiert</string>
 
-    <string name="no_rating_available">Aktuell können keine Bewertungen abgerufen werden</string>
+    <string name="no_rating_available">Aktuell können keine Bewertungen abgerufen werden - Hier klicken für eine Aktualisierung</string>
 
     <!-- Favorites preferences -->
     <string name="preference_file_key">saved_favorites</string>
