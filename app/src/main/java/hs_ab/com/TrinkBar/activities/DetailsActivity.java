@@ -40,7 +40,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
     private String mTitle;
     private ImageView mImg;
     private String mBarId;
-    private TextView mDetailsContent,mOpenSun,mOpenMon,mOpenTue,mOpenWens,mOpenThur,mOpenFri,mOpenSat,mFood,mAddress;
+    private TextView mDetailsContent,mOpenSun,mOpenMon,mOpenTue,mOpenWens,mOpenThur,mOpenFri,mOpenSat,mFood,mAddress, mRating;
     private Bar mBarObject;
     private RealtimeDBAdapter mRtDatabase;
     private FloatingActionButton mFab;
@@ -160,6 +160,8 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         mTitle = mBarObject.getName();
     }
 
+
+
     private void initToolBar(){
         Toolbar toolbar = (Toolbar) findViewById(R.id.details_toolbar);
         toolbar.setTitle(mTitle);
@@ -203,6 +205,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         mAddress= (TextView) findViewById(R.id.textView_details_address);
         mPhoneButton = (Button) findViewById(R.id.button_details_phone);
         mImg = (ImageView) findViewById(R.id.imageview_details);
+        mRating = (TextView) findViewById(R.id.textview_details_rating);
 
         mPhoneButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -230,8 +233,12 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         mOpenSat.setText(mBarObject.getOpeningHours().getSaturday());
         mAddress.setText(mBarObject.getAddress());
         mPhoneButton.setText(mBarObject.getPhone());
-
-
+        if(mBarObject.getRating() == null){
+            mRating.setText(getString(R.string.no_rating_available));
+        }
+        else {
+            mRating.setText(mBarObject.getRating());
+        }
         Image image= mRtDatabase.getImagebyId(mBarId);
         String description = mBarObject.getDescription();
         String decodedString = base64ToUTF8(description);
