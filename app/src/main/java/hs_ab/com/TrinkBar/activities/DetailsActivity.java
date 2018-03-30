@@ -82,8 +82,10 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
 
 
         getDetailsData();
-        initFAB();
+
         initBarRating();
+        initFAB();
+
         initToolBar();
         initViews();
 
@@ -209,6 +211,15 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
                                         Place myPlace = places.get(0);
                                         mBarObject.setRating(Float.toString(myPlace.getRating()));
                                         Log.i(TAG, "rating: " + myPlace.getRating());
+                                        //update as soon as possible
+                                        mRating = (TextView) findViewById(R.id.textview_details_rating);
+
+                                        if(mBarObject.getRating() == null){
+                                            mRating.setText(getString(R.string.no_rating_available));
+                                        }
+                                        else {
+                                            mRating.setText(mBarObject.getRating());
+                                        }
 
                                         places.release();
                                     } else {
@@ -323,6 +334,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         mOpenSat.setText(mBarObject.getOpeningHours().getSaturday());
         mAddress.setText(mBarObject.getAddress());
         mPhoneButton.setText(mBarObject.getPhone());
+
         if(mBarObject.getRating() == null){
             mRating.setText(getString(R.string.no_rating_available));
         }
