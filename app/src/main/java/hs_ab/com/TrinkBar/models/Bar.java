@@ -37,6 +37,8 @@ public class Bar {
 
     private String distance;
 
+    private String rating;
+
     public String getAddress() {
         return address;
     }
@@ -112,5 +114,9 @@ public class Bar {
     public void setDistance(String distance){this.distance = distance;}
 
     public String getDistance(){return distance;}
+
+    public void setRating(String rating){this.rating = rating;}
+
+    public String getRating(){return rating;}
 
 }

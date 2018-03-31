@@ -28,6 +28,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.android.volley.RequestQueue;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
@@ -95,7 +96,7 @@ public class MapActivity extends AppCompatActivity
     private ArrayList<Circle> geoFenceLimits;
     private boolean mPermissionDenied = false;
     private static Bar mCurrentBar;
-
+    private RequestQueue queue;
     private static final String NOTIFICATION_MSG = "NOTIFICATION";
     private static DatabaseReference databaseReference;
     private PendingIntent geoFencePendingIntent;
@@ -131,6 +132,7 @@ public class MapActivity extends AppCompatActivity
         mGeoDataClient = Places.getGeoDataClient(this, null);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mGeofencingClient = LocationServices.getGeofencingClient(this);
+
     }
 
     @Override
