@@ -61,6 +61,9 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -115,6 +118,8 @@ public class MapActivity extends AppCompatActivity
     private static final String NOTIFICATION_MSG = "NOTIFICATION";
     private static DatabaseReference databaseReference;
     private PendingIntent geoFencePendingIntent;
+    private FirebaseAuth mAuth;
+    private static String mUid;
 
 
     public static Intent makeNotificationIntent(Context context, String msg, Bar BarNr) {
@@ -122,6 +127,10 @@ public class MapActivity extends AppCompatActivity
         Intent intent = new Intent( context, MapActivity.class );
         intent.putExtra( NOTIFICATION_MSG, msg );
         return intent;
+    }
+
+    public static String getUID(){
+        return mUid;
     }
 
     public static DatabaseReference getDatabaseInstance(){
@@ -148,7 +157,35 @@ public class MapActivity extends AppCompatActivity
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mGeofencingClient = LocationServices.getGeofencingClient(this);
 
+
+
+        mAuth = FirebaseAuth.getInstance();
+        mAuth.signInAnonymously()
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            mUid=user.getUid();
+                            Log.d(TAG, "signInAnonymously:success"+ user.getUid());
+
+                            //updateUI(user);
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w(TAG, "signInAnonymously:failure", task.getException());
+                            /*Toast.makeText(AnonymousAuthActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                            updateUI(null);*/
+                        }
+
+                        // ...
+                    }
+                });
+
     }
+
 
     @Override
     protected void onDestroy() {
@@ -821,4 +858,5 @@ public class MapActivity extends AppCompatActivity
     public void onFailure(@NonNull Exception e) {
 
     }
+
 }

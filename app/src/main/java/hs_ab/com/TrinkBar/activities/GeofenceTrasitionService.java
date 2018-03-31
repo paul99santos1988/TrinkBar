@@ -56,6 +56,8 @@ public class GeofenceTrasitionService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
+
+
         // Handling errors
         if ( geofencingEvent.hasError() ) {
             String errorMsg = getErrorString(geofencingEvent.getErrorCode() );
@@ -95,10 +97,12 @@ public class GeofenceTrasitionService extends IntentService {
         mDatabase= MapActivity.getDatabaseInstance();
         mRtDatabase = RealtimeDBAdapter.getInstance(getApplicationContext());
         mEnteredBar= mRtDatabase.getBarbyName(barName);
+        String uId=MapActivity.getUID();
 
         String barId= mEnteredBar.getId();
         String barVisitors= mEnteredBar.getVisitor();
         String status = null;
+
         //exception warning
         if(barId == null || barVisitors == null){
             Log.w(TAG, "Can not iterate visitor count, no bars(barId="+barId+") or visitors(barVisitors="+barVisitors+"); failure value = null");
@@ -110,13 +114,17 @@ public class GeofenceTrasitionService extends IntentService {
                 Log.d(TAG, "Enter Geofence");
                 int visitors = Integer.valueOf(barVisitors) + 1;
                 mEnteredBar.setVisitor(String.valueOf(visitors));
-                mDatabase.child("bars").child(barId).child("visitor").setValue(mEnteredBar.getVisitor()); //iterate visitor number
+                Map<String, Object> postValues = new HashMap<String,Object>();
+                postValues.put("ID",uId);
+                mDatabase.child("bars").child(barId).child("visitor/").updateChildren(postValues); //iterate visitor number
+                //mDatabase.child("bars").child(barId).child("visitor").setValue(mEnteredBar.getVisitor()); //iterate visitor number
                 requestWithSomeHttpHeaders(mEnteredBar.getId(), mEnteredBar.getName(), mEnteredBar.getVisitor());
             } else if (geoFenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
                 status = "Exiting ";
                 Log.d(TAG, "Exit Geofence");
                 int visitors = Integer.valueOf(barVisitors) - 1;
                 mEnteredBar.setVisitor(String.valueOf(visitors));
+                //mDatabase.child("bars").child(barId).child("visitor/")
                 mDatabase.child("bars").child(barId).child("visitor").setValue(mEnteredBar.getVisitor()); //decrement of visitor number
                 FirebaseMessaging.getInstance().unsubscribeFromTopic(mEnteredBar.getId());
                 mEnteredBar=null;
