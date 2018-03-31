@@ -29,6 +29,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
+
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
@@ -60,10 +61,12 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
 import com.google.maps.android.ui.IconGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 import hs_ab.com.TrinkBar.R;
 import hs_ab.com.TrinkBar.adapters.RealtimeDBAdapter;
@@ -330,7 +333,6 @@ public class MapActivity extends AppCompatActivity
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
-
         mMap = googleMap;
         mMap.setOnPoiClickListener(this);
         enableMyLocation();
@@ -344,6 +346,8 @@ public class MapActivity extends AppCompatActivity
 
 
     }
+
+
 
     // set marker on the map with the coordinates from the server
     /*private void setMarker() {
