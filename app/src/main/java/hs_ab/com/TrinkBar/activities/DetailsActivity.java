@@ -177,7 +177,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         return super.onOptionsItemSelected(item);
     }
 
-    //init of the bar rating from Google during setMarker()
+    //init of the bar rating from Google
     private void initBarRating(){
 
         queue = Volley.newRequestQueue(this);
@@ -199,35 +199,39 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
                         Log.d("Response: ", response.toString());
                         try {
                             JSONArray jsonArray = new JSONArray(response.get("results").toString());
-                            JSONObject object = jsonArray.getJSONObject(0);
-                            String place = object.get("place_id").toString();
-                            Float rating;
-                            //get Place Details
-                            mGeoDataClient.getPlaceById(place).addOnCompleteListener(new OnCompleteListener<PlaceBufferResponse>() {
-                                @Override
-                                public void onComplete(@NonNull Task<PlaceBufferResponse> task) {
-                                    if (task.isSuccessful()) {
-                                        PlaceBufferResponse places = task.getResult();
-                                        Place myPlace = places.get(0);
-                                        mBarObject.setRating(Float.toString(myPlace.getRating()));
-                                        Log.i(TAG, "rating: " + myPlace.getRating());
-                                        //update as soon as possible
-                                        mRating = (TextView) findViewById(R.id.textview_details_rating);
+                            if (jsonArray.isNull(0) == true){
+                                mRating = (TextView) findViewById(R.id.textview_details_rating);
+                                mRating.setText(getString(R.string.no_rating_possible));//You have exceeded your daily request quota for the Google API
 
-                                        if(mBarObject.getRating() == null){
-                                            mRating.setText(getString(R.string.no_rating_available));
-                                        }
-                                        else {
-                                            mRating.setText(mBarObject.getRating());
-                                        }
+                            } else {
+                                JSONObject object = jsonArray.getJSONObject(0);
+                                String place = object.get("place_id").toString();
+                                //get Place Details
+                                mGeoDataClient.getPlaceById(place).addOnCompleteListener(new OnCompleteListener<PlaceBufferResponse>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<PlaceBufferResponse> task) {
+                                        if (task.isSuccessful()) {
+                                            PlaceBufferResponse places = task.getResult();
+                                            Place myPlace = places.get(0);
+                                            mBarObject.setRating(Float.toString(myPlace.getRating()));
+                                            Log.i(TAG, "rating: " + myPlace.getRating());
+                                            //update as soon as possible
+                                            mRating = (TextView) findViewById(R.id.textview_details_rating);
 
-                                        places.release();
-                                    } else {
-                                        Toast.makeText(getApplicationContext(), "Bar-Bewertungen nicht verfügbar",
-                                                Toast.LENGTH_SHORT).show();
+                                            if (mBarObject.getRating() == null) {
+                                                mRating.setText(getString(R.string.no_rating_available));
+                                            } else {
+                                                mRating.setText(mBarObject.getRating());
+                                            }
+
+                                            places.release();
+                                        } else {
+                                            Toast.makeText(getApplicationContext(), "Bar-Bewertungen nicht verfügbar",
+                                                    Toast.LENGTH_SHORT).show();
+                                        }
                                     }
-                                }
-                            });
+                                });
+                            }
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -301,12 +305,12 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         mImg = (ImageView) findViewById(R.id.imageview_details);
         mRating = (TextView) findViewById(R.id.textview_details_rating);
 
-        mRating.setOnClickListener(new View.OnClickListener() {
+        /*mRating.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mRating.setText(mBarObject.getRating());//update
             }
-        });
+        });*/
 
         mPhoneButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -383,7 +387,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
     }
 
     private void changeFavItem(){
-        //mIsFav=!mIsFav;
+
         String savedBarId = sharedPrefFavorites.getString(mBarObject.getName(), getString(R.string.default_favorites_value));
         mIsFav = !savedBarId.equals("NO FAVORITES SAVED");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
