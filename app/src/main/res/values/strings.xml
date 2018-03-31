@@ -3,6 +3,7 @@
     <string name="map_hybrid">Satellit</string>
     <string name="map_roadmap">Standard</string>
     <string name="map_terrain">Gelände</string>
+    <string name="map_refresh">Refresh</string>
 
     <string name="UserName">Max Mustermann</string>
     <!--    Permissions    -->
@@ -29,7 +30,7 @@
     <string name="title_account">Account</string>
     <string name="title_settings">Einstellungen</string>
     <string name="title_help">Hilfe</string>
-    <string name="noFood">Lieder kein Essen verfügbar</string>
+    <string name="noFood">Leider kein Essen verfügbar</string>
     <string name="food">Essen verfügbar</string>
     <string name="noDial">Keine Telefonapp installiert</string>
 

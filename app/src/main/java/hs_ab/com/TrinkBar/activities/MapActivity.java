@@ -292,14 +292,19 @@ public class MapActivity extends AppCompatActivity
                 mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
                 return true;
             }
-            case R.id.geofence: {
+            case R.id.map_refresh: {
+                clearGeofence();
+                restoreGeofences();
+                return true;
+            }
+            /*case R.id.geofence: {
                 restoreGeofences();
                 return true;
             }
             case R.id.clear: {
                 clearGeofence();
                 return true;
-            }
+            }*/
         }
 
         return super.onOptionsItemSelected(item);
@@ -665,9 +670,7 @@ public class MapActivity extends AppCompatActivity
         Log.i(TAG, "startGeofence()");
             Geofence geofence = createGeofence( marker.getPosition(), Constants.GEOFENCE_RADIUS,marker.getTitle() );
             GeofencingRequest geofenceRequest = createGeofenceRequest( geofence );
-            if(addGeofence(geofenceRequest)) {
-                drawGeofence(marker);
-            }
+            addGeofence(geofenceRequest);
     }
 
     private void restoreGeofences(){
@@ -752,7 +755,8 @@ public class MapActivity extends AppCompatActivity
                 mGeofencingClient.removeGeofences(createGeofencePendingIntent()).addOnSuccessListener(this, new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        removeGeofenceDraw();
+                        Log.d(TAG, "onSuccess: Remove Pending Intent");
+                        //removeGeofenceDraw();
                     }
                 }).addOnFailureListener(this, new OnFailureListener() {
                     @Override

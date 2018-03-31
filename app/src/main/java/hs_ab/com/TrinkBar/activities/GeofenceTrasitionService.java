@@ -120,6 +120,7 @@ public class GeofenceTrasitionService extends IntentService {
                 mDatabase.child("bars").child(barId).child("visitor").setValue(mEnteredBar.getVisitor()); //decrement of visitor number
                 FirebaseMessaging.getInstance().unsubscribeFromTopic(mEnteredBar.getId());
                 mEnteredBar=null;
+
             }
         }
         return status + TextUtils.join( ", ", triggeringGeofencesList);

@@ -16,6 +16,11 @@
         android:orderInCategory="100"
         android:title="@string/map_terrain"
         app:showAsAction="never" />
-    <item android:id="@+id/geofence" android:title="Create Geofence" app:showAsAction="never" />
-    <item android:id="@+id/clear" android:title="Clear Geofence" app:showAsAction="never" />
+    <item
+        android:id="@+id/map_refresh"
+        android:title="@string/map_refresh"
+        android:icon="@drawable/ic_refresh_black_24dp"
+        app:showAsAction="ifRoom" />
+    <!--<item android:id="@+id/geofence" android:title="Create Geofence" app:showAsAction="never" />
+    <item android:id="@+id/clear" android:title="Clear Geofence" app:showAsAction="never" />-->
 </menu>
