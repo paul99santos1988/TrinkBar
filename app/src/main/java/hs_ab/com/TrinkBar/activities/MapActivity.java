@@ -277,14 +277,14 @@ public class MapActivity extends AppCompatActivity
                 mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
                 return true;
             }
-            case R.id.geofence: {
+            /*case R.id.geofence: {
                 restoreGeofences();
                 return true;
             }
             case R.id.clear: {
                 clearGeofence();
                 return true;
-            }
+            }*/
         }
 
         return super.onOptionsItemSelected(item);

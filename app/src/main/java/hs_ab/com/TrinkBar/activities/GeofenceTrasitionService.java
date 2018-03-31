@@ -35,6 +35,7 @@ public class GeofenceTrasitionService extends IntentService {
     private RealtimeDBAdapter mRtDatabase;
     private DatabaseReference mDatabase;
     private Bar mEnteredBar;
+    private String status = null;
 
     public GeofenceTrasitionService() {
         super(TAG);
@@ -85,7 +86,6 @@ public class GeofenceTrasitionService extends IntentService {
 
         String barId= mEnteredBar.getId();
         String barVisitors= mEnteredBar.getVisitor();
-        String status = null;
         //exception warning
         if(barId == null || barVisitors == null){
             Log.w(TAG, "Can not iterate visitor count, no bars(barId="+barId+") or visitors(barVisitors="+barVisitors+"); failure value = null");
@@ -131,16 +131,25 @@ public class GeofenceTrasitionService extends IntentService {
 
     // Create notification
     private Notification createNotification(String msg, PendingIntent notificationPendingIntent) {
+        String messageCtx=" ";
+        if (status.equals("Entering ")){
+            messageCtx="Willkommen und viel Spaß";
+        }
+        if (status.equals("Exiting ")){
+            messageCtx="Tschüss und komme bald wieder!";
+        }
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_sheep)
                 .setColor(Color.BLACK)
                 .setContentTitle(msg)
-                .setContentText("Geofence Notification!")
+                .setContentText(messageCtx)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(notificationPendingIntent)
                 .setAutoCancel(true);
         return notificationBuilder.build();
     }
+
+
 
 
     private static String getErrorString(int errorCode) {
